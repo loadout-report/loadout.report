@@ -2,5 +2,7 @@
 
 members = [
     "frontend",
-    "api"
+    "api",
+    "data",
+    "d2-api"
 ]
