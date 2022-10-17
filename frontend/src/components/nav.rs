@@ -6,7 +6,7 @@ use crate::routes::AppRoute;
 /// Nav component
 #[function_component(Nav)]
 pub fn nav() -> Html {
-    html! {
+    html! (
         <nav>
             <ul>
                 <li><Link<AppRoute> to={AppRoute::Home} classes="app-link" >{ "Home" }</Link<AppRoute>></li>
@@ -14,5 +14,5 @@ pub fn nav() -> Html {
                 <li><Link<AppRoute> to={AppRoute::Wheel} classes="app-link">{ "Wheel of Misfortune" }</Link<AppRoute>></li>
             </ul>
         </nav>
-    }
+    )
 }

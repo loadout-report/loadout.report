@@ -3,14 +3,19 @@ from requests import get
 import urllib.parse
 from functools import cache
 
-API_KEY = ""
+API_KEY = "ab0d8e6592644bae8134fd1fb7a27183"
 headers = {
     'x-api-key': API_KEY
 }
 
+
+def get_manifest():
+    return get(f"https://www.bungie.net/")
+
 @cache
 def get_definitions():
     return get(f"https://api.destinytrialsreport.com/destiny2/en/DestinyDefinitions.json").json()
+
 
 @cache
 def search_player(name):
@@ -19,9 +24,10 @@ def search_player(name):
 
 @cache
 def get_profile_information(membership_type, membership_id):
-    return get(f"https://www.bungie.net/Platform/Destiny2/{membership_type}/Profile/{membership_id}/",
-               params={'components': '100,104,200,202,205,300,305,306,800,900,1100'},
-               headers=headers).json()['Response']
+    response = get(f"https://www.bungie.net/Platform/Destiny2/{membership_type}/Profile/{membership_id}/",
+                   params={'components': '100,104,200,202,205,300,305,306,800,900,1100'}, headers=headers)
+    return response.json()[
+        'Response']
 
 
 def get_last_played(characters):
@@ -39,6 +45,11 @@ def lookup_hash(hash):
 
 
 def main():
+    print_player_inventory()
+    # definitions = get_definitions()
+
+
+def print_player_inventory():
     player_name = "Raptor#0751"
     result = search_player(player_name)
     player = result[0]  # assume first result is accurate
@@ -57,7 +68,8 @@ def main():
         name = lookup['n']
         instance_id = item['itemInstanceId']
         itype = lookup['t']
-        if itype not in ['Emote Collection', 'Clan Banner', 'Transmat Effect', 'Sparrow', 'Ship', 'Ghost Shell', 'Finisher Collection', 'Artifact', 'Emblem']:
+        if itype not in ['Emote Collection', 'Clan Banner', 'Transmat Effect', 'Sparrow', 'Ship', 'Ghost Shell',
+                         'Finisher Collection', 'Artifact', 'Emblem']:
             print('---', itype, item_hash, instance_id, name)
             if instance_id in item_components['sockets']['data']:
                 item_sockets = item_components['sockets']['data'][instance_id]['sockets']
@@ -66,8 +78,11 @@ def main():
                         plug = lookup_hash(socket['plugHash'])
                         plug_name = plug['n']
                         plug_type = plug['t']
-                        if plug_type not in ['', 'Shader', 'Memento', 'Weapon Ornament', 'Armor Ornament', 'Restore Defaults']\
-                                and plug_name not in ['Empty Mod Socket', 'Empty Memento Socket', 'Kill Tracker', 'Crucible Tracker', 'Empty Fragment Socket'] and 'Catalyst' not in plug_name:
+                        if plug_type not in ['', 'Shader', 'Memento', 'Weapon Ornament', 'Armor Ornament',
+                                             'Restore Defaults'] \
+                                and plug_name not in ['Empty Mod Socket', 'Empty Memento Socket', 'Kill Tracker',
+                                                      'Crucible Tracker',
+                                                      'Empty Fragment Socket'] and 'Catalyst' not in plug_name:
                             print(plug_type, plug_name)
 
 

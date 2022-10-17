@@ -4,5 +4,10 @@ members = [
     "frontend",
     "api",
     "data",
-    "d2-api"
+    "d2-client",
+    "armor"
 ]
+
+[profile.release]
+strip = true
+lto = true

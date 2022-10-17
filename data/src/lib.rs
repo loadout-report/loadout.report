@@ -1,4 +1,4 @@
-pub mod manifest;
+pub mod api;
 
 #[cfg(test)]
 mod tests {

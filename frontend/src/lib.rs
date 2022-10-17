@@ -1,3 +1,5 @@
+#![feature(trait_alias)]
+
 pub mod app;
 pub mod components;
 pub mod routes;
