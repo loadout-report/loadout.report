@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use std::convert::TryFrom;
 use gloo_worker::HandlerId;
 use data::api::manifest::model::Hash;
 use serde::{Deserialize, Serialize};
@@ -216,14 +217,32 @@ pub enum ArmorStat {
     ClassAbilityRegenerationStat = 10,
 }
 
-#[derive(Deserialize, Serialize, PartialEq, Eq)]
+#[derive(Deserialize, Serialize, PartialEq, Eq, Copy, Clone)]
 pub enum ExoticChoiceModel {
     All,
     None,
     Some(Hash),
 }
 
-#[derive(Deserialize, Serialize)]
+impl ExoticChoiceModel {
+    pub fn is(self, hash: Hash) -> bool {
+        match self {
+            ExoticChoiceModel::All => false,
+            ExoticChoiceModel::None => false,
+            ExoticChoiceModel::Some(h) => h == hash,
+        }
+    }
+
+    pub fn some(self) -> bool {
+        match self {
+            ExoticChoiceModel::All => false,
+            ExoticChoiceModel::None => false,
+            ExoticChoiceModel::Some(_) => true,
+        }
+    }
+}
+
+#[derive(Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct WorkerConfig {
     pub character_class: CharacterClass,
@@ -231,7 +250,7 @@ pub struct WorkerConfig {
     pub disabled_items: Vec<Hash>,
     pub minimum_stat_tiers: HashMap<ArmorStat, FixableSelection<i32>>,
     pub maximum_stat_mods: i32,
-    pub maximum_mod_slots: HashMap<ArmorSlot, FixableSelection<i32>>,
+    pub maximum_mod_slots: HashMap<ArmorSlot, FixableSelection<u8>>,
     pub allow_blue_armor_pieces: bool,
     pub ignore_sunset_armor: bool,
     pub assume_legendaries_masterworked: bool,
@@ -270,7 +289,29 @@ pub enum ArmorPerkOrSlot {
     Count,
 }
 
-#[derive(Copy, Clone, Deserialize, Serialize, Eq, PartialEq)]
+impl TryFrom<usize> for ArmorPerkOrSlot {
+    type Error = ();
+
+    fn try_from(v: usize) -> Result<Self, Self::Error> {
+        match v {
+            x if x == ArmorPerkOrSlot::None as usize => Ok(ArmorPerkOrSlot::None),
+            x if x == ArmorPerkOrSlot::SlotNightmare as usize => Ok(ArmorPerkOrSlot::SlotNightmare),
+            x if x == ArmorPerkOrSlot::SlotArtificer as usize => Ok(ArmorPerkOrSlot::SlotArtificer),
+            x if x == ArmorPerkOrSlot::SlotLastWish as usize => Ok(ArmorPerkOrSlot::SlotLastWish),
+            x if x == ArmorPerkOrSlot::SlotGardenOfSalvation as usize => Ok(ArmorPerkOrSlot::SlotGardenOfSalvation),
+            x if x == ArmorPerkOrSlot::SlotDeepStoneCrypt as usize => Ok(ArmorPerkOrSlot::SlotDeepStoneCrypt),
+            x if x == ArmorPerkOrSlot::SlotVaultOfGlass as usize => Ok(ArmorPerkOrSlot::SlotVaultOfGlass),
+            x if x == ArmorPerkOrSlot::PerkIronBanner as usize => Ok(ArmorPerkOrSlot::PerkIronBanner),
+            x if x == ArmorPerkOrSlot::PerkUniformedOfficer as usize => Ok(ArmorPerkOrSlot::PerkUniformedOfficer),
+            x if x == ArmorPerkOrSlot::SlotVowOfTheDisciple as usize => Ok(ArmorPerkOrSlot::SlotVowOfTheDisciple),
+            x if x == ArmorPerkOrSlot::SlotKingsFall as usize => Ok(ArmorPerkOrSlot::SlotKingsFall),
+            x if x == ArmorPerkOrSlot::PerkPlunderersTrappings as usize => Ok(ArmorPerkOrSlot::PerkPlunderersTrappings),
+            _ => Err(()),
+        }
+    }
+}
+
+#[derive(Copy, Clone, Deserialize, Serialize, Eq, PartialEq, Hash)]
 pub enum DestinyEnergyType {
     Any = 0,
     Arc = 1,
@@ -281,7 +322,7 @@ pub enum DestinyEnergyType {
     Stasis = 6,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Copy, Clone, Hash, Eq, PartialEq)]
 pub enum StatMod {
     PowerfulFriends,
     RadiantLight,
@@ -379,25 +420,26 @@ impl ModifierValue {
     }
 
     pub fn apply(self, mut stats: Stats, class: CharacterClass) -> Stats {
+        let val = self.value as i16;
         match self.stat {
-            ArmorStat::Mobility => stats[0] += self.value,
-            ArmorStat::Resilience => stats[1] += self.value,
-            ArmorStat::Recovery => stats[2] += self.value,
-            ArmorStat::Discipline => stats[3] += self.value,
-            ArmorStat::Intellect => stats[4] += self.value,
-            ArmorStat::Strength => stats[5] += self.value,
+            ArmorStat::Mobility => stats[0] += val,
+            ArmorStat::Resilience => stats[1] += val,
+            ArmorStat::Recovery => stats[2] += val,
+            ArmorStat::Discipline => stats[3] += val,
+            ArmorStat::Intellect => stats[4] += val,
+            ArmorStat::Strength => stats[5] += val,
             ArmorStat::ClassAbilityRegenerationStat => match class {
                 CharacterClass::None => panic!("uh-oh"),
-                CharacterClass::Titan => stats[1] += self.value,
-                CharacterClass::Hunter => stats[0] += self.value,
-                CharacterClass::Warlock => stats[2] += self.value,
+                CharacterClass::Titan => stats[1] += val,
+                CharacterClass::Hunter => stats[0] += val,
+                CharacterClass::Warlock => stats[2] += val,
             }
         };
         stats
     }
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Copy, Clone, Hash, Eq, PartialEq)]
 pub enum ModifierType {
     CombatStyleMod,
     Stasis,
@@ -406,12 +448,12 @@ pub enum ModifierType {
 
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, Copy, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct FixableSelection<T> {
     pub fixed: bool,
     pub value: T,
 }
 
-pub type Stats = [u8; 6];
+pub type Stats = [i16; 6];
 
