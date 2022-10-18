@@ -13,7 +13,8 @@ pub(crate) struct StrippedInventoryArmor {
     pub id: i32,
     pub item_instance_id: Hash,
     pub masterworked: bool,
-    pub may_be_bugged: bool, // if there was an error in the parsing
+    pub may_be_bugged: bool,
+    // if there was an error in the parsing
     pub mobility: u8,
     pub resilience: u8,
     pub recovery: u8,
@@ -59,7 +60,7 @@ impl From<InventoryArmor> for StrippedInventoryArmor {
             exotic_perk_hash: i.exotic_perk_hash,
             is_sunset: i.is_sunset,
             item_type: i.item_type,
-            item_sub_type: i.item_sub_type
+            item_sub_type: i.item_sub_type,
         }
     }
 }
@@ -86,7 +87,8 @@ pub struct InventoryArmor {
     pub id: i32,
     pub item_instance_id: Hash,
     pub masterworked: bool,
-    pub may_be_bugged: bool, // if there was an error in the parsing
+    pub may_be_bugged: bool,
+    // if there was an error in the parsing
     pub mobility: u8,
     pub resilience: u8,
     pub recovery: u8,
@@ -95,7 +97,8 @@ pub struct InventoryArmor {
     pub strength: u8,
     pub energy_level: u8,
     pub energy_affinity: DestinyEnergyType,
-    pub stat_plug_hashes: Vec<Hash>, // or Vec<Option<Hash>>
+    pub stat_plug_hashes: Vec<Hash>,
+    // or Vec<Option<Hash>>
     pub hash: Hash,
     pub name: String,
     pub icon: String,
@@ -145,7 +148,8 @@ pub enum TierType {
 #[serde(rename_all = "camelCase")]
 pub struct Item {
     pub energy: DestinyEnergyType,
-    pub energyLevel: (), // que?
+    pub energyLevel: (),
+    // que?
     pub hash: Hash,
     pub item_instance_id: Hash,
     pub name: String,
@@ -208,7 +212,8 @@ pub enum ArmorStat {
     Recovery,
     Discipline,
     Intellect,
-    Strength
+    Strength,
+    ClassAbilityRegenerationStat = 10,
 }
 
 #[derive(Deserialize, Serialize, PartialEq, Eq)]
@@ -239,7 +244,7 @@ pub struct WorkerConfig {
     pub show_wasted_stats_column: bool,
     pub show_potential_tier_column: bool,
     pub selected_mod_element: ModifierType,
-    pub enabled_mods: Vec<ModOrAbility>,
+    pub enabled_mods: Vec<StatMod>,
     pub selected_exotic: ExoticChoiceModel,
     pub armor_affinities: HashMap<ArmorSlot, FixableSelection<DestinyEnergyType>>,
     pub armor_perks: HashMap<ArmorSlot, FixableSelection<ArmorPerkOrSlot>>,
@@ -277,8 +282,7 @@ pub enum DestinyEnergyType {
 }
 
 #[derive(Deserialize, Serialize)]
-pub enum ModOrAbility {
-
+pub enum StatMod {
     PowerfulFriends,
     RadiantLight,
 
@@ -311,9 +315,11 @@ pub enum ModOrAbility {
     EchoOfDilation,
     EchoOfUndermining,
 
-    EchoOfInstability, //+10 str
+    EchoOfInstability,
+    //+10 str
     EchoOfHarvest,
-    EchoOfObscurity, //+10rec
+    EchoOfObscurity,
+    //+10rec
     EchoOfStarvation,
 
     // SOLAR
@@ -339,6 +345,58 @@ pub enum ModOrAbility {
     SparkOfShock,
 }
 
+#[derive(Copy, Clone, Serialize, Deserialize, Eq, PartialEq, Hash)]
+pub enum ModGroup {
+    Single(ModifierValue),
+    Double(ModifierValue, ModifierValue),
+}
+
+impl ModGroup {
+    pub fn single(stat: ArmorStat, value: i8) -> Self {
+        ModGroup::Single(ModifierValue { stat, value })
+    }
+
+    pub fn apply(self, stats: Stats, class: CharacterClass) -> Stats {
+        match self {
+            ModGroup::Single(val) => val.apply(stats, class),
+            ModGroup::Double(v1, v2) => v1.apply(v2.apply(stats, class), class)
+        }
+    }
+}
+
+#[derive(Copy, Clone, Serialize, Deserialize, Eq, PartialEq, Hash)]
+pub struct ModifierValue {
+    pub stat: ArmorStat,
+    pub value: i8,
+}
+
+impl ModifierValue {
+    pub fn new(stat: ArmorStat, value: i8) -> Self {
+        Self {
+            stat,
+            value,
+        }
+    }
+
+    pub fn apply(self, mut stats: Stats, class: CharacterClass) -> Stats {
+        match self.stat {
+            ArmorStat::Mobility => stats[0] += self.value,
+            ArmorStat::Resilience => stats[1] += self.value,
+            ArmorStat::Recovery => stats[2] += self.value,
+            ArmorStat::Discipline => stats[3] += self.value,
+            ArmorStat::Intellect => stats[4] += self.value,
+            ArmorStat::Strength => stats[5] += self.value,
+            ArmorStat::ClassAbilityRegenerationStat => match class {
+                CharacterClass::None => panic!("uh-oh"),
+                CharacterClass::Titan => stats[1] += self.value,
+                CharacterClass::Hunter => stats[0] += self.value,
+                CharacterClass::Warlock => stats[2] += self.value,
+            }
+        };
+        stats
+    }
+}
+
 #[derive(Deserialize, Serialize)]
 pub enum ModifierType {
     CombatStyleMod,
@@ -352,7 +410,8 @@ pub enum ModifierType {
 #[serde(rename_all = "camelCase")]
 pub struct FixableSelection<T> {
     pub fixed: bool,
-    pub value: T
+    pub value: T,
 }
 
 pub type Stats = [u8; 6];
+
