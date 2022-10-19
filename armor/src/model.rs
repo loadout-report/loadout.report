@@ -271,8 +271,9 @@ pub struct WorkerConfig {
     pub ignore_armor_affinities_on_non_masterworked_items: bool,
 }
 
-#[derive(Copy, Clone, Deserialize, Serialize, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Deserialize, Serialize, Eq, PartialEq, Hash, Default)]
 pub enum ArmorPerkOrSlot {
+    #[default]
     None,
     SlotNightmare,
     SlotArtificer,

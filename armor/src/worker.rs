@@ -1,6 +1,5 @@
 use std::collections::{HashMap, HashSet};
 use std::convert::TryInto;
-use std::io::ErrorKind::Deadlock;
 use std::ops::RangeBounds;
 use std::time::Duration;
 use gloo_worker::{HandlerId, Worker, WorkerScope};
@@ -266,6 +265,25 @@ async fn run_job(scope: &WorkerScope<ArmorWorker>, db: rexie::Rexie, data: Input
             for chest in &chests {
                 for leg in &legs {
                     let (ok, required_class_item) = check_slots(&config, modslot_requirement, &available_class_item_energy_perk_dict, helmet, gauntlet, chest, leg);
+                    if !ok {
+                        continue
+                    }
+
+                    let mut required_class_el = DestinyEnergyType::Any;
+                    if must_check_element_req {
+                        let (ok, req_cel) = check_elements(
+                            &config,
+                            element_requirement,
+                            available_class_item_energy_perk_dict.get(
+                                &required_class_item.unwrap_or_default()
+                            ).unwrap_or_default(), helmet, gauntlet, chest, leg
+                        );
+                        if !ok {
+                            continue
+                        }
+                        required_class_el = req_cel;
+                    }
+
 
 
                 }
@@ -276,6 +294,20 @@ async fn run_job(scope: &WorkerScope<ArmorWorker>, db: rexie::Rexie, data: Input
     todo!()
 }
 
+fn check_elements(
+    config: &WorkerConfig,
+    mut requirements: [u8; 7],
+    availableClassElements: &HashSet<DestinyEnergyType>,
+    helmet: &StrippedInventoryArmor,
+    gaunlet: &StrippedInventoryArmor,
+    chest: &StrippedInventoryArmor,
+    leg: &StrippedInventoryArmor
+) {
+    let wildcard = requirements[0];
+
+
+}
+
 fn check_slots(
     config: &WorkerConfig,
     mut modslots_req: [u8; 12],
@@ -284,27 +316,27 @@ fn check_slots(
     gauntlet: &StrippedInventoryArmor,
     chest: &StrippedInventoryArmor,
     leg: &StrippedInventoryArmor,
-) -> (bool, ArmorPerkOrSlot) {
+) -> (bool, Option<ArmorPerkOrSlot>) {
     let exotic = config.selected_exotic;
     if !exotic.is(helmet.hash) && !is_item_applicable_to_slot(config, helmet) {
-        return (false, ArmorPerkOrSlot::None)
+        return (false, None)
     }
 
     if !exotic.is(gauntlet.hash) && !is_item_applicable_to_slot(config, gauntlet) {
-        return (false, ArmorPerkOrSlot::None)
+        return (false, None)
     }
 
     if !exotic.is(chest.hash) && !is_item_applicable_to_slot(config, chest) {
-        return (false, ArmorPerkOrSlot::None)
+        return (false, None)
     }
 
     if !exotic.is(leg.hash) && !is_item_applicable_to_slot(config, leg) {
-        return (false, ArmorPerkOrSlot::None)
+        return (false, None)
     }
 
     let perk = config.armor_perks.get(&ArmorSlot::ArmorSlotClass).unwrap();
     if perk.fixed && perk.value != ArmorPerkOrSlot::None && !available_class_item_perk_types.contains_key(&perk.value) {
-        return (false, ArmorPerkOrSlot::None)
+        return (false, None)
     }
 
     modslots_req[helmet.perk as usize] -= 1;
@@ -348,7 +380,7 @@ fn check_slots(
             required_class_item = perk.value;
         }
     }
-    (bad <= 0, required_class_item)
+    (bad <= 0, Some(required_class_item))
 }
 
 // todo: fixable selection as enum
