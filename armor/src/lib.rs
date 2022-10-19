@@ -1,5 +1,7 @@
 #![feature(async_closure)]
 #![feature(is_some_and)]
+#![feature(type_alias_impl_trait)]
+#![feature(array_zip)]
 
 mod utils;
 mod worker;

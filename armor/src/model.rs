@@ -1,8 +1,13 @@
 use std::collections::HashMap;
 use std::convert::TryFrom;
+use std::iter::once;
+use std::ops::{Add, AddAssign};
 use gloo_worker::HandlerId;
 use data::api::manifest::model::Hash;
 use serde::{Deserialize, Serialize};
+use stats::Stats;
+
+pub mod stats;
 
 pub enum Msg<T> {
     Respond { output: T, id: HandlerId },
@@ -10,18 +15,13 @@ pub enum Msg<T> {
 }
 
 #[derive(Copy, Clone)]
-pub(crate) struct StrippedInventoryArmor {
+pub struct StrippedInventoryArmor {
     pub id: i32,
     pub item_instance_id: Hash,
     pub masterworked: bool,
     pub may_be_bugged: bool,
     // if there was an error in the parsing
-    pub mobility: u8,
-    pub resilience: u8,
-    pub recovery: u8,
-    pub discipline: u8,
-    pub intellect: u8,
-    pub strength: u8,
+    pub stats: Stats,
 
     pub energy_level: u8,
     pub energy_affinity: DestinyEnergyType,
@@ -37,6 +37,25 @@ pub(crate) struct StrippedInventoryArmor {
     pub item_sub_type: i32,
 }
 
+impl StrippedInventoryArmor {
+    pub fn base_stats(self) -> Stats {
+        self.stats
+    }
+
+    pub fn stats(self) -> Stats {
+        if self.masterworked {
+            self.base_stats().modify_all(2)
+        } else {
+            self.base_stats()
+        }
+    }
+
+    pub fn assume_masterwork(mut self) -> Self {
+        self.masterworked = true;
+        self
+    }
+}
+
 impl From<InventoryArmor> for StrippedInventoryArmor {
     fn from(i: InventoryArmor) -> Self {
         Self {
@@ -44,12 +63,7 @@ impl From<InventoryArmor> for StrippedInventoryArmor {
             item_instance_id: i.item_instance_id,
             masterworked: i.masterworked,
             may_be_bugged: i.may_be_bugged,
-            mobility: i.mobility,
-            resilience: i.resilience,
-            recovery: i.recovery,
-            discipline: i.discipline,
-            intellect: i.intellect,
-            strength: i.strength,
+            stats: Stats::new([i.mobility, i.resilience, i.recovery, i.discipline, i.intellect, i.strength]),
             energy_level: i.energy_level,
             energy_affinity: i.energy_affinity,
             hash: i.hash,
@@ -207,6 +221,48 @@ pub enum ArmorSlot {
 }
 
 #[derive(Copy, Clone, Serialize, Deserialize, Eq, PartialEq, Hash)]
+pub enum SimpleArmorStat {
+    Mobility,
+    Resilience,
+    Recovery,
+    Discipline,
+    Intellect,
+    Strength,
+}
+
+impl SimpleArmorStat {
+    pub fn for_class(class: CharacterClass) -> Self {
+        match class {
+            CharacterClass::None => panic!("no class provided"),
+            CharacterClass::Titan => SimpleArmorStat::Resilience,
+            CharacterClass::Hunter => SimpleArmorStat::Mobility,
+            CharacterClass::Warlock => SimpleArmorStat::Recovery,
+        }
+    }
+}
+
+impl From<(ArmorStat, CharacterClass)> for SimpleArmorStat {
+    fn from((stat, class): (ArmorStat, CharacterClass)) -> Self {
+        match stat {
+            ArmorStat::ClassAbilityRegenerationStat => {
+                match class {
+                    CharacterClass::None => panic!("uh-oh"), // todo: error handling
+                    CharacterClass::Titan => SimpleArmorStat::Resilience,
+                    CharacterClass::Hunter => SimpleArmorStat::Mobility,
+                    CharacterClass::Warlock => SimpleArmorStat::Recovery,
+                }
+            },
+            ArmorStat::Mobility => SimpleArmorStat::Mobility,
+            ArmorStat::Resilience => SimpleArmorStat::Resilience,
+            ArmorStat::Recovery => SimpleArmorStat::Recovery,
+            ArmorStat::Discipline => SimpleArmorStat::Discipline,
+            ArmorStat::Intellect => SimpleArmorStat::Intellect,
+            ArmorStat::Strength => SimpleArmorStat::Strength
+        }
+    }
+}
+
+#[derive(Copy, Clone, Serialize, Deserialize, Eq, PartialEq, Hash)]
 pub enum ArmorStat {
     Mobility,
     Resilience,
@@ -248,7 +304,7 @@ pub struct WorkerConfig {
     pub character_class: CharacterClass,
     pub add_constant_1_resilience: bool,
     pub disabled_items: Vec<Hash>,
-    pub minimum_stat_tiers: HashMap<ArmorStat, FixableSelection<i32>>,
+    pub minimum_stat_tiers: HashMap<SimpleArmorStat, FixableSelection<u8>>,
     pub maximum_stat_mods: i32,
     pub maximum_mod_slots: HashMap<ArmorSlot, FixableSelection<u8>>,
     pub allow_blue_armor_pieces: bool,
@@ -312,8 +368,9 @@ impl TryFrom<usize> for ArmorPerkOrSlot {
     }
 }
 
-#[derive(Copy, Clone, Deserialize, Serialize, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Deserialize, Serialize, Eq, PartialEq, Hash, Default)]
 pub enum DestinyEnergyType {
+    #[default]
     Any = 0,
     Arc = 1,
     Thermal = 2,
@@ -321,6 +378,65 @@ pub enum DestinyEnergyType {
     Ghost = 4,
     Subclass = 5,
     Stasis = 6,
+}
+
+impl DestinyEnergyType {
+    pub(crate) fn to_simple(self) -> usize {
+        match self {
+            DestinyEnergyType::Any => 0,
+            DestinyEnergyType::Arc => 1,
+            DestinyEnergyType::Thermal => 2,
+            DestinyEnergyType::Void => 3,
+            DestinyEnergyType::Stasis => 4,
+            _ => 0,
+        }
+    }
+}
+
+#[derive(Copy, Clone)]
+pub struct ArmorSet {
+    pub helmet: StrippedInventoryArmor,
+    pub gauntlets: StrippedInventoryArmor,
+    pub chest: StrippedInventoryArmor,
+    pub legs: StrippedInventoryArmor,
+}
+
+impl ArmorSet {
+    pub fn new(
+        helmet: StrippedInventoryArmor,
+        gauntlets: StrippedInventoryArmor,
+        chest: StrippedInventoryArmor,
+        legs: StrippedInventoryArmor,
+    ) -> Self {
+        Self {
+            helmet,
+            gauntlets,
+            chest,
+            legs,
+        }
+    }
+
+    pub fn stat_total(&self) -> Stats {
+        self.iter()
+            .map(|i| i.stats())
+            .reduce(|acc, e| acc + e).unwrap()
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item=StrippedInventoryArmor> {
+        once(self.helmet)
+            .chain(once(self.gauntlets))
+            .chain(once(self.chest))
+            .chain(once(self.legs))
+    }
+}
+
+impl IntoIterator for ArmorSet {
+    type Item = StrippedInventoryArmor;
+    type IntoIter = impl Iterator<Item=StrippedInventoryArmor>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
 }
 
 #[derive(Deserialize, Serialize, Copy, Clone, Hash, Eq, PartialEq)]
@@ -389,19 +505,36 @@ pub enum StatMod {
 
 #[derive(Copy, Clone, Serialize, Deserialize, Eq, PartialEq, Hash)]
 pub enum ModGroup {
-    Single(ModifierValue),
-    Double(ModifierValue, ModifierValue),
+    Single(SimpleModifierValue),
+    Double(SimpleModifierValue, SimpleModifierValue),
 }
 
 impl ModGroup {
-    pub fn single(stat: ArmorStat, value: i8) -> Self {
-        ModGroup::Single(ModifierValue { stat, value })
+    pub fn single(stat: SimpleArmorStat, value: i8) -> Self {
+        ModGroup::Single(SimpleModifierValue { stat, value })
     }
+}
 
-    pub fn apply(self, stats: Stats, class: CharacterClass) -> Stats {
-        match self {
-            ModGroup::Single(val) => val.apply(stats, class),
-            ModGroup::Double(v1, v2) => v1.apply(v2.apply(stats, class), class)
+#[derive(Copy, Clone, Serialize, Deserialize, Eq, PartialEq, Hash)]
+pub struct SimpleModifierValue {
+    pub stat: SimpleArmorStat,
+    pub value: i8,
+}
+
+impl SimpleModifierValue {
+    pub fn new(stat: SimpleArmorStat, value: i8) -> Self {
+        Self {
+            stat,
+            value,
+        }
+    }
+}
+
+impl From<(ModifierValue, CharacterClass)> for SimpleModifierValue {
+    fn from((m, c): (ModifierValue, CharacterClass)) -> Self {
+        Self {
+            stat: From::from((m.stat, c)),
+            value: m.value
         }
     }
 }
@@ -420,24 +553,6 @@ impl ModifierValue {
         }
     }
 
-    pub fn apply(self, mut stats: Stats, class: CharacterClass) -> Stats {
-        let val = self.value as i16;
-        match self.stat {
-            ArmorStat::Mobility => stats[0] += val,
-            ArmorStat::Resilience => stats[1] += val,
-            ArmorStat::Recovery => stats[2] += val,
-            ArmorStat::Discipline => stats[3] += val,
-            ArmorStat::Intellect => stats[4] += val,
-            ArmorStat::Strength => stats[5] += val,
-            ArmorStat::ClassAbilityRegenerationStat => match class {
-                CharacterClass::None => panic!("uh-oh"),
-                CharacterClass::Titan => stats[1] += val,
-                CharacterClass::Hunter => stats[0] += val,
-                CharacterClass::Warlock => stats[2] += val,
-            }
-        };
-        stats
-    }
 }
 
 #[derive(Deserialize, Serialize, Copy, Clone, Hash, Eq, PartialEq)]
@@ -456,5 +571,4 @@ pub struct FixableSelection<T> {
     pub value: T,
 }
 
-pub type Stats = [i16; 6];
 

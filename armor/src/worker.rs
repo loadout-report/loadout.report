@@ -8,7 +8,8 @@ use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsValue;
 use data::api::manifest::model::Hash;
 use crate::db::build_database;
-use crate::model::{ArmorInformation, ArmorPerkOrSlot, ArmorSlot, ArmorStat, CharacterClass, DestinyEnergyType, ExoticChoiceModel, InventoryArmor, Item, ManifestArmor, ModifierValue, StatMod, ModGroup, Msg, StatModifier, Stats, StrippedInventoryArmor, ThreadConfig, TierType, WorkerConfig, FixableSelection};
+use crate::model::{ArmorInformation, ArmorPerkOrSlot, ArmorSet, ArmorSlot, ArmorStat, CharacterClass, DestinyEnergyType, ExoticChoiceModel, FixableSelection, InventoryArmor, Item, ManifestArmor, ModGroup, ModifierValue, Msg, SimpleArmorStat, SimpleModifierValue, StatMod, StatModifier, StrippedInventoryArmor, ThreadConfig, TierType, WorkerConfig};
+use crate::model::stats::{Stats, StatsMod};
 
 pub struct ArmorWorker {
     db: Option<rexie::Rexie>,
@@ -49,7 +50,7 @@ pub struct ItemResult {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Runtime {
-    maximum_possible_tiers: Stats,
+    maximum_possible_tiers: [u8; 6],
     stat_combo_3x_100: HashSet<()>,
     stat_combo_4x_100: HashSet<()>,
 }
@@ -165,6 +166,14 @@ async fn run_job(scope: &WorkerScope<ArmorWorker>, db: rexie::Rexie, data: Input
                 perks.value == ArmorPerkOrSlot::None ||
                 perks.value == i.perk
         })
+        .map(|i| {
+            if (i.is_exotic && config.assume_exotics_masterworked)
+                || config.assume_legendaries_masterworked
+                || (i.slot == ArmorSlot::ArmorSlotClass && config.assume_class_item_masterworked) {
+                return i.assume_masterwork()
+            }
+            *i
+        })
         .collect();
 
     let (mut helmets, mut gauntlets, mut chests, mut legs, class_items): (
@@ -176,11 +185,11 @@ async fn run_job(scope: &WorkerScope<ArmorWorker>, db: rexie::Rexie, data: Input
     ) = armor.iter().fold(Default::default(), |mut t, i| {
         match i.slot {
             ArmorSlot::ArmorSlotNone => (),
-            ArmorSlot::ArmorSlotHelmet => t.0.push(**i),
-            ArmorSlot::ArmorSlotGauntlet => t.1.push(**i),
-            ArmorSlot::ArmorSlotChest => t.2.push(**i),
-            ArmorSlot::ArmorSlotLegs => t.3.push(**i),
-            ArmorSlot::ArmorSlotClass => t.4.push(**i),
+            ArmorSlot::ArmorSlotHelmet => t.0.push(*i),
+            ArmorSlot::ArmorSlotGauntlet => t.1.push(*i),
+            ArmorSlot::ArmorSlotChest => t.2.push(*i),
+            ArmorSlot::ArmorSlotLegs => t.3.push(*i),
+            ArmorSlot::ArmorSlotClass => t.4.push(*i),
         }
         t
     });
@@ -264,7 +273,16 @@ async fn run_job(scope: &WorkerScope<ArmorWorker>, db: rexie::Rexie, data: Input
         for gauntlet in &gauntlets {
             for chest in &chests {
                 for leg in &legs {
-                    let (ok, required_class_item) = check_slots(&config, modslot_requirement, &available_class_item_energy_perk_dict, helmet, gauntlet, chest, leg);
+                    let set = ArmorSet::new(
+                        *helmet,
+                        *gauntlet,
+                        *chest,
+                        *leg
+                    );
+                    let (ok, required_class_item) = check_slots(
+                        &config, modslot_requirement, &available_class_item_energy_perk_dict,
+                        &set
+                    );
                     if !ok {
                         continue
                     }
@@ -276,7 +294,7 @@ async fn run_job(scope: &WorkerScope<ArmorWorker>, db: rexie::Rexie, data: Input
                             element_requirement,
                             available_class_item_energy_perk_dict.get(
                                 &required_class_item.unwrap_or_default()
-                            ).unwrap_or_default(), helmet, gauntlet, chest, leg
+                            ).unwrap_or(&HashSet::new()), &set
                         );
                         if !ok {
                             continue
@@ -294,43 +312,148 @@ async fn run_job(scope: &WorkerScope<ArmorWorker>, db: rexie::Rexie, data: Input
     todo!()
 }
 
+fn handle_permutation(
+    runtime: &mut Runtime, config: &WorkerConfig,
+    set: &ArmorSet,
+    bonus: StatsMod,
+    available_modslots: [u8; 5],
+    do_not_output: bool,
+) {
+
+    // todo: verify not checking for masterworks here is okay (we did that near the filter section)
+    // todo: we're ignoring the add constant 1 resilience option for now
+    let mut base_stats = set.stat_total();
+
+    if !set.chest.is_exotic && config.add_constant_1_resilience {
+        base_stats = base_stats + SimpleModifierValue::new(SimpleArmorStat::Resilience, 1);
+    }
+
+    let stats = base_stats + bonus;
+
+    for (stat, tier) in &config.minimum_stat_tiers {
+        if tier.fixed && stats[*stat] > tier.value {
+            todo!("return null")
+        }
+    }
+
+    let required_mods = [
+        0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Mobility).unwrap().value - stats[SimpleArmorStat::Mobility] / 10),
+        0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Resilience).unwrap().value - stats[SimpleArmorStat::Resilience] / 10),
+        0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Recovery).unwrap().value - stats[SimpleArmorStat::Recovery] / 10),
+        0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Discipline).unwrap().value - stats[SimpleArmorStat::Discipline] / 10),
+        0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Intellect).unwrap().value - stats[SimpleArmorStat::Intellect] / 10),
+        0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Strength).unwrap().value - stats[SimpleArmorStat::Strength] / 10),
+    ];
+
+    let required_mods_total: u8 = required_mods.iter().sum();
+    if required_mods_total > 5 {
+        todo!("return null")
+    }
+
+    // todo: there may be a more efficient way of doing this
+    let available_modslots_count = available_modslots.iter()
+        .filter(|i| 0 < **i)
+        .count();
+
+    if required_mods_total > available_modslots_count as u8 {
+        todo!("return null")
+    }
+
+    // we need mods
+    if required_mods_total > 0 {
+        for i in 0..6 {
+            if required_mods[i] == 0 {
+                continue
+            }
+
+            let stat_diff = stats[i] % 10;
+            if stat_diff >= 5 {
+                let stat_to_add = 1 + (i * 2);
+
+            }
+        }
+    }
+
+    // if 5+ mods were used return
+
+}
+
 fn check_elements(
     config: &WorkerConfig,
-    mut requirements: [u8; 7],
-    availableClassElements: &HashSet<DestinyEnergyType>,
-    helmet: &StrippedInventoryArmor,
-    gaunlet: &StrippedInventoryArmor,
-    chest: &StrippedInventoryArmor,
-    leg: &StrippedInventoryArmor
-) {
-    let wildcard = requirements[0];
+    requirements: [u8; 7], // todo: we never use ghost / subclass so this could be reduced to 5
+    available_class_elements: &HashSet<DestinyEnergyType>,
+    set: &ArmorSet
+) -> (bool, DestinyEnergyType) {
+    let mut requirements = requirements.map(|i| i as i16);
 
+    let mut wildcard = requirements[0];
 
+    // todo: find a better solution for this (enums?)
+    calc_el_req(&mut requirements, &mut wildcard, config, &set.helmet);
+    calc_el_req(&mut requirements, &mut wildcard, config, &set.gauntlets);
+    calc_el_req(&mut requirements, &mut wildcard, config, &set.chest);
+    calc_el_req(&mut requirements, &mut wildcard, config, &set.legs);
+
+    let mut bad = (requirements
+        .iter()
+        .skip(1)// skip first element
+        .map(|i| 0.max(*i))
+        .reduce(|acc, e| acc + e).unwrap() - wildcard) as i16;
+
+    let mut req_class_element = DestinyEnergyType::Any;
+
+    let class_armor_affinity = config.armor_affinities.get(&ArmorSlot::ArmorSlotClass).unwrap();
+    if class_armor_affinity.fixed {
+        req_class_element = class_armor_affinity.value;
+    }
+
+    if bad == 1 && !(class_armor_affinity.fixed && class_armor_affinity.value != DestinyEnergyType::Any) {
+        for i in [DestinyEnergyType::Void, DestinyEnergyType::Stasis, DestinyEnergyType::Thermal, DestinyEnergyType::Arc] {
+            if requirements[i as usize] <= 0 {
+                continue
+            }
+            if available_class_elements.contains(&i) {
+                req_class_element = i;
+                bad -= 1;
+                break
+            }
+        }
+    }
+
+    (bad <= 0, req_class_element)
+
+}
+
+fn calc_el_req(requirements: &mut [i16; 7], wildcard: &mut i16, config: &WorkerConfig, item: &StrippedInventoryArmor) {
+    if (item.masterworked && config.ignore_armor_affinities_on_masterworked_items)
+        || (!item.masterworked && config.ignore_armor_affinities_on_non_masterworked_items) {
+        *wildcard += 1;
+    } else {
+        requirements[item.energy_affinity as usize] -= 1;
+    }
 }
 
 fn check_slots(
     config: &WorkerConfig,
-    mut modslots_req: [u8; 12],
+    requirements: [u8; 12],
     available_class_item_perk_types: &HashMap<&ArmorPerkOrSlot, HashSet<DestinyEnergyType>>,
-    helmet: &StrippedInventoryArmor,
-    gauntlet: &StrippedInventoryArmor,
-    chest: &StrippedInventoryArmor,
-    leg: &StrippedInventoryArmor,
+    set: &ArmorSet,
 ) -> (bool, Option<ArmorPerkOrSlot>) {
+    let mut requirements = requirements.map(|i| i as i16);
     let exotic = config.selected_exotic;
-    if !exotic.is(helmet.hash) && !is_item_applicable_to_slot(config, helmet) {
+    if !exotic.is(set.helmet.hash) && !is_item_applicable_to_slot(config, &set.helmet) {
         return (false, None)
     }
 
-    if !exotic.is(gauntlet.hash) && !is_item_applicable_to_slot(config, gauntlet) {
+    if !exotic.is(set.gauntlets.hash) && !is_item_applicable_to_slot(config, &set.gauntlets) {
         return (false, None)
     }
 
-    if !exotic.is(chest.hash) && !is_item_applicable_to_slot(config, chest) {
+    if !exotic.is(set.chest.hash) && !is_item_applicable_to_slot(config, &set.chest) {
         return (false, None)
     }
 
-    if !exotic.is(leg.hash) && !is_item_applicable_to_slot(config, leg) {
+    if !exotic.is(set.legs.hash) && !is_item_applicable_to_slot(config, &set.legs) {
         return (false, None)
     }
 
@@ -339,32 +462,32 @@ fn check_slots(
         return (false, None)
     }
 
-    modslots_req[helmet.perk as usize] -= 1;
-    modslots_req[gauntlet.perk as usize] -= 1;
-    modslots_req[chest.perk as usize] -= 1;
-    modslots_req[leg.perk as usize] -= 1;
+    requirements[set.helmet.perk as usize] -= 1;
+    requirements[set.gauntlets.perk as usize] -= 1;
+    requirements[set.chest.perk as usize] -= 1;
+    requirements[set.legs.perk as usize] -= 1;
 
     if let ExoticChoiceModel::Some(hash) = exotic {
-        if helmet.hash == hash {
-            modslots_req[config.armor_perks.get(&helmet.slot).unwrap().value as usize] -= 1;
-        } else if gauntlet.hash == hash {
-            modslots_req[config.armor_perks.get(&gauntlet.slot).unwrap().value as usize] -= 1;
-        } else if chest.hash == hash {
-            modslots_req[config.armor_perks.get(&chest.slot).unwrap().value as usize] -= 1;
-        } else if leg.hash == hash {
-            modslots_req[config.armor_perks.get(&leg.slot).unwrap().value as usize] -= 1;
+        if set.helmet.hash == hash {
+            requirements[config.armor_perks.get(&set.helmet.slot).unwrap().value as usize] -= 1;
+        } else if set.gauntlets.hash == hash {
+            requirements[config.armor_perks.get(&set.gauntlets.slot).unwrap().value as usize] -= 1;
+        } else if set.chest.hash == hash {
+            requirements[config.armor_perks.get(&set.chest.slot).unwrap().value as usize] -= 1;
+        } else if set.legs.hash == hash {
+            requirements[config.armor_perks.get(&set.legs.slot).unwrap().value as usize] -= 1;
         }
     }
 
     let mut bad = 0;
-    for i in modslots_req {
+    for i in requirements {
         bad += i.max(0)
     }
 
     let mut required_class_item = ArmorPerkOrSlot::None;
     if bad == 1 {
         for i in 0..12 {
-            if modslots_req[i] <= 0 {
+            if requirements[i] <= 0 {
                 continue
             }
             let perk: ArmorPerkOrSlot = i.try_into().unwrap();
@@ -409,11 +532,11 @@ fn prepare_constant_available_modslots(max_mod_slots: &HashMap<ArmorSlot, Fixabl
     req
 }
 
-fn prepare_constant_stat_bonus(enabled_mods: &Vec<StatMod>, class: CharacterClass) -> Stats {
-    let mut constant_bonus: Stats = Default::default();
+fn prepare_constant_stat_bonus(enabled_mods: &Vec<StatMod>, class: CharacterClass) -> StatsMod {
+    let mut constant_bonus: StatsMod = Default::default();
     for stat_mod in enabled_mods {
-        let modifiers = get_modifiers(*stat_mod);
-        constant_bonus = modifiers.apply(constant_bonus, class);
+        let modifiers = get_modifiers(class, *stat_mod);
+        constant_bonus = constant_bonus + modifiers;
     }
     constant_bonus
 }
@@ -433,66 +556,66 @@ fn prepare_constant_element_requirement(armor_affinities: &HashMap<ArmorSlot, Fi
     cer
 }
 
-fn get_modifiers(moa: StatMod) -> ModGroup {
+fn get_modifiers(class: CharacterClass, moa: StatMod) -> ModGroup {
     match moa {
-        StatMod::PowerfulFriends => ModGroup::single(ArmorStat::Mobility, 20),
-        StatMod::RadiantLight => ModGroup::single(ArmorStat::Strength, 20),
-        StatMod::ProtectiveLight => ModGroup::single(ArmorStat::Strength, -10),
-        StatMod::ExtraReserves => ModGroup::single(ArmorStat::Intellect, -10),
-        StatMod::PreciselyCharged => ModGroup::single(ArmorStat::Discipline, -10),
-        StatMod::StacksOnStacks => ModGroup::single(ArmorStat::Recovery, -10),
-        StatMod::PrecisionCharge => ModGroup::single(ArmorStat::Strength, -10),
-        StatMod::SurpriseAttack => ModGroup::single(ArmorStat::Intellect, -10),
-        StatMod::EnergyConverter => ModGroup::single(ArmorStat::Discipline, -10),
-        StatMod::ChargeHarvester => ModGroup::single(ArmorStat::ClassAbilityRegenerationStat, -10),
+        StatMod::PowerfulFriends => ModGroup::single(SimpleArmorStat::Mobility, 20),
+        StatMod::RadiantLight => ModGroup::single(SimpleArmorStat::Strength, 20),
+        StatMod::ProtectiveLight => ModGroup::single(SimpleArmorStat::Strength, -10),
+        StatMod::ExtraReserves => ModGroup::single(SimpleArmorStat::Intellect, -10),
+        StatMod::PreciselyCharged => ModGroup::single(SimpleArmorStat::Discipline, -10),
+        StatMod::StacksOnStacks => ModGroup::single(SimpleArmorStat::Recovery, -10),
+        StatMod::PrecisionCharge => ModGroup::single(SimpleArmorStat::Strength, -10),
+        StatMod::SurpriseAttack => ModGroup::single(SimpleArmorStat::Intellect, -10),
+        StatMod::EnergyConverter => ModGroup::single(SimpleArmorStat::Discipline, -10),
+        StatMod::ChargeHarvester => ModGroup::single(SimpleArmorStat::for_class(class), -10),
         // stasis mods
-        StatMod::WhisperOfDurance => ModGroup::single(ArmorStat::Strength, 10),
-        StatMod::WhisperOfChains => ModGroup::single(ArmorStat::Recovery, 10),
-        StatMod::WhisperOfShards => ModGroup::single(ArmorStat::Resilience, 10),
+        StatMod::WhisperOfDurance => ModGroup::single(SimpleArmorStat::Strength, 10),
+        StatMod::WhisperOfChains => ModGroup::single(SimpleArmorStat::Recovery, 10),
+        StatMod::WhisperOfShards => ModGroup::single(SimpleArmorStat::Resilience, 10),
         StatMod::WhisperOfConduction => ModGroup::Double(
-            ModifierValue::new(ArmorStat::Resilience, 10),
-            ModifierValue::new(ArmorStat::Intellect, 10),
+            SimpleModifierValue::new(SimpleArmorStat::Resilience, 10),
+            SimpleModifierValue::new(SimpleArmorStat::Intellect, 10),
         ),
         StatMod::WhisperOfBonds => ModGroup::Double(
-            ModifierValue::new(ArmorStat::Discipline, -10),
-            ModifierValue::new(ArmorStat::Intellect, -10),
+            SimpleModifierValue::new(SimpleArmorStat::Discipline, -10),
+            SimpleModifierValue::new(SimpleArmorStat::Intellect, -10),
         ),
-        StatMod::WhisperOfHedrons => ModGroup::single(ArmorStat::Strength, -10),
-        StatMod::WhisperOfFractures => ModGroup::single(ArmorStat::Discipline, -10),
+        StatMod::WhisperOfHedrons => ModGroup::single(SimpleArmorStat::Strength, -10),
+        StatMod::WhisperOfFractures => ModGroup::single(SimpleArmorStat::Discipline, -10),
         StatMod::WhisperOfHunger => ModGroup::Double(
-            ModifierValue::new(ArmorStat::Mobility, -10),
-            ModifierValue::new(ArmorStat::Recovery, -10),
+            SimpleModifierValue::new(SimpleArmorStat::Mobility, -10),
+            SimpleModifierValue::new(SimpleArmorStat::Recovery, -10),
         ),
-        StatMod::EchoOfExpulsion => ModGroup::single(ArmorStat::Intellect, -10),
-        StatMod::EchoOfProvision => ModGroup::single(ArmorStat::Strength, -10),
-        StatMod::EchoOfPersistence => ModGroup::single(ArmorStat::ClassAbilityRegenerationStat, -10),
-        StatMod::EchoOfLeeching => ModGroup::single(ArmorStat::Resilience, 10),
-        StatMod::EchoOfDomineering => ModGroup::single(ArmorStat::Discipline, 10),
+        StatMod::EchoOfExpulsion => ModGroup::single(SimpleArmorStat::Intellect, -10),
+        StatMod::EchoOfProvision => ModGroup::single(SimpleArmorStat::Strength, -10),
+        StatMod::EchoOfPersistence => ModGroup::single(SimpleArmorStat::for_class(class), -10),
+        StatMod::EchoOfLeeching => ModGroup::single(SimpleArmorStat::Resilience, 10),
+        StatMod::EchoOfDomineering => ModGroup::single(SimpleArmorStat::Discipline, 10),
         StatMod::EchoOfDilation => ModGroup::Double(
-            ModifierValue::new(ArmorStat::Mobility, 10),
-            ModifierValue::new(ArmorStat::Intellect, 10),
+            SimpleModifierValue::new(SimpleArmorStat::Mobility, 10),
+            SimpleModifierValue::new(SimpleArmorStat::Intellect, 10),
         ),
-        StatMod::EchoOfUndermining => ModGroup::single(ArmorStat::Discipline, -20),
-        StatMod::EchoOfInstability => ModGroup::single(ArmorStat::Strength, 10),
-        StatMod::EchoOfHarvest => ModGroup::single(ArmorStat::Intellect, -10),
-        StatMod::EchoOfObscurity => ModGroup::single(ArmorStat::Recovery, 10),
-        StatMod::EchoOfStarvation => ModGroup::single(ArmorStat::Recovery, -10),
-        StatMod::EmberOfBenelovence => ModGroup::single(ArmorStat::Discipline, -10),
-        StatMod::EmberOfBeams => ModGroup::single(ArmorStat::Intellect, 10),
-        StatMod::EmberOfEmpyrean => ModGroup::single(ArmorStat::Resilience, -10),
-        StatMod::EmberOfCombustion => ModGroup::single(ArmorStat::Strength, 10),
-        StatMod::EmberOfChar => ModGroup::single(ArmorStat::Discipline, 10),
-        StatMod::EmberOfTempering => ModGroup::single(ArmorStat::Recovery, -10),
-        StatMod::EmberOfEruption => ModGroup::single(ArmorStat::Strength, 10),
-        StatMod::EmberOfWonder => ModGroup::single(ArmorStat::Resilience, 10),
-        StatMod::EmberOfSearing => ModGroup::single(ArmorStat::Recovery, 10),
-        StatMod::SparkOfBrilliance => ModGroup::single(ArmorStat::Intellect, 10),
-        StatMod::SparkOfFeedback => ModGroup::single(ArmorStat::Resilience, 10),
-        StatMod::SparkOfDischarge => ModGroup::single(ArmorStat::Strength, -10),
-        StatMod::SparkOfFocus => ModGroup::single(ArmorStat::ClassAbilityRegenerationStat, -10),
-        StatMod::SparkOfVolts => ModGroup::single(ArmorStat::Recovery, 10),
-        StatMod::SparkOfResistance => ModGroup::single(ArmorStat::Strength, 10),
-        StatMod::SparkOfShock => ModGroup::single(ArmorStat::Discipline, -10),
+        StatMod::EchoOfUndermining => ModGroup::single(SimpleArmorStat::Discipline, -20),
+        StatMod::EchoOfInstability => ModGroup::single(SimpleArmorStat::Strength, 10),
+        StatMod::EchoOfHarvest => ModGroup::single(SimpleArmorStat::Intellect, -10),
+        StatMod::EchoOfObscurity => ModGroup::single(SimpleArmorStat::Recovery, 10),
+        StatMod::EchoOfStarvation => ModGroup::single(SimpleArmorStat::Recovery, -10),
+        StatMod::EmberOfBenelovence => ModGroup::single(SimpleArmorStat::Discipline, -10),
+        StatMod::EmberOfBeams => ModGroup::single(SimpleArmorStat::Intellect, 10),
+        StatMod::EmberOfEmpyrean => ModGroup::single(SimpleArmorStat::Resilience, -10),
+        StatMod::EmberOfCombustion => ModGroup::single(SimpleArmorStat::Strength, 10),
+        StatMod::EmberOfChar => ModGroup::single(SimpleArmorStat::Discipline, 10),
+        StatMod::EmberOfTempering => ModGroup::single(SimpleArmorStat::Recovery, -10),
+        StatMod::EmberOfEruption => ModGroup::single(SimpleArmorStat::Strength, 10),
+        StatMod::EmberOfWonder => ModGroup::single(SimpleArmorStat::Resilience, 10),
+        StatMod::EmberOfSearing => ModGroup::single(SimpleArmorStat::Recovery, 10),
+        StatMod::SparkOfBrilliance => ModGroup::single(SimpleArmorStat::Intellect, 10),
+        StatMod::SparkOfFeedback => ModGroup::single(SimpleArmorStat::Resilience, 10),
+        StatMod::SparkOfDischarge => ModGroup::single(SimpleArmorStat::Strength, -10),
+        StatMod::SparkOfFocus => ModGroup::single(SimpleArmorStat::for_class(class), -10),
+        StatMod::SparkOfVolts => ModGroup::single(SimpleArmorStat::Recovery, 10),
+        StatMod::SparkOfResistance => ModGroup::single(SimpleArmorStat::Strength, 10),
+        StatMod::SparkOfShock => ModGroup::single(SimpleArmorStat::Discipline, -10),
     }
 
 }
