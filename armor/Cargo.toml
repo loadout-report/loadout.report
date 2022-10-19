@@ -13,11 +13,15 @@ default = ["console_error_panic_hook"]
 [dependencies]
 data = {path = "../data", version = "0.1.0"}
 rexie = "0.4"
+num = "0.4"
+num-derive = "0.3"
+num-traits = "0.2"
 gloo-worker = {version = "0.2.1", features = ["futures"]}
 serde = { version = "1.0", features = ["derive"] }
 wasm-bindgen = { version = "0.2.83", features = ["serde-serialize"] }
 serde-wasm-bindgen = "0.4.5"
 phf = { version = "0.11", features = ["macros"] }
+heapless = "0.7.16"
 # The `console_error_panic_hook` crate provides better debugging of panics by
 # logging them with `console.error`. This is great for development, but requires
 # all the `std::fmt` and `std::panicking` infrastructure, so isn't great for

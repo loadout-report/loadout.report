@@ -1,4 +1,4 @@
-use std::ops::{Add, Index};
+use std::ops::{Add, Index, IndexMut};
 use serde::{Deserialize, Serialize};
 use crate::model::{ModGroup, SimpleArmorStat, SimpleModifierValue};
 
@@ -78,6 +78,18 @@ impl Index<SimpleArmorStat> for Stats {
 
     fn index(&self, index: SimpleArmorStat) -> &Self::Output {
         &self.values[index as usize]
+    }
+}
+
+impl IndexMut<SimpleArmorStat> for Stats {
+    fn index_mut(&mut self, index: SimpleArmorStat) -> &mut Self::Output {
+        &mut self.values[index as usize]
+    }
+}
+
+impl IndexMut<usize> for Stats {
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        &mut self.values[index]
     }
 }
 

@@ -3,6 +3,7 @@ use std::convert::TryFrom;
 use std::iter::once;
 use std::ops::{Add, AddAssign};
 use gloo_worker::HandlerId;
+use num_derive::FromPrimitive;
 use data::api::manifest::model::Hash;
 use serde::{Deserialize, Serialize};
 use stats::Stats;
@@ -192,7 +193,7 @@ pub struct ThreadConfig {
     pub current: usize,
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize)]
+#[derive(Copy, Clone, Serialize, Deserialize, FromPrimitive)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum StatModifier {
     None,

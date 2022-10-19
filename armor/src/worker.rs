@@ -312,13 +312,19 @@ async fn run_job(scope: &WorkerScope<ArmorWorker>, db: rexie::Rexie, data: Input
     todo!()
 }
 
+#[derive(Copy, Clone)]
+pub enum PermutationError {
+    Unknown,
+    TooManyMods,
+}
+
 fn handle_permutation(
     runtime: &mut Runtime, config: &WorkerConfig,
     set: &ArmorSet,
     bonus: StatsMod,
-    available_modslots: [u8; 5],
+    mut available_modslots: [u8; 5],
     do_not_output: bool,
-) {
+) -> Result<ItemResult, PermutationError> {
 
     // todo: verify not checking for masterworks here is okay (we did that near the filter section)
     // todo: we're ignoring the add constant 1 resilience option for now
@@ -328,15 +334,15 @@ fn handle_permutation(
         base_stats = base_stats + SimpleModifierValue::new(SimpleArmorStat::Resilience, 1);
     }
 
-    let stats = base_stats + bonus;
+    let mut stats = base_stats + bonus;
 
     for (stat, tier) in &config.minimum_stat_tiers {
         if tier.fixed && stats[*stat] > tier.value {
-            todo!("return null")
+            return Err(PermutationError::TooManyMods)
         }
     }
 
-    let required_mods = [
+    let mut required_mods = [
         0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Mobility).unwrap().value - stats[SimpleArmorStat::Mobility] / 10),
         0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Resilience).unwrap().value - stats[SimpleArmorStat::Resilience] / 10),
         0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Recovery).unwrap().value - stats[SimpleArmorStat::Recovery] / 10),
@@ -347,35 +353,84 @@ fn handle_permutation(
 
     let required_mods_total: u8 = required_mods.iter().sum();
     if required_mods_total > 5 {
-        todo!("return null")
+        return Err(PermutationError::TooManyMods)
     }
 
     // todo: there may be a more efficient way of doing this
-    let available_modslots_count = available_modslots.iter()
+    let mut available_modslots_count = available_modslots.iter()
         .filter(|i| 0 < **i)
         .count();
 
     if required_mods_total > available_modslots_count as u8 {
-        todo!("return null")
+        return Err(PermutationError::TooManyMods)
     }
 
+    let mut used_mods: heapless::Vec<u8, 5> = heapless::Vec::new();
     // we need mods
     if required_mods_total > 0 {
-        for i in 0..6 {
+
+        // add any necessary mods
+        for i in 0..6 { // iterate through stats
             if required_mods[i] == 0 {
                 continue
             }
 
+            // add some minor mods
             let stat_diff = stats[i] % 10;
             if stat_diff >= 5 {
-                let stat_to_add = 1 + (i * 2);
+                used_mods.push(1 + (i * 2) as u8).map_err(|_| PermutationError::TooManyMods)?;
+                required_mods[i] -= 1;
+                stats[i] += 5;
+            }
 
+            // fill rest with major mods
+            for _ in 0..required_mods[i] {
+                used_mods.push(2 + (i * 2) as u8).map_err(|_| PermutationError::TooManyMods)?;
+                stats[i] += 10;
+            }
+        }
+
+        // optimise modslots
+        // todo: this entire section needs a massive overhaul
+        // start with coming up with a better datastructure for work items
+        let mut i = 0;
+        loop {
+            // verify this should be 5 or 6
+            if i == used_mods.len() || used_mods.len() == 5 {
+                break
+            }
+
+            // definitely exists as we are within used_mod length
+            let curr = *used_mods.get(i).unwrap();
+            let cost = get_stat_mod_cost(num::FromPrimitive::from_u8(curr).unwrap());
+            if available_modslots.iter().filter(|d| **d >= cost).count() == 0 {
+                if curr % 2 == 0 {
+                    used_mods.remove(i);
+                    let minor = num::FromPrimitive::from_u8(curr - 1).unwrap();
+                    used_mods.push(minor).map_err(|_| PermutationError::TooManyMods)?;
+                    used_mods.push(minor).map_err(|_| PermutationError::TooManyMods)?;
+                    i -= 1;
+                } else {
+                    // verify
+                    return Err(PermutationError::TooManyMods)
+                }
+            } else {
+                // ugly but it works maybe?
+                available_modslots.iter_mut().filter(|d| **d >= cost).take(1).for_each(|i| *i = 0);
+                available_modslots_count -= 1;
             }
         }
     }
 
     // if 5+ mods were used return
 
+    if config.only_show_results_with_no_wasted_stats {
+        todo!();
+    }
+
+    // get maximum possible stats and write them into the runtime
+
+    return Err(PermutationError::Unknown)
 }
 
 fn check_elements(
@@ -554,6 +609,25 @@ fn prepare_constant_element_requirement(armor_affinities: &HashMap<ArmorSlot, Fi
     }
     cer[0] = 0;
     cer
+}
+
+/// bonus, cost, mod hash
+fn get_stat_mod_cost(index: StatModifier) -> u8 {
+    match index {
+        StatModifier::None => unreachable!("passed StatModifier::None to stat mod cost query"),
+        StatModifier::MinorMobility => 1,
+        StatModifier::MajorMobility => 3,
+        StatModifier::MinorResilience => 1,
+        StatModifier::MajorResilience => 3,
+        StatModifier::MinorRecovery => 2,
+        StatModifier::MajorRecovery => 4,
+        StatModifier::MinorDiscipline => 1,
+        StatModifier::MajorDiscipline => 3,
+        StatModifier::MinorIntellect => 2,
+        StatModifier::MajorIntellect => 5,
+        StatModifier::MinorStrength => 1,
+        StatModifier::MajorStrength => 3,
+    }
 }
 
 fn get_modifiers(class: CharacterClass, moa: StatMod) -> ModGroup {
