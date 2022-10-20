@@ -1,10 +1,10 @@
 use std::ops::{Add, Index, IndexMut};
 use serde::{Deserialize, Serialize};
-use crate::model::{ModGroup, SimpleArmorStat, SimpleModifierValue};
+use crate::model::{ModGroup, SimpleArmorStat, SimpleModifierValue, StrippedInventoryArmor};
 
 #[derive(Copy, Clone, Serialize, Deserialize, Default)]
 pub struct Stats {
-    values: [u8; 6],
+    pub values: [u8; 6],
 }
 
 impl Stats {

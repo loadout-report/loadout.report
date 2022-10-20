@@ -316,6 +316,7 @@ async fn run_job(scope: &WorkerScope<ArmorWorker>, db: rexie::Rexie, data: Input
 pub enum PermutationError {
     Unknown,
     TooManyMods,
+    WastedStats,
 }
 
 fn handle_permutation(
@@ -449,13 +450,71 @@ fn handle_permutation(
 
     // if 5+ mods were used return
 
+    // todo: we can likely optimise this a lot
     if config.only_show_results_with_no_wasted_stats {
-        todo!();
+        if stats.values.iter().any(|i| *i > 100 || *i % 5 != 0) {
+            return Err(PermutationError::WastedStats)
+        }
+
+        let mut stats_wasted: heapless::Vec<(u8, usize, u8), 6> = stats.values.iter()
+            .enumerate()
+            .filter(|(i, x)| *x % 10 != 5) // only wasted stats
+            .map(|(i, x)| (x % 10, i, *x)) // make into tuple (wasted, statId, total)
+            .collect();
+        // todo: desc sort
+        // stats_wasted.sort_by(|a, b| a.0.cmp(&b.0));
+        stats_wasted.sort_by(|a, b| a.0.cmp(&b.0));
+        for (waste, stat, _) in &mut stats_wasted {
+            if available_modslots_count == 0 { // we can only remove as many as we have mod slots
+                break
+            }
+            for capacity in &mut available_modslots {
+                let mod_id = 1 + (*stat * 2);
+                if *capacity >= get_stat_mod_cost(num::FromPrimitive::from_usize(mod_id).unwrap()) {
+                    *capacity = 0;
+                    available_modslots_count -= 1;
+                    stats[*stat] += 5;
+                    *waste -= 5;
+                    let mod_id = mod_id as u8;
+                    used_mods.insert(used_mods.binary_search(&mod_id).unwrap_or_else(|pos| pos), mod_id)
+                        .map_err(|_| PermutationError::TooManyMods)?;
+                    break
+                }
+            }
+            if *waste != 0 { // if we just went through all of those without fixing the wasted stat it means it's too expensive and we done goofed
+                break
+            }
+        }
+
+        if get_waste(stats) > 0 {
+            // we have waste.
+            return Err(PermutationError::WastedStats)
+        }
     }
 
     // get maximum possible stats and write them into the runtime
+    let max_bonus = 10 * available_modslots_count as u8;
+    let minimum_needed_for_max = 100 - max_bonus;
+
+    let mut possible_100: heapless::Vec<(u8, u8), 6> = Default::default();
+    for (index, max) in stats.values.iter().enumerate() {
+        if *max >= minimum_needed_for_max {
+            possible_100.push((index as u8, 100 - *max)).unwrap();
+        }
+
+        //
+        if max + max_bonus >= runtime.maximum_possible_tiers[index] {
+            let minor = get_stat_mod_cost(num::FromPrimitive::from_usize(1 + (index * 2)).unwrap());
+            let major = get_stat_mod_cost(num::FromPrimitive::from_usize(2 + (index * 2)).unwrap());
+
+        }
+    }
 
     return Err(PermutationError::Unknown)
+}
+
+fn get_waste(stats: Stats) -> u8 {
+    stats.values.iter().map(|i| if *i > 100 { i - 100 } else { i % 10 }).sum()
 }
 
 fn check_elements(
@@ -602,6 +661,8 @@ fn prepare_constant_modslot_requirement(armor_perks: &HashMap<ArmorSlot, Fixable
     req
 }
 
+/// returns an array of five elements denoting the available mod slots and their capacity.
+/// this is sorted in ascending order so cost optimisation can simply take the first matching element
 fn prepare_constant_available_modslots(max_mod_slots: &HashMap<ArmorSlot, FixableSelection<u8>>) -> [u8; 5] {
     let mut req: [u8; 5] = Default::default();
     req[0] = max_mod_slots.get(&ArmorSlot::ArmorSlotHelmet).unwrap().value as u8;
@@ -609,6 +670,7 @@ fn prepare_constant_available_modslots(max_mod_slots: &HashMap<ArmorSlot, Fixabl
     req[2] = max_mod_slots.get(&ArmorSlot::ArmorSlotGauntlet).unwrap().value as u8;
     req[3] = max_mod_slots.get(&ArmorSlot::ArmorSlotLegs).unwrap().value as u8;
     req[4] = max_mod_slots.get(&ArmorSlot::ArmorSlotClass).unwrap().value as u8;
+    req.sort();
     req
 }
 
