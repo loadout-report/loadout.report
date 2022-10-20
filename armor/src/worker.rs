@@ -410,9 +410,13 @@ fn handle_permutation(
             // mod to check
             let curr = *used_mods.get(i).unwrap();
             // how much does this mod cost?
+            // todo: can we optimise this by calling it earlier?
             let cost = get_stat_mod_cost(num::FromPrimitive::from_u8(curr).unwrap());
             // how many slots do we have that can accommodate this mod cost? if 0:
             // todo: likely more efficient with a breakable for loop since we only ever need the first match
+            // todo: major = cost > 2
+            // todo: minor_cost = major_cost / 2 (lossy)
+            // todo: might save us some lookups to use the above
             if available_modslots.iter().filter(|d| **d >= cost).count() == 0 {
                 // let's try replacing the mod with two minor mods - is this mod a major mod?
                 if curr % 2 == 0 {
