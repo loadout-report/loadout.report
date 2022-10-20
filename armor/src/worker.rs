@@ -419,6 +419,7 @@ fn handle_permutation(
                 available_modslots.iter_mut().filter(|d| **d >= cost).take(1).for_each(|i| *i = 0);
                 available_modslots_count -= 1;
             }
+            i += 1;
         }
     }
 
