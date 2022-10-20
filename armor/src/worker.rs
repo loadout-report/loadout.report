@@ -365,6 +365,7 @@ fn handle_permutation(
         return Err(PermutationError::TooManyMods)
     }
 
+    // can we order this descending?
     let mut used_mods: heapless::Vec<u8, 5> = heapless::Vec::new();
     // we need mods
     if required_mods_total > 0 {
@@ -378,14 +379,18 @@ fn handle_permutation(
             // add some minor mods
             let stat_diff = stats[i] % 10;
             if stat_diff >= 5 {
-                used_mods.push(1 + (i * 2) as u8).map_err(|_| PermutationError::TooManyMods)?;
+                let x = 1 + (i * 2) as u8;
+                used_mods.insert(used_mods.binary_search(&x).unwrap_or_else(|pos| pos), x)
+                    .map_err(|_| PermutationError::TooManyMods)?;
                 required_mods[i] -= 1;
                 stats[i] += 5;
             }
 
             // fill rest with major mods
             for _ in 0..required_mods[i] {
-                used_mods.push(2 + (i * 2) as u8).map_err(|_| PermutationError::TooManyMods)?;
+                let x = 2 + (i * 2) as u8;
+                used_mods.insert(used_mods.binary_search(&x).unwrap_or_else(|pos| pos), x)
+                    .map_err(|_| PermutationError::TooManyMods)?;
                 stats[i] += 10;
             }
         }
@@ -407,6 +412,7 @@ fn handle_permutation(
             // how much does this mod cost?
             let cost = get_stat_mod_cost(num::FromPrimitive::from_u8(curr).unwrap());
             // how many slots do we have that can accommodate this mod cost? if 0:
+            // todo: likely more efficient with a breakable for loop since we only ever need the first match
             if available_modslots.iter().filter(|d| **d >= cost).count() == 0 {
                 // let's try replacing the mod with two minor mods - is this mod a major mod?
                 if curr % 2 == 0 {
@@ -414,8 +420,14 @@ fn handle_permutation(
                     // worst case this doesn't work and we return an error
                     used_mods.remove(i);
                     let minor = curr - 1;
-                    used_mods.push(minor).map_err(|_| PermutationError::TooManyMods)?;
-                    used_mods.push(minor).map_err(|_| PermutationError::TooManyMods)?;
+                    used_mods.insert(
+                        used_mods.binary_search(&minor)
+                            .unwrap_or_else(|pos| pos), minor)
+                        .map_err(|_| PermutationError::TooManyMods)?;
+                    used_mods.insert(
+                        used_mods.binary_search(&minor)
+                            .unwrap_or_else(|pos| pos), minor)
+                        .map_err(|_| PermutationError::TooManyMods)?;
                     // step back to verify we can also place the two minor mods correctly (cost-wise)
                     i -= 1;
                 } else {
