@@ -393,6 +393,7 @@ fn handle_permutation(
         // optimise modslots
         // todo: this entire section needs a massive overhaul
         // start with coming up with a better datastructure for work items
+        // iterate through our selected mod slots
         let mut i = 0;
         loop {
             // verify this should be 5 or 6
@@ -401,21 +402,28 @@ fn handle_permutation(
             }
 
             // definitely exists as we are within used_mod length
+            // mod to check
             let curr = *used_mods.get(i).unwrap();
+            // how much does this mod cost?
             let cost = get_stat_mod_cost(num::FromPrimitive::from_u8(curr).unwrap());
+            // how many slots do we have that can accommodate this mod cost? if 0:
             if available_modslots.iter().filter(|d| **d >= cost).count() == 0 {
+                // let's try replacing the mod with two minor mods - is this mod a major mod?
                 if curr % 2 == 0 {
+                    // let's just remove the thing and try adding two minor versions
+                    // worst case this doesn't work and we return an error
                     used_mods.remove(i);
-                    let minor = num::FromPrimitive::from_u8(curr - 1).unwrap();
+                    let minor = curr - 1;
                     used_mods.push(minor).map_err(|_| PermutationError::TooManyMods)?;
                     used_mods.push(minor).map_err(|_| PermutationError::TooManyMods)?;
+                    // step back to verify we can also place the two minor mods correctly (cost-wise)
                     i -= 1;
                 } else {
-                    // verify
+                    // mod isn't a major mod, but we'd need to replace it. exit.
                     return Err(PermutationError::TooManyMods)
                 }
             } else {
-                // ugly but it works maybe?
+                // we can accommodate this mod just fine, let's mark the slot as used.
                 available_modslots.iter_mut().filter(|d| **d >= cost).take(1).for_each(|i| *i = 0);
                 available_modslots_count -= 1;
             }
