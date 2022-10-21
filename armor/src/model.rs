@@ -17,10 +17,10 @@ pub enum Msg<T> {
 
 #[derive(Copy, Clone)]
 pub struct StrippedInventoryArmor {
-    pub id: i32,
+    pub id: i32, // may not need this
     pub item_instance_id: Hash,
     pub masterworked: bool,
-    pub may_be_bugged: bool,
+    pub may_be_bugged: bool, // may not need this
     // if there was an error in the parsing
     pub stats: Stats,
 
@@ -32,7 +32,7 @@ pub struct StrippedInventoryArmor {
     pub perk: ArmorPerkOrSlot,
     pub is_exotic: bool,
     pub rarity: TierType,
-    pub exotic_perk_hash: Hash,
+    pub exotic_perk_hash: Hash, // may not need this
     pub is_sunset: bool,
     pub item_type: i32,
     pub item_sub_type: i32,

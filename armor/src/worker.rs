@@ -496,41 +496,108 @@ fn handle_permutation(
     let max_bonus = 10 * available_modslots_count as u8;
     let minimum_needed_for_max = 100 - max_bonus;
 
-    let mut possible_100: heapless::Vec<(u8, u8), 6> = Default::default();
-    for (index, max) in stats.values.iter().enumerate() {
-        let mut max = *max;
-        if max >= minimum_needed_for_max {
-            possible_100.push((index as u8, 100 - max)).unwrap();
+    // heapless vector of possible (statId, required to make 100)
+    let mut possible_100: heapless::Vec<Stat, 6> = Default::default();
+    for (index, current_stat) in stats.values.iter().enumerate() {
+        let mut current_stat = *current_stat;
+        if current_stat >= minimum_needed_for_max {
+            possible_100.push(Stat(index as u8, 100 - current_stat)).unwrap();
         }
 
-        //
-        if max + max_bonus >= runtime.maximum_possible_tiers[index] {
+        if current_stat + max_bonus >= runtime.maximum_possible_tiers[index] {
             let minor = get_stat_mod_cost(num::FromPrimitive::from_usize(1 + (index * 2)).unwrap());
             let major = get_stat_mod_cost(num::FromPrimitive::from_usize(2 + (index * 2)).unwrap());
 
             for slot in available_modslots {
-                if max >= 100 {
+                if current_stat >= 100 {
                     break
                 }
                 if slot >= major {
-                    max += 10;
+                    current_stat += 10;
                 } else if slot >= minor {
-                    max += 5;
+                    current_stat += 5;
                 }
             }
-            if max > runtime.maximum_possible_tiers[index] {
-                runtime.maximum_possible_tiers[index] = max;
+            if current_stat > runtime.maximum_possible_tiers[index] {
+                runtime.maximum_possible_tiers[index] = current_stat;
             }
         }
     }
 
     if available_modslots_count > 0 && possible_100.len() >= 3 {
         // a triple 100 or quad 100 build might be doable
-        possible_100.sort_by(|a, b| a.1.cmp(&b.1))
+        possible_100.sort_by(|a, b| a.1.cmp(&b.1));
+        let available_modslots_count = available_modslots_count as u8;
+
+        let combinations: heapless::Vec<_, 20> = possible_100.iter()
+            // pair each element with its index
+            .enumerate()
+            .take_while(|(index, _)| *index < possible_100.len() - 2)
+            .map(|(index, i)| (index, ArmorCombination::Single(*i), i.mod_cost()))
+            .take_while(|(_, _, cost)| *cost <= available_modslots_count)
+            .flat_map(|(index, a, cost)| possible_100.iter()
+                .enumerate()
+                .skip(index + 1)
+                .take_while(|(index, _)| *index < possible_100.len() - 1)
+                .map(move |(index, i)| (index, a.extend(*i), cost + i.mod_cost()))
+                .take_while(|(_, _, cost)| *cost <= available_modslots_count)
+                .flat_map(|(index, combination, cost)| possible_100.iter()
+                    .enumerate()
+                    .skip(index + 1)
+                    .map(move |(index, i)| (index, combination.extend(*i), cost + i.mod_cost()))
+                    .take_while(|(_, _, cost)| *cost <= available_modslots_count)
+                    .flat_map(|(index, combination, cost)| {
+                        let mut res: heapless::Vec<_, 20> = possible_100.iter()
+                            .enumerate()
+                            .skip(index + 1)
+                            .map(move |(index, i)| (index, combination.extend(*i), cost + i.mod_cost()))
+                            .take_while(|(_, _, cost)| *cost <= available_modslots_count)
+                            .map(|(_, combination, _)| combination)
+                            .collect();
+                        if res.is_empty() {
+                            res.push(combination).unwrap();
+                        }
+                        res
+                    })
+                )
+            )
+            .collect();
+
+        for combination in combinations {
+
+        }
 
     }
 
     return Err(PermutationError::Unknown)
+}
+
+#[derive(Debug, Copy, Clone)]
+pub struct Stat (u8, u8);
+
+impl Stat {
+    fn mod_cost(self) -> u8 {
+        (self.1.max(0) + 9) / 10
+    }
+}
+
+#[derive(Debug, Copy, Clone)]
+pub enum ArmorCombination {
+    Single(Stat),
+    Duo(Stat, Stat),
+    Triple(Stat, Stat, Stat),
+    Quadruple(Stat, Stat, Stat, Stat),
+}
+
+impl ArmorCombination {
+    fn extend(self, s: Stat) -> Self {
+        match self {
+            ArmorCombination::Single(a) => ArmorCombination::Duo(a, s),
+            ArmorCombination::Duo(a, b) => ArmorCombination::Triple(a, b, s),
+            ArmorCombination::Triple(a, b, c) => ArmorCombination::Quadruple(a, b, c, s),
+            ArmorCombination::Quadruple(_, _, _, _) => panic!("cannot extend quadruple")
+        }
+    }
 }
 
 fn get_waste(stats: Stats) -> u8 {
