@@ -498,8 +498,9 @@ fn handle_permutation(
 
     let mut possible_100: heapless::Vec<(u8, u8), 6> = Default::default();
     for (index, max) in stats.values.iter().enumerate() {
-        if *max >= minimum_needed_for_max {
-            possible_100.push((index as u8, 100 - *max)).unwrap();
+        let mut max = *max;
+        if max >= minimum_needed_for_max {
+            possible_100.push((index as u8, 100 - max)).unwrap();
         }
 
         //
@@ -507,7 +508,26 @@ fn handle_permutation(
             let minor = get_stat_mod_cost(num::FromPrimitive::from_usize(1 + (index * 2)).unwrap());
             let major = get_stat_mod_cost(num::FromPrimitive::from_usize(2 + (index * 2)).unwrap());
 
+            for slot in available_modslots {
+                if max >= 100 {
+                    break
+                }
+                if slot >= major {
+                    max += 10;
+                } else if slot >= minor {
+                    max += 5;
+                }
+            }
+            if max > runtime.maximum_possible_tiers[index] {
+                runtime.maximum_possible_tiers[index] = max;
+            }
         }
+    }
+
+    if available_modslots_count > 0 && possible_100.len() >= 3 {
+        // a triple 100 or quad 100 build might be doable
+        possible_100.sort_by(|a, b| a.1.cmp(&b.1))
+
     }
 
     return Err(PermutationError::Unknown)
