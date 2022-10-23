@@ -1,5 +1,6 @@
 use std::collections::{HashMap, HashSet};
 use std::convert::TryInto;
+use std::iter::once;
 use std::ops::RangeBounds;
 use std::time::Duration;
 use gloo_worker::{HandlerId, Worker, WorkerScope};
@@ -501,7 +502,8 @@ fn handle_permutation(
     for (index, current_stat) in stats.values.iter().enumerate() {
         let mut current_stat = *current_stat;
         if current_stat >= minimum_needed_for_max {
-            possible_100.push(Stat(index as u8, 100 - current_stat)).unwrap();
+            // todo: WARNING CURRENT STAT COULD BE OVER 100
+            possible_100.push(Stat(index as u8, 100 - (current_stat as i16))).unwrap();
         }
 
         if current_stat + max_bonus >= runtime.maximum_possible_tiers[index] {
@@ -564,6 +566,10 @@ fn handle_permutation(
             .collect();
 
         for combination in combinations {
+            let mut required_mod_costs: MultiCounter<6> = MultiCounter::new();
+
+
+
 
         }
 
@@ -572,12 +578,33 @@ fn handle_permutation(
     return Err(PermutationError::Unknown)
 }
 
+pub struct MultiCounter<const N: usize> {
+    pub counters: [u8; N],
+    total: u8,
+}
+
+impl <const N: usize> MultiCounter<N> {
+    pub fn new() -> Self {
+        Self { counters: [0; N], total: 0 }
+    }
+
+    pub fn increment(&mut self, index: usize) {
+        self.counters[index] += 1; // todo: use checked add
+        self.total += 1;
+    }
+
+    pub fn decrement(&mut self, index: usize) {
+        self.counters[index] -= 1;
+        self.total = self.total.checked_sub(1).unwrap() // todo: pass result up
+    }
+}
+
 #[derive(Debug, Copy, Clone)]
-pub struct Stat (u8, u8);
+pub struct Stat (u8, i16);
 
 impl Stat {
     fn mod_cost(self) -> u8 {
-        (self.1.max(0) + 9) / 10
+        ((self.1.max(0) + 9) / 10) as u8
     }
 }
 
