@@ -27,7 +27,7 @@ pub fn fetch_loadout(
         .and(warp::get())
         .and(warp::query::<super::model::FetchLoadoutOptions>())
         .and(with_client(client))
-        .and_then(super::handlers::get_player)
+        .and_then(super::handlers::get_loadout)
 }
 
 fn with_client(

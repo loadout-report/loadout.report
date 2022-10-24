@@ -9,14 +9,14 @@ pub mod model;
 pub struct Manifest {
     pub version: String,
     pub mobile_asset_content_path: String,
-    pub mobile_gear_asset_data_bases: Vec<MobileGearAssetDataBase>,
-    pub mobile_world_content_paths: InternationalisedContentPaths<String>,
-    pub json_world_content_paths: InternationalisedContentPaths<String>,
+    // pub mobile_gear_asset_data_bases: Vec<MobileGearAssetDataBase>,
+    // pub mobile_world_content_paths: InternationalisedContentPaths<String>,
+    // pub json_world_content_paths: InternationalisedContentPaths<String>,
     pub json_world_component_content_paths: InternationalisedContentPaths<Components>,
     pub mobile_clan_banner_database_path: String,
     #[serde(rename = "mobileGearCDN")]
     pub mobile_gear_cdn: MobileGearCdn,
-    pub icon_image_pyramid_info: Vec<Value>,
+    // pub icon_image_pyramid_info: Vec<Value>,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -30,18 +30,18 @@ pub struct MobileGearAssetDataBase {
 #[serde(rename_all = "kebab-case")]
 pub struct InternationalisedContentPaths<T> {
     pub en: T,
-    pub fr: T,
-    pub es: T,
-    pub es_mx: T,
-    pub de: T,
-    pub it: T,
-    pub ja: T,
-    pub pt_br: T,
-    pub ru: T,
-    pub pl: T,
-    pub ko: T,
-    pub zh_cht: T,
-    pub zh_chs: T,
+    // pub fr: T,
+    // pub es: T,
+    // pub es_mx: T,
+    // pub de: T,
+    // pub it: T,
+    // pub ja: T,
+    // pub pt_br: T,
+    // pub ru: T,
+    // pub pl: T,
+    // pub ko: T,
+    // pub zh_cht: T,
+    // pub zh_chs: T,
 }
 
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]

@@ -10,6 +10,21 @@ use data::api::manifest::model::Item;
 pub struct WheelProps {
 }
 
+#[derive(Clone)]
+struct RollOption {
+    name: String,
+    icon: String,
+}
+
+impl RollOption {
+    fn new(name: String, icon: String) -> Self {
+        RollOption {
+            name,
+            icon,
+        }
+    }
+}
+
 #[function_component(Wheel)]
 pub fn wheel(_props: &WheelProps) -> Html {
     let exotics = use_state(Vec::new);
@@ -18,13 +33,25 @@ pub fn wheel(_props: &WheelProps) -> Html {
         let exotics = exotics.clone();
         use_effect_with_deps(move |_| {
             wasm_bindgen_futures::spawn_local(async move {
-                let fetched_exotics: Vec<Item> = reqwest::get("http://localhost:8080/items?rarity=6&category=1")
+                let mut special = vec![
+                RollOption::new("Ghostbusters".to_string(), "https://media.discordapp.net/attachments/907098694992687144/1034233774503907480/unknown.png".to_string()),
+                RollOption::new("Space Cowboys".to_string(), "https://media.discordapp.net/attachments/907098694992687144/1034226634376630355/unknown.png?width=457&height=676".to_string()),
+                RollOption::new("Rat Pack".to_string(), "".to_string()),
+                RollOption::new("Siva Crisis 2".to_string(), "".to_string()),
+                RollOption::new("Drifter would be proud".to_string(), "https://media.discordapp.net/attachments/907098694992687144/1034228384475123712/unknown.png".to_string()),
+                RollOption::new("Arrow to the Knee".to_string(), "https://media.discordapp.net/attachments/907098694992687144/1034217287030419456/unknown.png?width=886&height=676".to_string())
+                    ];
+                let mut fetched_exotics: Vec<RollOption> = reqwest::get("http://localhost:8080/items?rarity=6&category=1")
                     .await
                     .unwrap()
-                    .json()
+                    .json::<Vec<Item>>()
                     .await
-                    .unwrap();
-                exotics.set(fetched_exotics);
+                    .unwrap()
+                    .iter()
+                    .map(|item| RollOption::new(item.label.clone(), item.icon.clone()))
+                    .collect();
+                special.append(&mut fetched_exotics);
+                exotics.set(special);
             });
             || ()
         }, ());
@@ -36,7 +63,8 @@ pub fn wheel(_props: &WheelProps) -> Html {
         let random = random();
         let roll = floor(random * exotics.len() as f64) as usize;
         let roll = exotics.get(roll);
-        exotic.set(Some(roll.unwrap().clone()));
+        let roll = (*roll.unwrap()).clone();
+        exotic.set(Some(roll));
     });
     html! {
         <div class="app">
@@ -47,7 +75,10 @@ pub fn wheel(_props: &WheelProps) -> Html {
                 {
                     if let Some(roll) = (*exotic).clone() {
                         html!(
-                            <img src={roll.icon} alt={"exotic"} />
+                            <div>
+                                <img style="width: 96px; height: 96px" src={roll.icon.clone()} alt={"exotic"} />
+                                <h3>{roll.name.clone()}</h3>
+                            </div>
                         )
                     } else {
                         html!(

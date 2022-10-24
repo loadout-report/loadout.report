@@ -1,10 +1,12 @@
 use std::collections::HashMap;
 use std::sync::Arc;
+use std::time::Duration;
 
 use log::info;
 use serde_derive::{Deserialize, Serialize};
-use tokio::signal::{unix::signal, unix::SignalKind};
+// use tokio::signal::{unix::signal, unix::SignalKind};
 use tokio::sync::Mutex;
+use tokio_graceful_shutdown::{SubsystemHandle, Toplevel};
 use warp::Filter;
 use warp::http::StatusCode;
 
@@ -47,13 +49,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         });
 
-
-
-    // start + graceful shutdown
-    let mut stream = signal(SignalKind::terminate())?;
     let (_, server) = warp::serve(routes).bind_with_graceful_shutdown(([0, 0, 0, 0], 8080), async move {
         info!("waiting for shutdown signal");
-        stream.recv().await;
+        tokio::signal::ctrl_c()
+            .await
+            .expect("failed to listen to shutdown signal");
         info!("got shutdown signal");
     });
     match tokio::join!(tokio::task::spawn(server)).0 {
