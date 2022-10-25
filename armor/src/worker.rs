@@ -588,12 +588,14 @@ fn handle_permutation(
                 .rev()
                 .take(3)
                 .filter(|(_, c)| **c == 0_u8)
-                .map(|(i, c)| {
-                    let slots: Vec<_> = available_modslots
+                .for_each(|(i, c)| available_modslots
                     .iter().enumerate()
-                    .filter(|(i, d)| (used_modslot_index & (1 << i)) > 0 && **d >= *c).collect();
-                })
-                .collect();
+                    .filter(|(i, d)| (used_modslot_index & (1 << i)) > 0 && **d >= *c)
+                    .enumerate()
+                    .take(*c as usize)
+                    .for_each(|(n, (cost_idx, _))| {
+                        used_modslot_index = used_modslot_index | (1 << cost_idx);
+                }));
             for i in (3..6).rev() {
                 let cost = costs.counters[i];
                 if cost == 0 {
