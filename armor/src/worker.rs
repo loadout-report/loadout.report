@@ -1,12 +1,14 @@
 use std::collections::{HashMap, HashSet};
 use std::convert::TryInto;
-use std::iter::once;
+use std::iter::{once, Once};
 use std::ops::RangeBounds;
 use std::time::Duration;
 use gloo_worker::{HandlerId, Worker, WorkerScope};
 use rexie::{KeyRange, TransactionMode};
+use rexie::Error::DomExceptionNotFound;
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsValue;
+use itertools::Itertools;
 use data::api::manifest::model::Hash;
 use crate::db::build_database;
 use crate::model::{ArmorInformation, ArmorPerkOrSlot, ArmorSet, ArmorSlot, ArmorStat, CharacterClass, DestinyEnergyType, ExoticChoiceModel, FixableSelection, InventoryArmor, Item, ManifestArmor, ModGroup, ModifierValue, Msg, SimpleArmorStat, SimpleModifierValue, StatMod, StatModifier, StrippedInventoryArmor, ThreadConfig, TierType, WorkerConfig};
@@ -535,24 +537,24 @@ fn handle_permutation(
             // pair each element with its index
             .enumerate()
             .take_while(|(index, _)| *index < possible_100.len() - 2)
-            .map(|(index, i)| (index, ArmorCombination::Single(*i), i.mod_cost()))
+            .map(|(index, i)| (index, ArmorCombination::new().with(0, *i), i.mod_cost()))
             .take_while(|(_, _, cost)| *cost <= available_modslots_count)
             .flat_map(|(index, a, cost)| possible_100.iter()
                 .enumerate()
                 .skip(index + 1)
                 .take_while(|(index, _)| *index < possible_100.len() - 1)
-                .map(move |(index, i)| (index, a.extend(*i), cost + i.mod_cost()))
+                .map(move |(index, i)| (index, a.with(1, *i), cost + i.mod_cost()))
                 .take_while(|(_, _, cost)| *cost <= available_modslots_count)
                 .flat_map(|(index, combination, cost)| possible_100.iter()
                     .enumerate()
                     .skip(index + 1)
-                    .map(move |(index, i)| (index, combination.extend(*i), cost + i.mod_cost()))
+                    .map(move |(index, i)| (index, combination.with(2, *i), cost + i.mod_cost()))
                     .take_while(|(_, _, cost)| *cost <= available_modslots_count)
                     .flat_map(|(index, combination, cost)| {
                         let mut res: heapless::Vec<_, 20> = possible_100.iter()
                             .enumerate()
                             .skip(index + 1)
-                            .map(move |(index, i)| (index, combination.extend(*i), cost + i.mod_cost()))
+                            .map(move |(index, i)| (index, combination.with(3, *i), cost + i.mod_cost()))
                             .take_while(|(_, _, cost)| *cost <= available_modslots_count)
                             .map(|(_, combination, _)| combination)
                             .collect();
@@ -565,17 +567,74 @@ fn handle_permutation(
             )
             .collect();
 
+        // every potential combination that can get to triple or quad 100 for this armor set
         for combination in combinations {
-            let mut required_mod_costs: MultiCounter<6> = MultiCounter::new();
 
+            // todo: could we theoretically do this in one step and make it more performant?
+            // get the theoretical mod cost we need to get to t3 / t4
+            let mut costs = get_required_mod_costs(combination);
 
+            // combination is more expensive than we can afford
+            // lets just continue
+            if costs.total > available_modslots_count {
+                continue;
+            }
 
+            let mut used_modslot_index: u8 = 0;
+
+            costs.counters
+                .into_iter()
+                .enumerate()
+                .rev()
+                .take(3)
+                .filter(|(_, c)| **c == 0_u8)
+                .map(|(i, c)| {
+                    let slots: Vec<_> = available_modslots
+                    .iter().enumerate()
+                    .filter(|(i, d)| (used_modslot_index & (1 << i)) > 0 && **d >= *c).collect();
+                })
+                .collect();
+            for i in (3..6).rev() {
+                let cost = costs.counters[i];
+                if cost == 0 {
+                    continue;
+                }
+
+            }
 
         }
 
     }
 
     return Err(PermutationError::Unknown)
+}
+
+fn get_required_mod_costs(combination: ArmorCombination) -> MultiCounter<6> {
+    let mut required_mod_costs: MultiCounter<6> = MultiCounter::new();
+    combination.stats.iter()
+        .filter(|s| s.1 > 0)
+        .for_each(|s| {
+            let id = s.0;
+            let cost = s.1;
+            let id = 1 + (id * 2);
+            let minor = get_stat_mod_cost(num::FromPrimitive::from_u8(id).unwrap());
+            let major = get_stat_mod_cost(num::FromPrimitive::from_u8(id + 1).unwrap());
+
+            let cost = 0.max(cost);
+            // how many major mods do we need
+            let mut major_count = cost / 10; // integer floor division
+            // do we need a minor mod?
+            let rest = cost % 10;
+            if rest > 5 {
+                major_count += 1;
+            } else if rest > 0 {
+                required_mod_costs.increment(minor as usize);
+            }
+
+            required_mod_costs.increment_by(major as usize, major_count as u8);
+        });
+
+    required_mod_costs
 }
 
 pub struct MultiCounter<const N: usize> {
@@ -593,13 +652,18 @@ impl <const N: usize> MultiCounter<N> {
         self.total += 1;
     }
 
+    pub fn increment_by(&mut self, index: usize, n: u8) {
+        self.counters[index] += n; // todo: use checked add
+        self.total += n;
+    }
+
     pub fn decrement(&mut self, index: usize) {
         self.counters[index] -= 1;
         self.total = self.total.checked_sub(1).unwrap() // todo: pass result up
     }
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Default)]
 pub struct Stat (u8, i16);
 
 impl Stat {
@@ -608,22 +672,22 @@ impl Stat {
     }
 }
 
-#[derive(Debug, Copy, Clone)]
-pub enum ArmorCombination {
-    Single(Stat),
-    Duo(Stat, Stat),
-    Triple(Stat, Stat, Stat),
-    Quadruple(Stat, Stat, Stat, Stat),
+#[derive(Debug, Copy, Clone, Default)]
+pub struct ArmorCombination {
+    stats: [Stat; 4]
 }
 
 impl ArmorCombination {
-    fn extend(self, s: Stat) -> Self {
-        match self {
-            ArmorCombination::Single(a) => ArmorCombination::Duo(a, s),
-            ArmorCombination::Duo(a, b) => ArmorCombination::Triple(a, b, s),
-            ArmorCombination::Triple(a, b, c) => ArmorCombination::Quadruple(a, b, c, s),
-            ArmorCombination::Quadruple(_, _, _, _) => panic!("cannot extend quadruple")
+
+    pub fn new() -> Self {
+        ArmorCombination {
+            stats: Default::default()
         }
+    }
+
+    pub fn with(mut self, i: usize, s: Stat) -> Self {
+        self.stats[i] = s;
+        self
     }
 }
 
