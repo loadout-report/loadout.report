@@ -7,6 +7,7 @@ mod utils;
 mod worker;
 mod model;
 mod db;
+mod scheduler;
 
 use wasm_bindgen::prelude::*;
 

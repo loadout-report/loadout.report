@@ -16,7 +16,7 @@ pub enum Msg<T> {
     Ready(rexie::Rexie),
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Deserialize, Serialize)]
 pub struct StrippedInventoryArmor {
     pub id: i32, // may not need this
     pub item_instance_id: Hash,
@@ -149,7 +149,7 @@ pub struct DestinyItemInvestmentStatDefinition {
     pub is_conditionally_active: bool,
 }
 
-#[derive(Copy, Clone, Default, Deserialize, Eq, PartialEq)]
+#[derive(Copy, Clone, Default, Deserialize, Serialize, Eq, PartialEq)]
 pub enum TierType {
     #[default]
     Unknown = 0,

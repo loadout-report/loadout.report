@@ -97,6 +97,81 @@ pub struct Output {
     stats: Option<OutputStats>,
 }
 
+#[derive(Deserialize, Serialize, Default)]
+pub struct Armory {
+    pub helmets: Vec<StrippedInventoryArmor>,
+    pub gauntlets: Vec<StrippedInventoryArmor>,
+    pub chests: Vec<StrippedInventoryArmor>,
+    pub legs: Vec<StrippedInventoryArmor>,
+    pub class_items: Vec<StrippedInventoryArmor>,
+}
+
+impl Armory {
+    pub fn new() -> Self {
+        Default::default()
+    }
+
+    pub fn chunk(self, n: usize) {
+        let (collection_to_chunk, max) = self.index_of_max();
+        let chunk_size = max / n;
+
+        let _ = match collection_to_chunk {
+            0 => self.helmets.chunks(chunk_size).map(|chunk| Armory {
+                helmets: chunk.to_vec(),
+                gauntlets: self.gauntlets,
+                chests: self.chests,
+                legs: self.legs,
+                class_items: self.class_items
+            }),
+            1 => self.gauntlets.chunks(chunk_size).map(|chunk| Armory {
+                helmets: self.helmets,
+                gauntlets: chunk.to_vec(),
+                chests: self.chests,
+                legs: self.legs,
+                class_items: self.class_items
+            }),
+            2 => self.chests.chunks(chunk_size).map(|chunk| Armory {
+                helmets: self.helmets,
+                gauntlets: self.gauntlets,
+                chests: chunk.to_vec(),
+                legs: self.legs,
+                class_items: self.class_items
+            }),
+            3 => self.legs.chunks(chunk_size).map(|chunk| Armory {
+                helmets: self.helmets,
+                gauntlets: self.gauntlets,
+                chests: self.chests,
+                legs: chunk.to_vec(),
+                class_items: self.class_items
+            }),
+            _ => unreachable!(),
+        };
+        ()
+    }
+
+    pub fn index_of_max(&self) -> (usize, usize) {
+        let sets: [usize; 4] = [self.helmets.len(), self.gauntlets.len(), self.chests.len(), self.legs.len()];
+        let max = sets.iter().max().unwrap();
+        (sets.iter().position(|l| l == max).unwrap(), *max)
+    }
+}
+
+impl From<Vec<StrippedInventoryArmor>> for Armory {
+    fn from(input: Vec<StrippedInventoryArmor>) -> Self {
+        input.iter().fold(Default::default(), |mut t, i| {
+            match i.slot {
+                ArmorSlot::ArmorSlotNone => (),
+                ArmorSlot::ArmorSlotHelmet => t.helmets.push(*i),
+                ArmorSlot::ArmorSlotGauntlet => t.gauntlets.push(*i),
+                ArmorSlot::ArmorSlotChest => t.chests.push(*i),
+                ArmorSlot::ArmorSlotLegs => t.legs.push(*i),
+                ArmorSlot::ArmorSlotClass => t.class_items.push(*i),
+            }
+            t
+        })
+    }
+}
+
 impl Worker for ArmorWorker {
     type Message = Msg<()>;
     type Input = Input;
@@ -131,99 +206,14 @@ impl Worker for ArmorWorker {
             return;
         }
 
-        scope.send_future(async {
-            run_job(scope, id, self.db.unwrap(), msg).await.unwrap();
-            Msg::Done
-        });
+        run_job(scope, id, selected_exotic, armory, msg);
 
     }
 }
 
-async fn run_job(scope: &WorkerScope<ArmorWorker>, id: HandlerId, db: rexie::Rexie, data: Input) -> Result<(), Box<dyn std::error::Error>> {
+fn run_job(scope: &WorkerScope<ArmorWorker>, id: HandlerId, selected_exotic: Option<ManifestArmor>, armory: Armory, data: Input) -> Result<(), Box<dyn std::error::Error>> {
     let start_time = Instant::now();
     let config = data.config;
-
-    let selected_exotic = if let ExoticChoiceModel::Some(exotic) = config.selected_exotic {
-        let tx = db.transaction(&["manifestArmor"], TransactionMode::ReadOnly)?;
-        let manifest_armor = tx.store("manifestArmor").unwrap();
-        let armor = manifest_armor.index("hash").unwrap().get(&JsValue::from(exotic)).await?;
-        let armor: ManifestArmor = serde_wasm_bindgen::from_value(armor)?;
-        tx.done().await?;
-        Some(armor)
-    } else {
-        None
-    };
-
-    // todo: single iteration to split vectors
-    let armor: Vec<InventoryArmor> = {
-        let tx = db.transaction(&["inventoryArmor"], TransactionMode::ReadOnly)?;
-        let inventory_armor = tx.store("inventory_armor")?;
-        let key_range = KeyRange::only(&(config.character_class as u32).into()).unwrap();
-        let armor = inventory_armor.index("clazz").unwrap();
-        let armor = armor.get_all(Some(&key_range), None, None, None).await?;
-        armor.iter().into_iter()
-            .map(|(_, value)| serde_wasm_bindgen::from_value(value.clone()).unwrap())
-            .collect()
-    };
-
-    let armor_info: HashMap<Hash, ArmorInformation> = armor.iter()
-        .map(|i| (i.hash, Into::into(i.clone())))
-        .collect();
-
-    let armor: Vec<StrippedInventoryArmor> = armor.iter()
-        .map(|i| Into::into(i.clone()))
-        .collect();
-
-    let armor: Vec<_> = armor.iter()
-        .filter(|i| i.slot != ArmorSlot::ArmorSlotNone)
-        .filter(|i| !config.disabled_items.contains(&i.item_instance_id))
-        .filter(|i| config.selected_exotic != ExoticChoiceModel::None || !i.is_exotic)
-        .filter(|i| config.selected_exotic == ExoticChoiceModel::All || selected_exotic.is_some_and(|e| e.slot != i.slot || e.hash == i.hash))
-        .filter(|i| !config.only_use_masterworked_items || i.masterworked)
-        .filter(|i| config.allow_blue_armor_pieces || i.rarity == TierType::Exotic || i.rarity == TierType::Superior)
-        .filter(|i| !config.ignore_sunset_armor || !i.is_sunset)
-        .filter(|i| {
-            let affinity = config.armor_affinities.get(&i.slot).unwrap();
-            !affinity.fixed ||
-                affinity.value == DestinyEnergyType::Any ||
-                (i.masterworked && config.ignore_armor_affinities_on_masterworked_items) ||
-                (!i.masterworked && config.ignore_armor_affinities_on_non_masterworked_items) ||
-                affinity.value == i.energy_affinity
-        })
-        .filter(|i| {
-            let perks = config.armor_perks.get(&i.slot).unwrap();
-            i.is_exotic ||
-                !perks.fixed ||
-                perks.value == ArmorPerkOrSlot::None ||
-                perks.value == i.perk
-        })
-        .map(|i| {
-            if (i.is_exotic && config.assume_exotics_masterworked)
-                || config.assume_legendaries_masterworked
-                || (i.slot == ArmorSlot::ArmorSlotClass && config.assume_class_item_masterworked) {
-                return i.assume_masterwork();
-            }
-            *i
-        })
-        .collect();
-
-    let (mut helmets, mut gauntlets, mut chests, mut legs, class_items): (
-        Vec<StrippedInventoryArmor>,
-        Vec<StrippedInventoryArmor>,
-        Vec<StrippedInventoryArmor>,
-        Vec<StrippedInventoryArmor>,
-        Vec<StrippedInventoryArmor>,
-    ) = armor.iter().fold(Default::default(), |mut t, i| {
-        match i.slot {
-            ArmorSlot::ArmorSlotNone => (),
-            ArmorSlot::ArmorSlotHelmet => t.0.push(*i),
-            ArmorSlot::ArmorSlotGauntlet => t.1.push(*i),
-            ArmorSlot::ArmorSlotChest => t.2.push(*i),
-            ArmorSlot::ArmorSlotLegs => t.3.push(*i),
-            ArmorSlot::ArmorSlotClass => t.4.push(*i),
-        }
-        t
-    });
 
     // threading
     if data.thread_split.count > 1 {
@@ -258,7 +248,7 @@ async fn run_job(scope: &WorkerScope<ArmorWorker>, id: HandlerId, db: rexie::Rex
         }
     }
 
-    let available_class_item_perk_types: HashSet<_> = class_items.iter()
+    let available_class_item_perk_types: HashSet<_> = armory.class_items.iter()
         .map(|i| i.perk)
         .collect();
 
@@ -270,7 +260,7 @@ async fn run_job(scope: &WorkerScope<ArmorWorker>, id: HandlerId, db: rexie::Rex
             if !map.contains_key(&ArmorPerkOrSlot::None) {
                 map.insert(&ArmorPerkOrSlot::None, HashSet::new());
             }
-            class_items.iter()
+            armory.class_items.iter()
                 .filter(|i| i.perk == *apos)
                 .for_each(|i| {
                     map.get_mut(&ArmorPerkOrSlot::None).unwrap().insert(i.energy_affinity);
