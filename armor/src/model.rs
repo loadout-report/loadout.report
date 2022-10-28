@@ -12,6 +12,7 @@ pub mod stats;
 
 pub enum Msg<T> {
     Respond { output: T, id: HandlerId },
+    Done,
     Ready(rexie::Rexie),
 }
 
@@ -83,9 +84,9 @@ impl From<InventoryArmor> for StrippedInventoryArmor {
 
 #[derive(Clone, Deserialize)]
 pub struct ArmorInformation {
-    icon: String,
-    watermark: String,
-    name: String,
+    pub icon: String,
+    pub watermark: String,
+    pub name: String,
 }
 
 impl From<InventoryArmor> for ArmorInformation {
@@ -164,7 +165,7 @@ pub enum TierType {
 #[serde(rename_all = "camelCase")]
 pub struct Item {
     pub energy: DestinyEnergyType,
-    pub energyLevel: (),
+    pub energyLevel: u8,
     // que?
     pub hash: Hash,
     pub item_instance_id: Hash,
@@ -172,9 +173,9 @@ pub struct Item {
     pub exotic: bool,
     pub masterworked: bool,
     pub may_be_bugged: bool,
-    pub slot: (),
-    pub perk: (),
-    pub transfer_state: (),
+    pub slot: ArmorSlot,
+    pub perk: ArmorPerkOrSlot,
+    pub transfer_state: u8,
     pub stats: Stats,
 }
 
@@ -414,6 +415,20 @@ impl ArmorSet {
             gauntlets,
             chest,
             legs,
+        }
+    }
+
+    pub fn exotic(&self) -> Option<StrippedInventoryArmor> {
+        if self.helmet.is_exotic {
+            Some(self.helmet)
+        } else if self.gauntlets.is_exotic {
+            Some(self.gauntlets)
+        } else if self.legs.is_exotic {
+            Some(self.legs)
+        } else if self.chest.is_exotic {
+            Some(self.chest)
+        } else {
+            None
         }
     }
 
