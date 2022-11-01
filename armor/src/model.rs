@@ -18,10 +18,12 @@ pub enum Msg<T> {
 
 #[derive(Copy, Clone, Deserialize, Serialize)]
 pub struct StrippedInventoryArmor {
-    pub id: i32, // may not need this
+    pub id: i32,
+    // may not need this
     pub item_instance_id: Hash,
     pub masterworked: bool,
-    pub may_be_bugged: bool, // may not need this
+    pub may_be_bugged: bool,
+    // may not need this
     // if there was an error in the parsing
     pub stats: Stats,
 
@@ -33,7 +35,8 @@ pub struct StrippedInventoryArmor {
     pub perk: ArmorPerkOrSlot,
     pub is_exotic: bool,
     pub rarity: TierType,
-    pub exotic_perk_hash: Hash, // may not need this
+    pub exotic_perk_hash: Hash,
+    // may not need this
     pub is_sunset: bool,
     pub item_type: i32,
     pub item_sub_type: i32,
@@ -133,6 +136,41 @@ pub struct InventoryArmor {
     pub item_type: i32,
     pub item_sub_type: i32,
     pub investment_stats: Vec<DestinyItemInvestmentStatDefinition>,
+}
+
+pub struct InventoryArmorComponents(ArmorInformation, StrippedInventoryArmor);
+
+impl From<InventoryArmor> for InventoryArmorComponents {
+    fn from(armor: InventoryArmor) -> Self {
+        let info = ArmorInformation {
+            icon: armor.icon,
+            watermark: armor.watermark_icon,
+            name: armor.name,
+        };
+        let item = StrippedInventoryArmor {
+            id: armor.id,
+            item_instance_id: armor.item_instance_id,
+            masterworked: armor.masterworked,
+            may_be_bugged: armor.may_be_bugged,
+            stats: Stats::new([
+                armor.mobility, armor.resilience, armor.recovery,
+                armor.discipline, armor.intellect, armor.strength
+            ]),
+            energy_level: armor.energy_level,
+            energy_affinity: armor.energy_affinity,
+            hash: armor.hash,
+            slot: armor.slot,
+            clazz: armor.clazz,
+            perk: armor.perk,
+            is_exotic: armor.is_exotic,
+            rarity: armor.rarity,
+            exotic_perk_hash: armor.exotic_perk_hash,
+            is_sunset: armor.is_sunset,
+            item_type: armor.item_type,
+            item_sub_type: armor.item_sub_type,
+        };
+        InventoryArmorComponents(info, item)
+    }
 }
 
 #[derive(Deserialize, Clone, Copy)]
@@ -253,7 +291,7 @@ impl From<(ArmorStat, CharacterClass)> for SimpleArmorStat {
                     CharacterClass::Hunter => SimpleArmorStat::Mobility,
                     CharacterClass::Warlock => SimpleArmorStat::Recovery,
                 }
-            },
+            }
             ArmorStat::Mobility => SimpleArmorStat::Mobility,
             ArmorStat::Resilience => SimpleArmorStat::Resilience,
             ArmorStat::Recovery => SimpleArmorStat::Recovery,
@@ -395,7 +433,7 @@ impl DestinyEnergyType {
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Serialize, Deserialize)]
 pub struct ArmorSet {
     pub helmet: StrippedInventoryArmor,
     pub gauntlets: StrippedInventoryArmor,
@@ -550,7 +588,7 @@ impl From<(ModifierValue, CharacterClass)> for SimpleModifierValue {
     fn from((m, c): (ModifierValue, CharacterClass)) -> Self {
         Self {
             stat: From::from((m.stat, c)),
-            value: m.value
+            value: m.value,
         }
     }
 }
@@ -568,7 +606,6 @@ impl ModifierValue {
             value,
         }
     }
-
 }
 
 #[derive(Deserialize, Serialize, Copy, Clone, Hash, Eq, PartialEq)]

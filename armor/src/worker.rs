@@ -15,16 +15,14 @@ use crate::model::{ArmorInformation, ArmorPerkOrSlot, ArmorSet, ArmorSlot, Armor
 use crate::model::stats::{Stats, StatsMod};
 
 pub struct ArmorWorker {
-    db: Option<rexie::Rexie>,
-    ready: bool,
 }
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Input {
-    pub current_class: CharacterClass,
     pub config: WorkerConfig,
-    pub thread_split: ThreadConfig,
+    pub armory: Armory,
+    pub n: usize,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -36,9 +34,11 @@ pub struct ExoticResult {
     hash: Hash,
 }
 
+/// This is the ItemResult returned by the rust application to the javascript
+/// interface for interoperability
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
-pub struct ItemResult {
+pub struct SanitisedItemResult {
     exotic: Option<ExoticResult>,
     mod_count: usize,
     mod_cost: u8,
@@ -51,13 +51,33 @@ pub struct ItemResult {
     class_item: ClassItem,
 }
 
+/// This is the ItemResult returned by the worker to the calling rust framework
+/// As opposed to the Stripped version, this uses a regular vector so we can
+/// serialise it
 #[derive(Deserialize, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ItemResult {
+    exotic: Option<Hash>,
+    mod_count: usize,
+    mod_cost: u8,
+    mods: Vec<StatModifier>,
+    stats: Stats,
+    stats_no_mods: Stats,
+    tiers: u8,
+    waste: u8,
+    items: ArmorSet,
+    class_item: ClassItem,
+}
+
+#[derive(Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassItem {
     perk: ArmorPerkOrSlot,
     affinity: DestinyEnergyType
 }
 
+/// This ItemResult is used internally in the worker for extra speed. It implements
+/// Clone should be a very inexpensive operation on this struct
 #[derive(Clone)]
 pub struct StrippedItemResult {
     exotic: Option<Hash>,
@@ -97,7 +117,7 @@ pub struct Output {
     stats: Option<OutputStats>,
 }
 
-#[derive(Deserialize, Serialize, Default)]
+#[derive(Deserialize, Serialize, Default, Clone)]
 pub struct Armory {
     pub helmets: Vec<StrippedInventoryArmor>,
     pub gauntlets: Vec<StrippedInventoryArmor>,
@@ -111,42 +131,53 @@ impl Armory {
         Default::default()
     }
 
-    pub fn chunk(self, n: usize) {
+    pub fn len(&self) -> usize {
+        self.helmets.len()
+            + self.gauntlets.len()
+            + self.chests.len()
+            + self.legs.len()
+            + self.class_items.len()
+    }
+
+    /// partitions the armory into n chunks depending on the largest inner collection
+    pub fn chunk(self, n: usize) -> Vec<Armory> {
+        // if n == 1 {
+        //     return Box::new(once((self).clone()));
+        // }
         let (collection_to_chunk, max) = self.index_of_max();
         let chunk_size = max / n;
 
-        let _ = match collection_to_chunk {
+        match collection_to_chunk {
             0 => self.helmets.chunks(chunk_size).map(|chunk| Armory {
                 helmets: chunk.to_vec(),
-                gauntlets: self.gauntlets,
-                chests: self.chests,
-                legs: self.legs,
-                class_items: self.class_items
-            }),
+                gauntlets: self.gauntlets.clone(),
+                chests: self.chests.clone(),
+                legs: self.legs.clone(),
+                class_items: self.class_items.clone()
+            }).collect(),
             1 => self.gauntlets.chunks(chunk_size).map(|chunk| Armory {
-                helmets: self.helmets,
+                helmets: self.helmets.clone(),
                 gauntlets: chunk.to_vec(),
-                chests: self.chests,
-                legs: self.legs,
-                class_items: self.class_items
-            }),
+                chests: self.chests.clone(),
+                legs: self.legs.clone(),
+                class_items: self.class_items.clone()
+            }).collect(),
             2 => self.chests.chunks(chunk_size).map(|chunk| Armory {
-                helmets: self.helmets,
-                gauntlets: self.gauntlets,
+                helmets: self.helmets.clone(),
+                gauntlets: self.gauntlets.clone(),
                 chests: chunk.to_vec(),
-                legs: self.legs,
-                class_items: self.class_items
-            }),
+                legs: self.legs.clone(),
+                class_items: self.class_items.clone()
+            }).collect(),
             3 => self.legs.chunks(chunk_size).map(|chunk| Armory {
-                helmets: self.helmets,
-                gauntlets: self.gauntlets,
-                chests: self.chests,
+                helmets: self.helmets.clone(),
+                gauntlets: self.gauntlets.clone(),
+                chests: self.chests.clone(),
                 legs: chunk.to_vec(),
-                class_items: self.class_items
-            }),
+                class_items: self.class_items.clone()
+            }).collect(),
             _ => unreachable!(),
-        };
-        ()
+        }
     }
 
     pub fn index_of_max(&self) -> (usize, usize) {
@@ -187,66 +218,22 @@ impl Worker for ArmorWorker {
 
 
         Self {
-            db: None,
-            ready: false,
         }
     }
 
-    fn update(&mut self, _: &WorkerScope<Self>, msg: Self::Message) {
-        if let Msg::Ready(db) = msg {
-            self.db = Some(db);
-            self.ready = true;
-        }
+    fn update(&mut self, _: &WorkerScope<Self>, _: Self::Message) {
     }
 
     fn received(&mut self, scope: &WorkerScope<Self>, msg: Self::Input, id: HandlerId) {
         // run job
-        if !self.ready {
-            // todo: respond with error
-            return;
-        }
-
-        run_job(scope, id, selected_exotic, armory, msg);
+        let armory = msg.armory;
+        run_job(scope, id, armory, msg.config, msg.n);
 
     }
 }
 
-fn run_job(scope: &WorkerScope<ArmorWorker>, id: HandlerId, selected_exotic: Option<ManifestArmor>, armory: Armory, data: Input) -> Result<(), Box<dyn std::error::Error>> {
+fn run_job(scope: &WorkerScope<ArmorWorker>, id: HandlerId, armory: Armory, config: WorkerConfig, n: usize) -> Result<(), Box<dyn std::error::Error>> {
     let start_time = Instant::now();
-    let config = data.config;
-
-    // threading
-    if data.thread_split.count > 1 {
-        let sets: [usize; 4] = [helmets.len(), gauntlets.len(), chests.len(), legs.len()];
-        let max = sets.iter().max().unwrap();
-        let index = sets.iter().position(|l| l == max).unwrap();
-        let keep_length = max / data.thread_split.count;
-        let start_index = keep_length * data.thread_split.current;
-        let mut end_index = keep_length * (data.thread_split.current + 1);
-        if keep_length * data.thread_split.count != *max && data.thread_split.current == data.thread_split.count - 1 {
-            end_index += max - keep_length * data.thread_split.count;
-        }
-
-        match index {
-            0 => {
-                helmets.drain(end_index..);
-                helmets.drain(0..start_index);
-            }
-            1 => {
-                gauntlets.drain(end_index..);
-                gauntlets.drain(0..start_index);
-            }
-            2 => {
-                chests.drain(end_index..);
-                chests.drain(0..start_index);
-            }
-            3 => {
-                legs.drain(end_index..);
-                legs.drain(0..start_index);
-            }
-            _ => unreachable!(),
-        }
-    }
 
     let available_class_item_perk_types: HashSet<_> = armory.class_items.iter()
         .map(|i| i.perk)
@@ -290,104 +277,72 @@ fn run_job(scope: &WorkerScope<ArmorWorker>, id: HandlerId, selected_exotic: Opt
     let mut total_results = 0;
     let mut do_not_output = false;
 
-    for helmet in &helmets {
-        for gauntlet in &gauntlets {
-            for chest in &chests {
-                for leg in &legs {
-                    let set = ArmorSet::new(
-                        *helmet,
-                        *gauntlet,
-                        *chest,
-                        *leg,
-                    );
-                    let (ok, required_class_item) = check_slots(
-                        &config, modslot_requirement, &available_class_item_energy_perk_dict,
-                        &set,
-                    );
-                    if !ok {
-                        continue;
-                    }
+    for set in armory.helmets.iter()
+        .cartesian_product(armory.gauntlets.iter())
+        .cartesian_product(armory.chests.iter())
+        .cartesian_product(armory.legs.iter())
+        .map(|(((helmet, gauntlets), chest), legs)| ArmorSet::new(*helmet, *gauntlets, *chest, *legs)) {
 
-                    let mut required_class_el = DestinyEnergyType::Any;
-                    if must_check_element_req {
-                        let (ok, req_cel) = check_elements(
-                            &config,
-                            element_requirement,
-                            available_class_item_energy_perk_dict.get(
-                                &required_class_item.unwrap_or_default()
-                            ).unwrap_or(&HashSet::new()), &set,
-                        );
-                        if !ok {
-                            continue;
-                        }
-                        required_class_el = req_cel;
-                    }
+        let (ok, required_class_item) = check_slots(
+            &config, modslot_requirement, &available_class_item_energy_perk_dict,
+            &set,
+        );
+        if !ok {
+            continue;
+        }
 
-                    let result = handle_permutation(&mut runtime, &config, &set, stat_bonus, available_modslots, do_not_output);
-                    match result {
-                        Ok(result) => {
-                            total_results += 1;
-
-                            let result = ItemResult {
-                                exotic: result.exotic.map(|e| {
-                                    let info = armor_info.get(&e).unwrap().clone();
-                                    ExoticResult {
-                                        icon: info.icon,
-                                        watermark: info.watermark,
-                                        name: info.name,
-                                        hash: e
-                                    }
-                                }),
-                                mod_count: result.mod_count,
-                                mod_cost: result.mod_cost,
-                                mods: result.mods.to_vec(),
-                                stats: result.stats,
-                                stats_no_mods: result.stats_no_mods,
-                                tiers: result.tiers,
-                                waste: result.waste,
-                                items: result.items.iter().map(|i| {
-                                    let armor_info = armor_info.get(&i.hash).unwrap().clone();
-                                    Item {
-                                        energy: i.energy_affinity,
-                                        energyLevel: i.energy_level,
-                                        hash: i.hash,
-                                        item_instance_id: i.item_instance_id,
-                                        name: armor_info.name,
-                                        exotic: i.is_exotic,
-                                        masterworked: i.masterworked,
-                                        may_be_bugged: i.may_be_bugged,
-                                        slot: i.slot,
-                                        perk: i.perk,
-                                        transfer_state: 0,
-                                        stats: i.stats
-                                    }
-                                }).collect(),
-                                class_item: ClassItem {
-                                    perk: required_class_item.unwrap_or_default(),
-                                    affinity: required_class_el
-                                }
-                            };
-
-                            results.push(result);
-                            listed_results += 1;
-                            do_not_output = do_not_output || (config.limit_parsed_results && listed_results >= 50_000_usize / data.thread_split.count) || listed_results >= 1_000_000_usize / data.thread_split.count;
-                            if results.len() >= 5000 {
-                                // todo: respond to caller
-                                scope.respond(id, Output {
-                                    runtime: runtime.clone(),
-                                    results,
-                                    total: None,
-                                    done: false,
-                                    stats: None
-                                });
-                                results = Vec::with_capacity(5000);
-                            }
-                        },
-                        Err(err) => if let PermutationError::DoNotOutput = err { total_results += 1 },
-                    }
-
-                }
+        let mut required_class_el = DestinyEnergyType::Any;
+        if must_check_element_req {
+            let (ok, req_cel) = check_elements(
+                &config,
+                element_requirement,
+                available_class_item_energy_perk_dict.get(
+                    &required_class_item.unwrap_or_default()
+                ).unwrap_or(&HashSet::new()), &set,
+            );
+            if !ok {
+                continue;
             }
+            required_class_el = req_cel;
+        }
+
+        let result = handle_permutation(&mut runtime, &config, &set, stat_bonus, available_modslots, do_not_output);
+        match result {
+            Ok(result) => {
+                total_results += 1;
+
+                let result = ItemResult {
+                    exotic: result.exotic,
+                    mod_count: result.mod_count,
+                    mod_cost: result.mod_cost,
+                    mods: result.mods.to_vec(),
+                    stats: result.stats,
+                    stats_no_mods: result.stats_no_mods,
+                    tiers: result.tiers,
+                    waste: result.waste,
+                    items: result.items,
+                    class_item: ClassItem {
+                        perk: required_class_item.unwrap_or_default(),
+                        affinity: required_class_el
+                    }
+                };
+
+                results.push(result);
+                listed_results += 1;
+                do_not_output = do_not_output || (config.limit_parsed_results && listed_results >= 50_000_usize / n) || listed_results >= 1_000_000_usize / n;
+                if results.len() >= 5000 {
+                    // todo: respond to caller
+                    scope.respond(id, Output {
+                        runtime: runtime.clone(),
+                        results,
+                        total: None,
+                        done: false,
+                        stats: None
+                    });
+                    results = Vec::with_capacity(5000);
+                }
+            },
+            Err(err) => if let PermutationError::DoNotOutput = err { total_results += 1 },
         }
     }
 
@@ -398,7 +353,7 @@ fn run_job(scope: &WorkerScope<ArmorWorker>, id: HandlerId, selected_exotic: Opt
         done: true,
         stats: Some(OutputStats {
             permutation_count: total_results,
-            item_count: armor.len() - class_items.len(),
+            item_count: armory.len() - armory.class_items.len(),
             total_time: start_time.elapsed(),
         })
     });
@@ -725,6 +680,7 @@ fn handle_permutation(
 
     if config.try_limit_wasted_stats && available_modslots_count > 0 {
         // todo: we have modslots remaining, let's see if we can limit wasted stats
+
     }
 
     let waste = get_waste(stats);
@@ -810,6 +766,7 @@ impl<const N: usize> MultiCounter<N> {
     }
 }
 
+/// A stat is a tuple of a stat id and a modifier value (which can be negative)
 #[derive(Debug, Copy, Clone, Default)]
 pub struct Stat(u8, i16);
 

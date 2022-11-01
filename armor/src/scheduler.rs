@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use gloo_worker::Spawnable;
 use rexie::{KeyRange, TransactionMode};
 use serde::{Deserialize, Serialize};
 use wasm_bindgen::JsValue;
@@ -6,10 +7,10 @@ use wasm_bindgen::prelude::wasm_bindgen;
 use data::api::manifest::model::Hash;
 use crate::db::build_database;
 use crate::model::{ArmorInformation, ArmorPerkOrSlot, ArmorSlot, DestinyEnergyType, ExoticChoiceModel, InventoryArmor, ManifestArmor, StrippedInventoryArmor, TierType, WorkerConfig};
-use crate::worker::Armory;
+use crate::worker::{ArmorWorker, Armory, Input};
 
 #[derive(Serialize, Deserialize)]
-enum ComputeError {
+pub enum ComputeError {
     Unknown,
     LoadDataError,
 }
@@ -95,8 +96,22 @@ pub async fn compute_results(config: JsValue, n: usize) -> Result<(), ComputeErr
 
     let armory: Armory = Into::into(armor);
 
-    armory.chunk(n)
-    
+    for armory in armory.chunk(n) {
+        let worker = ArmorWorker::spawner()
+            .callback(|msg| {
+                // todo: use output
+                // rebuild SanitisedItemResult from ItemResult
+                // reconcile threads
+            })
+            .spawn("/assets/worker.js");
+
+        worker.send(Input {
+            config: config.clone(),
+            armory,
+            n
+        })
+    }
+
 
 
     Ok(())
