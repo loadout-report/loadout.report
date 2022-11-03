@@ -536,7 +536,7 @@ fn handle_permutation(
             }
         }
 
-        if get_waste(stats) > 0 {
+        if stats.waste_sum() > 0 {
             // we have waste.
             return Err(PermutationError::WastedStats);
         }
@@ -552,7 +552,7 @@ fn handle_permutation(
         let mut current_stat = *current_stat;
         if current_stat >= minimum_needed_for_max {
             // todo: WARNING CURRENT STAT COULD BE OVER 100
-            possible_100.push(Stat(index as u8, 100 - (current_stat as i16))).unwrap();
+            possible_100.push(Stat(index as u8, 100 - (current_stat.max(100) as i16))).unwrap();
         }
 
         if current_stat + max_bonus >= runtime.maximum_possible_tiers[index] {
@@ -680,10 +680,22 @@ fn handle_permutation(
 
     if config.try_limit_wasted_stats && available_modslots_count > 0 {
         // todo: we have modslots remaining, let's see if we can limit wasted stats
+        let mut waste = stats.waste();
+        waste.sort_by(|a, b| b.cmp(a))
 
+        let mut id = 0;
+        while id < available_modslots_count {
+            let result = waste
+                .iter()
+                .filter(|t| slots
+                    .iter()
+                    .filter(|i| i >= get_stat_mod_cost(num::FromPrimitive::from_u8(1 + ())))
+                )
+            id += 1;
+        }
     }
 
-    let waste = get_waste(stats);
+    let waste = stats.waste_sum();
     if config.only_show_results_with_no_wasted_stats && waste > 0 {
         // todo: do we need this? we have a similar check above
         return Err(PermutationError::WastedStats)
@@ -796,10 +808,6 @@ impl ArmorCombination {
     pub fn id(self) -> u8 {
         self.stats.iter().filter(|s| s.is_some()).fold(0, |acc, s| acc + (1 << s.unwrap().0))
     }
-}
-
-fn get_waste(stats: Stats) -> u8 {
-    stats.values.iter().map(|i| if *i > 100 { i - 100 } else { i % 10 }).sum()
 }
 
 fn check_elements(

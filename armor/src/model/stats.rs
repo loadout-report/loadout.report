@@ -32,6 +32,14 @@ impl Stats {
             values: self.values.map(|i| ((i as i8) + val) as u8)
         }
     }
+
+    pub fn waste(self) -> [u8; 6] {
+        self.values.map(|i| if i > 100 { i - 100 } else { i % 10 })
+    }
+
+    pub fn waste_sum(self) -> u8 {
+        self.values.iter().map(|i| if *i > 100 { i - 100 } else { i % 10 }).sum()
+    }
 }
 
 impl Add<Stats> for Stats {
