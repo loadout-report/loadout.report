@@ -1,6 +1,6 @@
-use std::ops::{Add, Index, IndexMut};
-use serde::{Deserialize, Serialize};
 use crate::model::{ModGroup, SimpleArmorStat, SimpleModifierValue, StrippedInventoryArmor};
+use serde::{Deserialize, Serialize};
+use std::ops::{Add, Index, IndexMut};
 
 #[derive(Copy, Clone, Serialize, Deserialize, Default)]
 pub struct Stats {
@@ -9,9 +9,7 @@ pub struct Stats {
 
 impl Stats {
     pub fn new(values: [u8; 6]) -> Self {
-        Self {
-            values
-        }
+        Self { values }
     }
 
     fn modify(mut self, stat: SimpleArmorStat, val: i8) -> Self {
@@ -29,7 +27,7 @@ impl Stats {
 
     pub fn modify_all(self, val: i8) -> Self {
         Self {
-            values: self.values.map(|i| ((i as i8) + val) as u8)
+            values: self.values.map(|i| ((i as i8) + val) as u8),
         }
     }
 
@@ -38,7 +36,10 @@ impl Stats {
     }
 
     pub fn waste_sum(self) -> u8 {
-        self.values.iter().map(|i| if *i > 100 { i - 100 } else { i % 10 }).sum()
+        self.values
+            .iter()
+            .map(|i| if *i > 100 { i - 100 } else { i % 10 })
+            .sum()
     }
 }
 
@@ -47,7 +48,7 @@ impl Add<Stats> for Stats {
 
     fn add(self, rhs: Stats) -> Self::Output {
         Stats {
-            values: self.values.zip(rhs.values).map(|(a, b)| a + b)
+            values: self.values.zip(rhs.values).map(|(a, b)| a + b),
         }
     }
 }
@@ -57,7 +58,10 @@ impl Add<StatsMod> for Stats {
 
     fn add(self, rhs: StatsMod) -> Self::Output {
         Stats {
-            values: self.values.zip(rhs.values).map(|(a, b)| ((a as i8) + b) as u8)
+            values: self
+                .values
+                .zip(rhs.values)
+                .map(|(a, b)| ((a as i8) + b) as u8),
         }
     }
 }
@@ -76,7 +80,7 @@ impl Add<ModGroup> for Stats {
     fn add(self, rhs: ModGroup) -> Self::Output {
         match rhs {
             ModGroup::Single(val) => self + val,
-            ModGroup::Double(v1, v2) => self + v1 + v2
+            ModGroup::Double(v1, v2) => self + v1 + v2,
         }
     }
 }
@@ -137,7 +141,7 @@ impl Add<ModGroup> for StatsMod {
     fn add(self, rhs: ModGroup) -> Self::Output {
         match rhs {
             ModGroup::Single(val) => self + val,
-            ModGroup::Double(v1, v2) => self + v1 + v2
+            ModGroup::Double(v1, v2) => self + v1 + v2,
         }
     }
 }
@@ -147,5 +151,19 @@ impl Add<SimpleModifierValue> for StatsMod {
 
     fn add(self, rhs: SimpleModifierValue) -> Self::Output {
         self.modify(rhs.stat, rhs.value)
+    }
+}
+
+pub struct Waste {
+    pub values: [(u8, u8); 6],
+}
+
+impl From<Stats> for Waste {
+    fn from(value: Stats) -> Self {
+        Self {
+            values: value
+                .values
+                .map(|i| (if i > 100 { i - 100 } else { i % 10 }, i)),
+        }
     }
 }

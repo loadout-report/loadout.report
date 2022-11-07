@@ -3,19 +3,25 @@ use std::convert::TryInto;
 use std::iter::{once, Once};
 use std::ops::RangeBounds;
 use std::time::{Duration, Instant};
-use gloo_worker::{HandlerId, Worker, WorkerScope};
-use rexie::{KeyRange, TransactionMode};
-use rexie::Error::DomExceptionNotFound;
-use serde::{Deserialize, Serialize};
-use wasm_bindgen::JsValue;
-use itertools::Itertools;
-use data::api::manifest::model::Hash;
-use crate::db::build_database;
-use crate::model::{ArmorInformation, ArmorPerkOrSlot, ArmorSet, ArmorSlot, ArmorStat, CharacterClass, DestinyEnergyType, ExoticChoiceModel, FixableSelection, InventoryArmor, Item, ManifestArmor, ModGroup, ModifierValue, Msg, SimpleArmorStat, SimpleModifierValue, StatMod, StatModifier, StrippedInventoryArmor, ThreadConfig, TierType, WorkerConfig};
-use crate::model::stats::{Stats, StatsMod};
 
-pub struct ArmorWorker {
-}
+use gloo_worker::{HandlerId, Worker, WorkerScope};
+use itertools::Itertools;
+use rexie::{KeyRange, TransactionMode};
+
+use serde::{Deserialize, Serialize};
+
+use data::api::manifest::model::Hash;
+
+use crate::db::build_database;
+use crate::model::stats::{Stats, StatsMod, Waste};
+use crate::model::{
+    ArmorInformation, ArmorPerkOrSlot, ArmorSet, ArmorSlot, ArmorStat, CharacterClass,
+    DestinyEnergyType, ExoticChoiceModel, FixableSelection, InventoryArmor, Item, ManifestArmor,
+    ModGroup, ModifierValue, Msg, SimpleArmorStat, SimpleModifierValue, StatMod, StatModifier,
+    StrippedInventoryArmor, ThreadConfig, TierType, WorkerConfig,
+};
+
+pub struct ArmorWorker {}
 
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -73,7 +79,7 @@ pub struct ItemResult {
 #[serde(rename_all = "camelCase")]
 pub struct ClassItem {
     perk: ArmorPerkOrSlot,
-    affinity: DestinyEnergyType
+    affinity: DestinyEnergyType,
 }
 
 /// This ItemResult is used internally in the worker for extra speed. It implements
@@ -148,40 +154,61 @@ impl Armory {
         let chunk_size = max / n;
 
         match collection_to_chunk {
-            0 => self.helmets.chunks(chunk_size).map(|chunk| Armory {
-                helmets: chunk.to_vec(),
-                gauntlets: self.gauntlets.clone(),
-                chests: self.chests.clone(),
-                legs: self.legs.clone(),
-                class_items: self.class_items.clone()
-            }).collect(),
-            1 => self.gauntlets.chunks(chunk_size).map(|chunk| Armory {
-                helmets: self.helmets.clone(),
-                gauntlets: chunk.to_vec(),
-                chests: self.chests.clone(),
-                legs: self.legs.clone(),
-                class_items: self.class_items.clone()
-            }).collect(),
-            2 => self.chests.chunks(chunk_size).map(|chunk| Armory {
-                helmets: self.helmets.clone(),
-                gauntlets: self.gauntlets.clone(),
-                chests: chunk.to_vec(),
-                legs: self.legs.clone(),
-                class_items: self.class_items.clone()
-            }).collect(),
-            3 => self.legs.chunks(chunk_size).map(|chunk| Armory {
-                helmets: self.helmets.clone(),
-                gauntlets: self.gauntlets.clone(),
-                chests: self.chests.clone(),
-                legs: chunk.to_vec(),
-                class_items: self.class_items.clone()
-            }).collect(),
+            0 => self
+                .helmets
+                .chunks(chunk_size)
+                .map(|chunk| Armory {
+                    helmets: chunk.to_vec(),
+                    gauntlets: self.gauntlets.clone(),
+                    chests: self.chests.clone(),
+                    legs: self.legs.clone(),
+                    class_items: self.class_items.clone(),
+                })
+                .collect(),
+            1 => self
+                .gauntlets
+                .chunks(chunk_size)
+                .map(|chunk| Armory {
+                    helmets: self.helmets.clone(),
+                    gauntlets: chunk.to_vec(),
+                    chests: self.chests.clone(),
+                    legs: self.legs.clone(),
+                    class_items: self.class_items.clone(),
+                })
+                .collect(),
+            2 => self
+                .chests
+                .chunks(chunk_size)
+                .map(|chunk| Armory {
+                    helmets: self.helmets.clone(),
+                    gauntlets: self.gauntlets.clone(),
+                    chests: chunk.to_vec(),
+                    legs: self.legs.clone(),
+                    class_items: self.class_items.clone(),
+                })
+                .collect(),
+            3 => self
+                .legs
+                .chunks(chunk_size)
+                .map(|chunk| Armory {
+                    helmets: self.helmets.clone(),
+                    gauntlets: self.gauntlets.clone(),
+                    chests: self.chests.clone(),
+                    legs: chunk.to_vec(),
+                    class_items: self.class_items.clone(),
+                })
+                .collect(),
             _ => unreachable!(),
         }
     }
 
     pub fn index_of_max(&self) -> (usize, usize) {
-        let sets: [usize; 4] = [self.helmets.len(), self.gauntlets.len(), self.chests.len(), self.legs.len()];
+        let sets: [usize; 4] = [
+            self.helmets.len(),
+            self.gauntlets.len(),
+            self.chests.len(),
+            self.legs.len(),
+        ];
         let max = sets.iter().max().unwrap();
         (sets.iter().position(|l| l == max).unwrap(), *max)
     }
@@ -216,45 +243,52 @@ impl Worker for ArmorWorker {
             });
         }
 
-
-        Self {
-        }
+        Self {}
     }
 
-    fn update(&mut self, _: &WorkerScope<Self>, _: Self::Message) {
-    }
+    fn update(&mut self, _: &WorkerScope<Self>, _: Self::Message) {}
 
     fn received(&mut self, scope: &WorkerScope<Self>, msg: Self::Input, id: HandlerId) {
         // run job
         let armory = msg.armory;
         run_job(scope, id, armory, msg.config, msg.n);
-
     }
 }
 
-fn run_job(scope: &WorkerScope<ArmorWorker>, id: HandlerId, armory: Armory, config: WorkerConfig, n: usize) -> Result<(), Box<dyn std::error::Error>> {
+fn run_job(
+    scope: &WorkerScope<ArmorWorker>,
+    id: HandlerId,
+    armory: Armory,
+    config: WorkerConfig,
+    n: usize,
+) -> Result<(), Box<dyn std::error::Error>> {
     let start_time = Instant::now();
 
-    let available_class_item_perk_types: HashSet<_> = armory.class_items.iter()
-        .map(|i| i.perk)
-        .collect();
+    let available_class_item_perk_types: HashSet<_> =
+        armory.class_items.iter().map(|i| i.perk).collect();
 
-    let available_class_item_energy_perk_dict = available_class_item_perk_types.iter()
-        .fold(HashMap::new(), |mut map, apos| {
-            if !map.contains_key(apos) {
-                map.insert(apos, HashSet::new());
-            }
-            if !map.contains_key(&ArmorPerkOrSlot::None) {
-                map.insert(&ArmorPerkOrSlot::None, HashSet::new());
-            }
-            armory.class_items.iter()
-                .filter(|i| i.perk == *apos)
-                .for_each(|i| {
-                    map.get_mut(&ArmorPerkOrSlot::None).unwrap().insert(i.energy_affinity);
-                    map.get_mut(apos).unwrap().insert(i.energy_affinity);
-                });
-            map
-        });
+    let available_class_item_energy_perk_dict =
+        available_class_item_perk_types
+            .iter()
+            .fold(HashMap::new(), |mut map, apos| {
+                if !map.contains_key(apos) {
+                    map.insert(apos, HashSet::new());
+                }
+                if !map.contains_key(&ArmorPerkOrSlot::None) {
+                    map.insert(&ArmorPerkOrSlot::None, HashSet::new());
+                }
+                armory
+                    .class_items
+                    .iter()
+                    .filter(|i| i.perk == *apos)
+                    .for_each(|i| {
+                        map.get_mut(&ArmorPerkOrSlot::None)
+                            .unwrap()
+                            .insert(i.energy_affinity);
+                        map.get_mut(apos).unwrap().insert(i.energy_affinity);
+                    });
+                map
+            });
 
     // console.debug
 
@@ -277,14 +311,20 @@ fn run_job(scope: &WorkerScope<ArmorWorker>, id: HandlerId, armory: Armory, conf
     let mut total_results = 0;
     let mut do_not_output = false;
 
-    for set in armory.helmets.iter()
+    for set in armory
+        .helmets
+        .iter()
         .cartesian_product(armory.gauntlets.iter())
         .cartesian_product(armory.chests.iter())
         .cartesian_product(armory.legs.iter())
-        .map(|(((helmet, gauntlets), chest), legs)| ArmorSet::new(*helmet, *gauntlets, *chest, *legs)) {
-
+        .map(|(((helmet, gauntlets), chest), legs)| {
+            ArmorSet::new(*helmet, *gauntlets, *chest, *legs)
+        })
+    {
         let (ok, required_class_item) = check_slots(
-            &config, modslot_requirement, &available_class_item_energy_perk_dict,
+            &config,
+            modslot_requirement,
+            &available_class_item_energy_perk_dict,
             &set,
         );
         if !ok {
@@ -296,9 +336,10 @@ fn run_job(scope: &WorkerScope<ArmorWorker>, id: HandlerId, armory: Armory, conf
             let (ok, req_cel) = check_elements(
                 &config,
                 element_requirement,
-                available_class_item_energy_perk_dict.get(
-                    &required_class_item.unwrap_or_default()
-                ).unwrap_or(&HashSet::new()), &set,
+                available_class_item_energy_perk_dict
+                    .get(&required_class_item.unwrap_or_default())
+                    .unwrap_or(&HashSet::new()),
+                &set,
             );
             if !ok {
                 continue;
@@ -306,7 +347,14 @@ fn run_job(scope: &WorkerScope<ArmorWorker>, id: HandlerId, armory: Armory, conf
             required_class_el = req_cel;
         }
 
-        let result = handle_permutation(&mut runtime, &config, &set, stat_bonus, available_modslots, do_not_output);
+        let result = handle_permutation(
+            &mut runtime,
+            &config,
+            &set,
+            stat_bonus,
+            available_modslots,
+            do_not_output,
+        );
         match result {
             Ok(result) => {
                 total_results += 1;
@@ -323,40 +371,52 @@ fn run_job(scope: &WorkerScope<ArmorWorker>, id: HandlerId, armory: Armory, conf
                     items: result.items,
                     class_item: ClassItem {
                         perk: required_class_item.unwrap_or_default(),
-                        affinity: required_class_el
-                    }
+                        affinity: required_class_el,
+                    },
                 };
 
                 results.push(result);
                 listed_results += 1;
-                do_not_output = do_not_output || (config.limit_parsed_results && listed_results >= 50_000_usize / n) || listed_results >= 1_000_000_usize / n;
+                do_not_output = do_not_output
+                    || (config.limit_parsed_results && listed_results >= 50_000_usize / n)
+                    || listed_results >= 1_000_000_usize / n;
                 if results.len() >= 5000 {
                     // todo: respond to caller
-                    scope.respond(id, Output {
-                        runtime: runtime.clone(),
-                        results,
-                        total: None,
-                        done: false,
-                        stats: None
-                    });
+                    scope.respond(
+                        id,
+                        Output {
+                            runtime: runtime.clone(),
+                            results,
+                            total: None,
+                            done: false,
+                            stats: None,
+                        },
+                    );
                     results = Vec::with_capacity(5000);
                 }
-            },
-            Err(err) => if let PermutationError::DoNotOutput = err { total_results += 1 },
+            }
+            Err(err) => {
+                if let PermutationError::DoNotOutput = err {
+                    total_results += 1
+                }
+            }
         }
     }
 
-    scope.respond(id, Output {
-        runtime,
-        results,
-        total: None,
-        done: true,
-        stats: Some(OutputStats {
-            permutation_count: total_results,
-            item_count: armory.len() - armory.class_items.len(),
-            total_time: start_time.elapsed(),
-        })
-    });
+    scope.respond(
+        id,
+        Output {
+            runtime,
+            results,
+            total: None,
+            done: true,
+            stats: Some(OutputStats {
+                permutation_count: total_results,
+                item_count: armory.len() - armory.class_items.len(),
+                total_time: start_time.elapsed(),
+            }),
+        },
+    );
 
     Ok(())
 }
@@ -370,13 +430,13 @@ pub enum PermutationError {
 }
 
 fn handle_permutation(
-    runtime: &mut Runtime, config: &WorkerConfig,
+    runtime: &mut Runtime,
+    config: &WorkerConfig,
     set: &ArmorSet,
     bonus: StatsMod,
     mut slots: [u8; 5],
     do_not_output: bool,
 ) -> Result<StrippedItemResult, PermutationError> {
-
     // todo: verify not checking for masterworks here is okay (we did that near the filter section)
     // todo: we're ignoring the add constant 1 resilience option for now
     let mut base_stats = set.stat_total();
@@ -394,12 +454,54 @@ fn handle_permutation(
     }
 
     let mut required_mods = [
-        0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Mobility).unwrap().value - stats[SimpleArmorStat::Mobility] / 10),
-        0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Resilience).unwrap().value - stats[SimpleArmorStat::Resilience] / 10),
-        0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Recovery).unwrap().value - stats[SimpleArmorStat::Recovery] / 10),
-        0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Discipline).unwrap().value - stats[SimpleArmorStat::Discipline] / 10),
-        0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Intellect).unwrap().value - stats[SimpleArmorStat::Intellect] / 10),
-        0.max(config.minimum_stat_tiers.get(&SimpleArmorStat::Strength).unwrap().value - stats[SimpleArmorStat::Strength] / 10),
+        0.max(
+            config
+                .minimum_stat_tiers
+                .get(&SimpleArmorStat::Mobility)
+                .unwrap()
+                .value
+                - stats[SimpleArmorStat::Mobility] / 10,
+        ),
+        0.max(
+            config
+                .minimum_stat_tiers
+                .get(&SimpleArmorStat::Resilience)
+                .unwrap()
+                .value
+                - stats[SimpleArmorStat::Resilience] / 10,
+        ),
+        0.max(
+            config
+                .minimum_stat_tiers
+                .get(&SimpleArmorStat::Recovery)
+                .unwrap()
+                .value
+                - stats[SimpleArmorStat::Recovery] / 10,
+        ),
+        0.max(
+            config
+                .minimum_stat_tiers
+                .get(&SimpleArmorStat::Discipline)
+                .unwrap()
+                .value
+                - stats[SimpleArmorStat::Discipline] / 10,
+        ),
+        0.max(
+            config
+                .minimum_stat_tiers
+                .get(&SimpleArmorStat::Intellect)
+                .unwrap()
+                .value
+                - stats[SimpleArmorStat::Intellect] / 10,
+        ),
+        0.max(
+            config
+                .minimum_stat_tiers
+                .get(&SimpleArmorStat::Strength)
+                .unwrap()
+                .value
+                - stats[SimpleArmorStat::Strength] / 10,
+        ),
     ];
 
     let required_mods_total: u8 = required_mods.iter().sum();
@@ -408,9 +510,7 @@ fn handle_permutation(
     }
 
     // todo: there may be a more efficient way of doing this
-    let mut available_modslots_count = slots.iter()
-        .filter(|i| 0 < **i)
-        .count();
+    let mut available_modslots_count = slots.iter().filter(|i| 0 < **i).count();
 
     if required_mods_total > available_modslots_count as u8 {
         return Err(PermutationError::TooManyMods);
@@ -420,9 +520,9 @@ fn handle_permutation(
     let mut used_mods: heapless::Vec<u8, 5> = heapless::Vec::new();
     // we need mods
     if required_mods_total > 0 {
-
         // add any necessary mods
-        for i in 0..6 { // iterate through stats
+        for i in 0..6 {
+            // iterate through stats
             if required_mods[i] == 0 {
                 continue;
             }
@@ -431,7 +531,8 @@ fn handle_permutation(
             let stat_diff = stats[i] % 10;
             if stat_diff >= 5 {
                 let x = 1 + (i * 2) as u8;
-                used_mods.insert(used_mods.binary_search(&x).unwrap_or_else(|pos| pos), x)
+                used_mods
+                    .insert(used_mods.binary_search(&x).unwrap_or_else(|pos| pos), x)
                     .map_err(|_| PermutationError::TooManyMods)?;
                 required_mods[i] -= 1;
                 stats[i] += 5;
@@ -440,7 +541,8 @@ fn handle_permutation(
             // fill rest with major mods
             for _ in 0..required_mods[i] {
                 let x = 2 + (i * 2) as u8;
-                used_mods.insert(used_mods.binary_search(&x).unwrap_or_else(|pos| pos), x)
+                used_mods
+                    .insert(used_mods.binary_search(&x).unwrap_or_else(|pos| pos), x)
                     .map_err(|_| PermutationError::TooManyMods)?;
                 stats[i] += 10;
             }
@@ -475,13 +577,17 @@ fn handle_permutation(
                     // worst case this doesn't work and we return an error
                     used_mods.remove(i);
                     let minor = curr - 1;
-                    used_mods.insert(
-                        used_mods.binary_search(&minor)
-                            .unwrap_or_else(|pos| pos), minor)
+                    used_mods
+                        .insert(
+                            used_mods.binary_search(&minor).unwrap_or_else(|pos| pos),
+                            minor,
+                        )
                         .map_err(|_| PermutationError::TooManyMods)?;
-                    used_mods.insert(
-                        used_mods.binary_search(&minor)
-                            .unwrap_or_else(|pos| pos), minor)
+                    used_mods
+                        .insert(
+                            used_mods.binary_search(&minor).unwrap_or_else(|pos| pos),
+                            minor,
+                        )
                         .map_err(|_| PermutationError::TooManyMods)?;
                     // step back to verify we can also place the two minor mods correctly (cost-wise)
                     i -= 1;
@@ -491,7 +597,11 @@ fn handle_permutation(
                 }
             } else {
                 // we can accommodate this mod just fine, let's mark the slot as used.
-                slots.iter_mut().filter(|d| **d >= cost).take(1).for_each(|i| *i = 0);
+                slots
+                    .iter_mut()
+                    .filter(|d| **d >= cost)
+                    .take(1)
+                    .for_each(|i| *i = 0);
                 available_modslots_count -= 1;
             }
             i += 1;
@@ -506,7 +616,9 @@ fn handle_permutation(
             return Err(PermutationError::WastedStats);
         }
 
-        let mut stats_wasted: heapless::Vec<(u8, usize, u8), 6> = stats.values.iter()
+        let mut stats_wasted: heapless::Vec<(u8, usize, u8), 6> = stats
+            .values
+            .iter()
             .enumerate()
             .filter(|(i, x)| *x % 10 != 5) // only wasted stats
             .map(|(i, x)| (x % 10, i, *x)) // make into tuple (wasted, statId, total)
@@ -515,7 +627,8 @@ fn handle_permutation(
         // stats_wasted.sort_by(|a, b| a.0.cmp(&b.0));
         stats_wasted.sort_by(|a, b| a.0.cmp(&b.0));
         for (waste, stat, _) in &mut stats_wasted {
-            if available_modslots_count == 0 { // we can only remove as many as we have mod slots
+            if available_modslots_count == 0 {
+                // we can only remove as many as we have mod slots
                 break;
             }
             for capacity in &mut slots {
@@ -526,12 +639,17 @@ fn handle_permutation(
                     stats[*stat] += 5;
                     *waste -= 5;
                     let mod_id = mod_id as u8;
-                    used_mods.insert(used_mods.binary_search(&mod_id).unwrap_or_else(|pos| pos), mod_id)
+                    used_mods
+                        .insert(
+                            used_mods.binary_search(&mod_id).unwrap_or_else(|pos| pos),
+                            mod_id,
+                        )
                         .map_err(|_| PermutationError::TooManyMods)?;
                     break;
                 }
             }
-            if *waste != 0 { // if we just went through all of those without fixing the wasted stat it means it's too expensive and we done goofed
+            if *waste != 0 {
+                // if we just went through all of those without fixing the wasted stat it means it's too expensive and we done goofed
                 break;
             }
         }
@@ -552,7 +670,9 @@ fn handle_permutation(
         let mut current_stat = *current_stat;
         if current_stat >= minimum_needed_for_max {
             // todo: WARNING CURRENT STAT COULD BE OVER 100
-            possible_100.push(Stat(index as u8, 100 - (current_stat.max(100) as i16))).unwrap();
+            possible_100
+                .push(Stat(index as u8, 100 - (current_stat.max(100) as i16)))
+                .unwrap();
         }
 
         if current_stat + max_bonus >= runtime.maximum_possible_tiers[index] {
@@ -580,43 +700,52 @@ fn handle_permutation(
         possible_100.sort_by(|a, b| a.1.cmp(&b.1));
         let slots_count = available_modslots_count as u8;
 
-        let combinations: heapless::Vec<_, 20> = possible_100.iter()
+        let combinations: heapless::Vec<_, 20> = possible_100
+            .iter()
             // pair each element with its index
             .enumerate()
             .take_while(|(index, _)| *index < possible_100.len() - 2)
             .map(|(index, i)| (index, ArmorCombination::new().with(0, *i), i.mod_cost()))
             .take_while(|(_, _, cost)| *cost <= slots_count)
-            .flat_map(|(index, a, cost)| possible_100.iter()
-                .enumerate()
-                .skip(index + 1)
-                .take_while(|(index, _)| *index < possible_100.len() - 1)
-                .map(move |(index, i)| (index, a.with(1, *i), cost + i.mod_cost()))
-                .take_while(|(_, _, cost)| *cost <= slots_count)
-                .flat_map(|(index, combination, cost)| possible_100.iter()
+            .flat_map(|(index, a, cost)| {
+                possible_100
+                    .iter()
                     .enumerate()
                     .skip(index + 1)
-                    .map(move |(index, i)| (index, combination.with(2, *i), cost + i.mod_cost()))
+                    .take_while(|(index, _)| *index < possible_100.len() - 1)
+                    .map(move |(index, i)| (index, a.with(1, *i), cost + i.mod_cost()))
                     .take_while(|(_, _, cost)| *cost <= slots_count)
                     .flat_map(|(index, combination, cost)| {
-                        let mut res: heapless::Vec<_, 20> = possible_100.iter()
+                        possible_100
+                            .iter()
                             .enumerate()
                             .skip(index + 1)
-                            .map(move |(index, i)| (index, combination.with(3, *i), cost + i.mod_cost()))
+                            .map(move |(index, i)| {
+                                (index, combination.with(2, *i), cost + i.mod_cost())
+                            })
                             .take_while(|(_, _, cost)| *cost <= slots_count)
-                            .map(|(_, combination, _)| combination)
-                            .collect();
-                        if res.is_empty() {
-                            res.push(combination).unwrap();
-                        }
-                        res
+                            .flat_map(|(index, combination, cost)| {
+                                let mut res: heapless::Vec<_, 20> = possible_100
+                                    .iter()
+                                    .enumerate()
+                                    .skip(index + 1)
+                                    .map(move |(index, i)| {
+                                        (index, combination.with(3, *i), cost + i.mod_cost())
+                                    })
+                                    .take_while(|(_, _, cost)| *cost <= slots_count)
+                                    .map(|(_, combination, _)| combination)
+                                    .collect();
+                                if res.is_empty() {
+                                    res.push(combination).unwrap();
+                                }
+                                res
+                            })
                     })
-                )
-            )
+            })
             .collect();
 
         // every potential combination that can get to triple or quad 100 for this armor set
         for combination in combinations {
-
             // todo: could we theoretically do this in one step and make it more performant?
             // get the theoretical mod cost we need to get to t3 / t4
             let mut costs = get_required_mod_costs(combination);
@@ -640,9 +769,7 @@ fn handle_permutation(
                 }
 
                 let mut counter = 0;
-                for (i, d) in slots
-                    .iter()
-                    .enumerate() {
+                for (i, d) in slots.iter().enumerate() {
                     if used_modslot_index & (1 << i) != 0 && *d >= cost as u8 {
                         continue;
                     }
@@ -667,7 +794,9 @@ fn handle_permutation(
                     // triplet
                     runtime.stat_combo_3x_100.insert(combination.id());
                 } else {
-                    runtime.stat_combo_3x_100.insert(combination.id() - (1 << combination.stats[3].unwrap().0));
+                    runtime
+                        .stat_combo_3x_100
+                        .insert(combination.id() - (1 << combination.stats[3].unwrap().0));
                     runtime.stat_combo_4x_100.insert(combination.id());
                 }
             }
@@ -675,22 +804,41 @@ fn handle_permutation(
     }
 
     if do_not_output {
-        return Err(PermutationError::DoNotOutput)
+        return Err(PermutationError::DoNotOutput);
     }
 
     if config.try_limit_wasted_stats && available_modslots_count > 0 {
         // todo: we have modslots remaining, let's see if we can limit wasted stats
-        let mut waste = stats.waste();
-        waste.sort_by(|a, b| b.cmp(a))
+        let mut waste: heapless::Vec<(u8, u8, u8), 6> = Waste::from(stats)
+            .values
+            .iter()
+            .enumerate()
+            .map(|(a, (w, v))| (a as u8, *w, *v))
+            .collect();
+        waste.sort_by(|a, b| b.cmp(a));
 
         let mut id = 0;
         while id < available_modslots_count {
             let result = waste
                 .iter()
-                .filter(|t| slots
-                    .iter()
-                    .filter(|i| i >= get_stat_mod_cost(num::FromPrimitive::from_u8(1 + ())))
-                )
+                .filter(|(stat_id, waste, _)| {
+                    slots
+                        .iter()
+                        .filter(|i| {
+                            **i >= get_stat_mod_cost(
+                                num::FromPrimitive::from_u8(1 + (stat_id * 2)).unwrap(),
+                            )
+                        })
+                        .count()
+                        > 0
+                })
+                .filter(|(_, waste, value)| *waste >= 5 && *value < 100)
+                .sorted_unstable_by(|(_, a, _), (_, b, _)| a.cmp(b))
+                .next();
+            let Some((stat_id, waste, value)) = result else {
+                break
+            };
+
             id += 1;
         }
     }
@@ -698,14 +846,19 @@ fn handle_permutation(
     let waste = stats.waste_sum();
     if config.only_show_results_with_no_wasted_stats && waste > 0 {
         // todo: do we need this? we have a similar check above
-        return Err(PermutationError::WastedStats)
+        return Err(PermutationError::WastedStats);
     }
 
     Ok(StrippedItemResult {
         exotic: set.exotic().map(|e| e.hash),
         mod_count: used_mods.len(),
-        mod_cost: used_mods.iter().fold(0_u8, |acc, s| acc + get_stat_mod_cost(num::FromPrimitive::from_u8(*s).unwrap())),
-        mods: used_mods.iter().map(|s| num::FromPrimitive::from_u8(*s).unwrap()).collect(),
+        mod_cost: used_mods.iter().fold(0_u8, |acc, s| {
+            acc + get_stat_mod_cost(num::FromPrimitive::from_u8(*s).unwrap())
+        }),
+        mods: used_mods
+            .iter()
+            .map(|s| num::FromPrimitive::from_u8(*s).unwrap())
+            .collect(),
         stats,
         stats_no_mods: base_stats,
         tiers: get_skill_tier(stats),
@@ -720,7 +873,9 @@ fn get_skill_tier(stats: Stats) -> u8 {
 
 fn get_required_mod_costs(combination: ArmorCombination) -> MultiCounter<6> {
     let mut required_mod_costs: MultiCounter<6> = MultiCounter::new();
-    combination.stats.iter()
+    combination
+        .stats
+        .iter()
         .flatten()
         .filter(|s| s.1 > 0)
         .for_each(|s| {
@@ -733,7 +888,7 @@ fn get_required_mod_costs(combination: ArmorCombination) -> MultiCounter<6> {
             let cost = 0.max(cost);
             // how many major mods do we need
             let mut major_count = cost / 10; // integer floor division
-            // do we need a minor mod?
+                                             // do we need a minor mod?
             let rest = cost % 10;
             if rest > 5 {
                 major_count += 1;
@@ -754,7 +909,10 @@ pub struct MultiCounter<const N: usize> {
 
 impl<const N: usize> MultiCounter<N> {
     pub fn new() -> Self {
-        Self { counters: [0; N], total: 0 }
+        Self {
+            counters: [0; N],
+            total: 0,
+        }
     }
 
     pub fn increment(&mut self, index: usize) {
@@ -796,7 +954,7 @@ pub struct ArmorCombination {
 impl ArmorCombination {
     pub fn new() -> Self {
         ArmorCombination {
-            stats: Default::default()
+            stats: Default::default(),
         }
     }
 
@@ -806,7 +964,10 @@ impl ArmorCombination {
     }
 
     pub fn id(self) -> u8 {
-        self.stats.iter().filter(|s| s.is_some()).fold(0, |acc, s| acc + (1 << s.unwrap().0))
+        self.stats
+            .iter()
+            .filter(|s| s.is_some())
+            .fold(0, |acc, s| acc + (1 << s.unwrap().0))
     }
 }
 
@@ -828,19 +989,31 @@ fn check_elements(
 
     let mut bad = (requirements
         .iter()
-        .skip(1)// skip first element
+        .skip(1) // skip first element
         .map(|i| 0.max(*i))
-        .reduce(|acc, e| acc + e).unwrap() - wildcard) as i16;
+        .reduce(|acc, e| acc + e)
+        .unwrap()
+        - wildcard) as i16;
 
     let mut req_class_element = DestinyEnergyType::Any;
 
-    let class_armor_affinity = config.armor_affinities.get(&ArmorSlot::ArmorSlotClass).unwrap();
+    let class_armor_affinity = config
+        .armor_affinities
+        .get(&ArmorSlot::ArmorSlotClass)
+        .unwrap();
     if class_armor_affinity.fixed {
         req_class_element = class_armor_affinity.value;
     }
 
-    if bad == 1 && !(class_armor_affinity.fixed && class_armor_affinity.value != DestinyEnergyType::Any) {
-        for i in [DestinyEnergyType::Void, DestinyEnergyType::Stasis, DestinyEnergyType::Thermal, DestinyEnergyType::Arc] {
+    if bad == 1
+        && !(class_armor_affinity.fixed && class_armor_affinity.value != DestinyEnergyType::Any)
+    {
+        for i in [
+            DestinyEnergyType::Void,
+            DestinyEnergyType::Stasis,
+            DestinyEnergyType::Thermal,
+            DestinyEnergyType::Arc,
+        ] {
             if requirements[i as usize] <= 0 {
                 continue;
             }
@@ -855,9 +1028,15 @@ fn check_elements(
     (bad <= 0, req_class_element)
 }
 
-fn calc_el_req(requirements: &mut [i16; 7], wildcard: &mut i16, config: &WorkerConfig, item: &StrippedInventoryArmor) {
+fn calc_el_req(
+    requirements: &mut [i16; 7],
+    wildcard: &mut i16,
+    config: &WorkerConfig,
+    item: &StrippedInventoryArmor,
+) {
     if (item.masterworked && config.ignore_armor_affinities_on_masterworked_items)
-        || (!item.masterworked && config.ignore_armor_affinities_on_non_masterworked_items) {
+        || (!item.masterworked && config.ignore_armor_affinities_on_non_masterworked_items)
+    {
         *wildcard += 1;
     } else {
         requirements[item.energy_affinity as usize] -= 1;
@@ -889,7 +1068,10 @@ fn check_slots(
     }
 
     let perk = config.armor_perks.get(&ArmorSlot::ArmorSlotClass).unwrap();
-    if perk.fixed && perk.value != ArmorPerkOrSlot::None && !available_class_item_perk_types.contains_key(&perk.value) {
+    if perk.fixed
+        && perk.value != ArmorPerkOrSlot::None
+        && !available_class_item_perk_types.contains_key(&perk.value)
+    {
         return (false, None);
     }
 
@@ -912,7 +1094,7 @@ fn check_slots(
 
     let mut bad = 0;
     for i in requirements {
-        bad += i.max(0)
+        bad += 0.max(i)
     }
 
     let mut required_class_item = ArmorPerkOrSlot::None;
@@ -943,11 +1125,16 @@ fn is_item_applicable_to_slot(config: &WorkerConfig, item: &StrippedInventoryArm
     !(perk.fixed && perk.value != ArmorPerkOrSlot::None && perk.value != item.perk)
 }
 
-fn prepare_constant_modslot_requirement(armor_perks: &HashMap<ArmorSlot, FixableSelection<ArmorPerkOrSlot>>) -> [u8; 12] {
+fn prepare_constant_modslot_requirement(
+    armor_perks: &HashMap<ArmorSlot, FixableSelection<ArmorPerkOrSlot>>,
+) -> [u8; 12] {
     let mut req: [u8; 12] = Default::default();
     req[armor_perks.get(&ArmorSlot::ArmorSlotHelmet).unwrap().value as usize] += 1;
     req[armor_perks.get(&ArmorSlot::ArmorSlotChest).unwrap().value as usize] += 1;
-    req[armor_perks.get(&ArmorSlot::ArmorSlotGauntlet).unwrap().value as usize] += 1;
+    req[armor_perks
+        .get(&ArmorSlot::ArmorSlotGauntlet)
+        .unwrap()
+        .value as usize] += 1;
     req[armor_perks.get(&ArmorSlot::ArmorSlotLegs).unwrap().value as usize] += 1;
     req[armor_perks.get(&ArmorSlot::ArmorSlotClass).unwrap().value as usize] += 1;
     req
@@ -955,11 +1142,19 @@ fn prepare_constant_modslot_requirement(armor_perks: &HashMap<ArmorSlot, Fixable
 
 /// returns an array of five elements denoting the available mod slots and their capacity.
 /// this is sorted in ascending order so cost optimisation can simply take the first matching element
-fn prepare_constant_available_modslots(max_mod_slots: &HashMap<ArmorSlot, FixableSelection<u8>>) -> [u8; 5] {
+fn prepare_constant_available_modslots(
+    max_mod_slots: &HashMap<ArmorSlot, FixableSelection<u8>>,
+) -> [u8; 5] {
     let mut req: [u8; 5] = Default::default();
-    req[0] = max_mod_slots.get(&ArmorSlot::ArmorSlotHelmet).unwrap().value as u8;
+    req[0] = max_mod_slots
+        .get(&ArmorSlot::ArmorSlotHelmet)
+        .unwrap()
+        .value as u8;
     req[1] = max_mod_slots.get(&ArmorSlot::ArmorSlotChest).unwrap().value as u8;
-    req[2] = max_mod_slots.get(&ArmorSlot::ArmorSlotGauntlet).unwrap().value as u8;
+    req[2] = max_mod_slots
+        .get(&ArmorSlot::ArmorSlotGauntlet)
+        .unwrap()
+        .value as u8;
     req[3] = max_mod_slots.get(&ArmorSlot::ArmorSlotLegs).unwrap().value as u8;
     req[4] = max_mod_slots.get(&ArmorSlot::ArmorSlotClass).unwrap().value as u8;
     req.sort();
@@ -975,12 +1170,26 @@ fn prepare_constant_stat_bonus(enabled_mods: &Vec<StatMod>, class: CharacterClas
     constant_bonus
 }
 
-fn prepare_constant_element_requirement(armor_affinities: &HashMap<ArmorSlot, FixableSelection<DestinyEnergyType>>) -> [u8; 7] {
+fn prepare_constant_element_requirement(
+    armor_affinities: &HashMap<ArmorSlot, FixableSelection<DestinyEnergyType>>,
+) -> [u8; 7] {
     let mut cer: [u8; 7] = Default::default();
-    cer[armor_affinities.get(&ArmorSlot::ArmorSlotHelmet).unwrap().value as usize] += 1;
-    cer[armor_affinities.get(&ArmorSlot::ArmorSlotChest).unwrap().value as usize] += 1;
-    cer[armor_affinities.get(&ArmorSlot::ArmorSlotGauntlet).unwrap().value as usize] += 1;
-    cer[armor_affinities.get(&ArmorSlot::ArmorSlotLegs).unwrap().value as usize] += 1;
+    cer[armor_affinities
+        .get(&ArmorSlot::ArmorSlotHelmet)
+        .unwrap()
+        .value as usize] += 1;
+    cer[armor_affinities
+        .get(&ArmorSlot::ArmorSlotChest)
+        .unwrap()
+        .value as usize] += 1;
+    cer[armor_affinities
+        .get(&ArmorSlot::ArmorSlotGauntlet)
+        .unwrap()
+        .value as usize] += 1;
+    cer[armor_affinities
+        .get(&ArmorSlot::ArmorSlotLegs)
+        .unwrap()
+        .value as usize] += 1;
 
     let class_item_affinity = armor_affinities.get(&ArmorSlot::ArmorSlotClass).unwrap();
     if !class_item_affinity.fixed {
