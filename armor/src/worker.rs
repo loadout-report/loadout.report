@@ -1,24 +1,20 @@
 use std::collections::{HashMap, HashSet};
 use std::convert::TryInto;
-use std::iter::{once, Once};
-use std::ops::RangeBounds;
 use std::time::{Duration, Instant};
 
 use gloo_worker::{HandlerId, Worker, WorkerScope};
 use itertools::Itertools;
-use rexie::{KeyRange, TransactionMode};
 
 use serde::{Deserialize, Serialize};
 
+use crate::armory::Armory;
 use data::api::manifest::model::Hash;
 
-use crate::db::build_database;
 use crate::model::stats::{Stats, StatsMod, Waste};
 use crate::model::{
-    ArmorInformation, ArmorPerkOrSlot, ArmorSet, ArmorSlot, ArmorStat, CharacterClass,
-    DestinyEnergyType, ExoticChoiceModel, FixableSelection, InventoryArmor, Item, ManifestArmor,
-    ModGroup, ModifierValue, Msg, SimpleArmorStat, SimpleModifierValue, StatMod, StatModifier,
-    StrippedInventoryArmor, ThreadConfig, TierType, WorkerConfig,
+    ArmorPerkOrSlot, ArmorSet, ArmorSlot, CharacterClass, DestinyEnergyType, ExoticChoiceModel,
+    FixableSelection, Item, ModGroup, Msg, SimpleArmorStat, SimpleModifierValue, StatMod,
+    StatModifier, StrippedInventoryArmor, WorkerConfig,
 };
 
 pub struct ArmorWorker {}
@@ -123,126 +119,12 @@ pub struct Output {
     stats: Option<OutputStats>,
 }
 
-#[derive(Deserialize, Serialize, Default, Clone)]
-pub struct Armory {
-    pub helmets: Vec<StrippedInventoryArmor>,
-    pub gauntlets: Vec<StrippedInventoryArmor>,
-    pub chests: Vec<StrippedInventoryArmor>,
-    pub legs: Vec<StrippedInventoryArmor>,
-    pub class_items: Vec<StrippedInventoryArmor>,
-}
-
-impl Armory {
-    pub fn new() -> Self {
-        Default::default()
-    }
-
-    pub fn len(&self) -> usize {
-        self.helmets.len()
-            + self.gauntlets.len()
-            + self.chests.len()
-            + self.legs.len()
-            + self.class_items.len()
-    }
-
-    /// partitions the armory into n chunks depending on the largest inner collection
-    pub fn chunk(self, n: usize) -> Vec<Armory> {
-        // if n == 1 {
-        //     return Box::new(once((self).clone()));
-        // }
-        let (collection_to_chunk, max) = self.index_of_max();
-        let chunk_size = max / n;
-
-        match collection_to_chunk {
-            0 => self
-                .helmets
-                .chunks(chunk_size)
-                .map(|chunk| Armory {
-                    helmets: chunk.to_vec(),
-                    gauntlets: self.gauntlets.clone(),
-                    chests: self.chests.clone(),
-                    legs: self.legs.clone(),
-                    class_items: self.class_items.clone(),
-                })
-                .collect(),
-            1 => self
-                .gauntlets
-                .chunks(chunk_size)
-                .map(|chunk| Armory {
-                    helmets: self.helmets.clone(),
-                    gauntlets: chunk.to_vec(),
-                    chests: self.chests.clone(),
-                    legs: self.legs.clone(),
-                    class_items: self.class_items.clone(),
-                })
-                .collect(),
-            2 => self
-                .chests
-                .chunks(chunk_size)
-                .map(|chunk| Armory {
-                    helmets: self.helmets.clone(),
-                    gauntlets: self.gauntlets.clone(),
-                    chests: chunk.to_vec(),
-                    legs: self.legs.clone(),
-                    class_items: self.class_items.clone(),
-                })
-                .collect(),
-            3 => self
-                .legs
-                .chunks(chunk_size)
-                .map(|chunk| Armory {
-                    helmets: self.helmets.clone(),
-                    gauntlets: self.gauntlets.clone(),
-                    chests: self.chests.clone(),
-                    legs: chunk.to_vec(),
-                    class_items: self.class_items.clone(),
-                })
-                .collect(),
-            _ => unreachable!(),
-        }
-    }
-
-    pub fn index_of_max(&self) -> (usize, usize) {
-        let sets: [usize; 4] = [
-            self.helmets.len(),
-            self.gauntlets.len(),
-            self.chests.len(),
-            self.legs.len(),
-        ];
-        let max = sets.iter().max().unwrap();
-        (sets.iter().position(|l| l == max).unwrap(), *max)
-    }
-}
-
-impl From<Vec<StrippedInventoryArmor>> for Armory {
-    fn from(input: Vec<StrippedInventoryArmor>) -> Self {
-        input.iter().fold(Default::default(), |mut t, i| {
-            match i.slot {
-                ArmorSlot::ArmorSlotNone => (),
-                ArmorSlot::ArmorSlotHelmet => t.helmets.push(*i),
-                ArmorSlot::ArmorSlotGauntlet => t.gauntlets.push(*i),
-                ArmorSlot::ArmorSlotChest => t.chests.push(*i),
-                ArmorSlot::ArmorSlotLegs => t.legs.push(*i),
-                ArmorSlot::ArmorSlotClass => t.class_items.push(*i),
-            }
-            t
-        })
-    }
-}
-
 impl Worker for ArmorWorker {
     type Message = Msg<()>;
     type Input = Input;
     type Output = Output;
 
-    fn create(scope: &WorkerScope<Self>) -> Self {
-        {
-            scope.send_future(async {
-                let db = build_database().await.unwrap();
-                Msg::Ready(db)
-            });
-        }
-
+    fn create(_: &WorkerScope<Self>) -> Self {
         Self {}
     }
 
@@ -250,8 +132,7 @@ impl Worker for ArmorWorker {
 
     fn received(&mut self, scope: &WorkerScope<Self>, msg: Self::Input, id: HandlerId) {
         // run job
-        let armory = msg.armory;
-        run_job(scope, id, armory, msg.config, msg.n);
+        run_job(scope, id, msg.armory, msg.config, msg.n);
     }
 }
 
@@ -261,7 +142,7 @@ fn run_job(
     armory: Armory,
     config: WorkerConfig,
     n: usize,
-) -> Result<(), Box<dyn std::error::Error>> {
+) {
     let start_time = Instant::now();
 
     let available_class_item_perk_types: HashSet<_> =
@@ -417,8 +298,6 @@ fn run_job(
             }),
         },
     );
-
-    Ok(())
 }
 
 #[derive(Copy, Clone)]
@@ -814,6 +693,7 @@ fn handle_permutation(
             .iter()
             .enumerate()
             .map(|(a, (w, v))| (a as u8, *w, *v))
+            .filter(|(_, waste, value)| *waste >= 5 && *value < 100)
             .collect();
         waste.sort_by(|a, b| b.cmp(a));
 
@@ -832,13 +712,36 @@ fn handle_permutation(
                         .count()
                         > 0
                 })
-                .filter(|(_, waste, value)| *waste >= 5 && *value < 100)
                 .sorted_unstable_by(|(_, a, _), (_, b, _)| a.cmp(b))
                 .next();
-            let Some((stat_id, waste, value)) = result else {
+            let Some((stat_id, _, _)) = result else {
                 break
             };
+            let stat_id = usize::from(*stat_id);
 
+            let tier = config
+                .minimum_stat_tiers
+                .get(&num::FromPrimitive::from_usize(stat_id).unwrap())
+                .unwrap();
+            if tier.fixed && (stats.values[stat_id] + 5) / 10 >= tier.value + 1 {
+                waste[stat_id].1 -= 5;
+                continue;
+            }
+
+            *slots
+                .iter_mut()
+                .find(|slot| {
+                    **slot
+                        >= get_stat_mod_cost(
+                            num::FromPrimitive::from_usize(1 + (stat_id * 2)).unwrap(),
+                        )
+                })
+                .unwrap() = 0;
+
+            available_modslots_count -= 1;
+            stats.values[stat_id] += 5;
+            waste[stat_id].1 -= 5;
+            used_mods.push(1 + 2 * stat_id as u8).unwrap();
             id += 1;
         }
     }
@@ -987,13 +890,13 @@ fn check_elements(
     calc_el_req(&mut requirements, &mut wildcard, config, &set.chest);
     calc_el_req(&mut requirements, &mut wildcard, config, &set.legs);
 
-    let mut bad = (requirements
+    let mut bad: i16 = requirements
         .iter()
         .skip(1) // skip first element
         .map(|i| 0.max(*i))
         .reduce(|acc, e| acc + e)
         .unwrap()
-        - wildcard) as i16;
+        - wildcard;
 
     let mut req_class_element = DestinyEnergyType::Any;
 

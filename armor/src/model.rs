@@ -1,12 +1,12 @@
+use data::api::manifest::model::Hash;
+use gloo_worker::HandlerId;
+use num_derive::FromPrimitive;
+use serde::{Deserialize, Serialize};
+use stats::Stats;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::iter::once;
 use std::ops::{Add, AddAssign};
-use gloo_worker::HandlerId;
-use num_derive::FromPrimitive;
-use data::api::manifest::model::Hash;
-use serde::{Deserialize, Serialize};
-use stats::Stats;
 
 pub mod stats;
 
@@ -68,7 +68,14 @@ impl From<InventoryArmor> for StrippedInventoryArmor {
             item_instance_id: i.item_instance_id,
             masterworked: i.masterworked,
             may_be_bugged: i.may_be_bugged,
-            stats: Stats::new([i.mobility, i.resilience, i.recovery, i.discipline, i.intellect, i.strength]),
+            stats: Stats::new([
+                i.mobility,
+                i.resilience,
+                i.recovery,
+                i.discipline,
+                i.intellect,
+                i.strength,
+            ]),
             energy_level: i.energy_level,
             energy_affinity: i.energy_affinity,
             hash: i.hash,
@@ -153,8 +160,12 @@ impl From<InventoryArmor> for InventoryArmorComponents {
             masterworked: armor.masterworked,
             may_be_bugged: armor.may_be_bugged,
             stats: Stats::new([
-                armor.mobility, armor.resilience, armor.recovery,
-                armor.discipline, armor.intellect, armor.strength
+                armor.mobility,
+                armor.resilience,
+                armor.recovery,
+                armor.discipline,
+                armor.intellect,
+                armor.strength,
             ]),
             energy_level: armor.energy_level,
             energy_affinity: armor.energy_affinity,
@@ -260,7 +271,7 @@ pub enum ArmorSlot {
     ArmorSlotClass,
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Serialize, Deserialize, Eq, PartialEq, Hash, FromPrimitive)]
 pub enum SimpleArmorStat {
     Mobility,
     Resilience,
@@ -297,7 +308,7 @@ impl From<(ArmorStat, CharacterClass)> for SimpleArmorStat {
             ArmorStat::Recovery => SimpleArmorStat::Recovery,
             ArmorStat::Discipline => SimpleArmorStat::Discipline,
             ArmorStat::Intellect => SimpleArmorStat::Intellect,
-            ArmorStat::Strength => SimpleArmorStat::Strength
+            ArmorStat::Strength => SimpleArmorStat::Strength,
         }
     }
 }
@@ -395,14 +406,28 @@ impl TryFrom<usize> for ArmorPerkOrSlot {
             x if x == ArmorPerkOrSlot::SlotNightmare as usize => Ok(ArmorPerkOrSlot::SlotNightmare),
             x if x == ArmorPerkOrSlot::SlotArtificer as usize => Ok(ArmorPerkOrSlot::SlotArtificer),
             x if x == ArmorPerkOrSlot::SlotLastWish as usize => Ok(ArmorPerkOrSlot::SlotLastWish),
-            x if x == ArmorPerkOrSlot::SlotGardenOfSalvation as usize => Ok(ArmorPerkOrSlot::SlotGardenOfSalvation),
-            x if x == ArmorPerkOrSlot::SlotDeepStoneCrypt as usize => Ok(ArmorPerkOrSlot::SlotDeepStoneCrypt),
-            x if x == ArmorPerkOrSlot::SlotVaultOfGlass as usize => Ok(ArmorPerkOrSlot::SlotVaultOfGlass),
-            x if x == ArmorPerkOrSlot::PerkIronBanner as usize => Ok(ArmorPerkOrSlot::PerkIronBanner),
-            x if x == ArmorPerkOrSlot::PerkUniformedOfficer as usize => Ok(ArmorPerkOrSlot::PerkUniformedOfficer),
-            x if x == ArmorPerkOrSlot::SlotVowOfTheDisciple as usize => Ok(ArmorPerkOrSlot::SlotVowOfTheDisciple),
+            x if x == ArmorPerkOrSlot::SlotGardenOfSalvation as usize => {
+                Ok(ArmorPerkOrSlot::SlotGardenOfSalvation)
+            }
+            x if x == ArmorPerkOrSlot::SlotDeepStoneCrypt as usize => {
+                Ok(ArmorPerkOrSlot::SlotDeepStoneCrypt)
+            }
+            x if x == ArmorPerkOrSlot::SlotVaultOfGlass as usize => {
+                Ok(ArmorPerkOrSlot::SlotVaultOfGlass)
+            }
+            x if x == ArmorPerkOrSlot::PerkIronBanner as usize => {
+                Ok(ArmorPerkOrSlot::PerkIronBanner)
+            }
+            x if x == ArmorPerkOrSlot::PerkUniformedOfficer as usize => {
+                Ok(ArmorPerkOrSlot::PerkUniformedOfficer)
+            }
+            x if x == ArmorPerkOrSlot::SlotVowOfTheDisciple as usize => {
+                Ok(ArmorPerkOrSlot::SlotVowOfTheDisciple)
+            }
             x if x == ArmorPerkOrSlot::SlotKingsFall as usize => Ok(ArmorPerkOrSlot::SlotKingsFall),
-            x if x == ArmorPerkOrSlot::PerkPlunderersTrappings as usize => Ok(ArmorPerkOrSlot::PerkPlunderersTrappings),
+            x if x == ArmorPerkOrSlot::PerkPlunderersTrappings as usize => {
+                Ok(ArmorPerkOrSlot::PerkPlunderersTrappings)
+            }
             _ => Err(()),
         }
     }
@@ -473,10 +498,11 @@ impl ArmorSet {
     pub fn stat_total(&self) -> Stats {
         self.iter()
             .map(|i| i.stats())
-            .reduce(|acc, e| acc + e).unwrap()
+            .reduce(|acc, e| acc + e)
+            .unwrap()
     }
 
-    pub fn iter(&self) -> impl Iterator<Item=StrippedInventoryArmor> {
+    pub fn iter(&self) -> impl Iterator<Item = StrippedInventoryArmor> {
         once(self.helmet)
             .chain(once(self.gauntlets))
             .chain(once(self.chest))
@@ -486,7 +512,7 @@ impl ArmorSet {
 
 impl IntoIterator for ArmorSet {
     type Item = StrippedInventoryArmor;
-    type IntoIter = impl Iterator<Item=StrippedInventoryArmor>;
+    type IntoIter = impl Iterator<Item = StrippedInventoryArmor>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.iter()
@@ -547,7 +573,6 @@ pub enum StatMod {
     //EchoOfExchange ,
     //EchoOfRemnants,
     //EchoOfReprisal,
-
     SparkOfBrilliance = 1400,
     SparkOfFeedback,
     SparkOfDischarge,
@@ -577,10 +602,7 @@ pub struct SimpleModifierValue {
 
 impl SimpleModifierValue {
     pub fn new(stat: SimpleArmorStat, value: i8) -> Self {
-        Self {
-            stat,
-            value,
-        }
+        Self { stat, value }
     }
 }
 
@@ -601,10 +623,7 @@ pub struct ModifierValue {
 
 impl ModifierValue {
     pub fn new(stat: ArmorStat, value: i8) -> Self {
-        Self {
-            stat,
-            value,
-        }
+        Self { stat, value }
     }
 }
 
@@ -614,7 +633,6 @@ pub enum ModifierType {
     Stasis,
     Void,
     Solar,
-
 }
 
 #[derive(Deserialize, Serialize, Copy, Clone)]
@@ -623,5 +641,3 @@ pub struct FixableSelection<T> {
     pub fixed: bool,
     pub value: T,
 }
-
-
