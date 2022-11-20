@@ -5,9 +5,11 @@ members = [
     "api",
     "data",
     "d2-client",
-    "armor"
+    "armor",
+    "crawler"
 ]
 
 [profile.release]
 strip = true
 lto = true
+opt-level = "s"
