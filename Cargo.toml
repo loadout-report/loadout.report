@@ -9,7 +9,11 @@ members = [
     "crawler"
 ]
 
+[build]
+rustflags = ["-C", "target-cpu=native"]
+
 [profile.release]
 strip = true
 lto = true
-opt-level = "s"
+opt-level = 3
+# opt-level = "s"
