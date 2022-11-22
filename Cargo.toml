@@ -10,7 +10,8 @@ members = [
 ]
 
 [profile.release]
-strip = true
-lto = true
+# strip = true
+# lto = true
 opt-level = 3
+debug = true
 # opt-level = "s"

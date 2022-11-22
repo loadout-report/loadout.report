@@ -7,8 +7,12 @@ def main():
     print(len(activity_definitions))
     gms = list([activity_id for activity_id in activity_definitions if 'Grandmaster' in activity_definitions[activity_id]['displayProperties']['name']])
     print(len(gms))
-    print(list(map(int, gms)))
-    print([activity_definitions[gm]['displayProperties']['name'] for gm in gms])
+    ids = list(map(int, gms))
+    ids.sort()
+    print(ids)
+    descriptions = [activity_definitions[gm]['displayProperties']['description'] for gm in gms]
+    descriptions.sort()
+    print(descriptions)
 
 
 

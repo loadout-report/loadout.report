@@ -10,8 +10,10 @@ use serde::{de, Deserialize, Deserializer, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::fmt::Write;
 use std::fs::{read_dir, DirEntry, File, ReadDir};
+use std::hash::Hash;
 use std::io::{BufRead, BufReader, Lines, Read};
-use std::ops::Div;
+use std::iter::Sum;
+use std::ops::{Add, Div};
 use std::time::{Duration, Instant};
 use std::{fmt, io};
 use zstd::Decoder;
@@ -54,7 +56,7 @@ pub fn crawl_files(dir: &str) {
     bar.set_style(sty.clone());
 
     let time = Instant::now();
-    let (extended, values): (HashSet<kstring::KString>, HashSet<kstring::KString>) = read_dir(dir)
+    let map: HashMap<String, u32> = read_dir(dir)
         .expect("unable to open directory")
         .flatten()
         .progress_with(bar)
@@ -74,14 +76,7 @@ pub fn crawl_files(dir: &str) {
             let json_reader = parse_json(parallel_line_reader);
             extract_gms(json_reader)
         })
-        .reduce(
-            |a: (HashSet<KString>, HashSet<KString>), b: (HashSet<KString>, HashSet<KString>)| {
-                (
-                    a.0.union(&b.0).cloned().collect::<HashSet<_>>(),
-                    a.1.union(&b.1).cloned().collect::<HashSet<_>>(),
-                )
-            },
-        )
+        .reduce(merge_sum)
         .unwrap();
 
     let elapsed = time.elapsed();
@@ -90,17 +85,16 @@ pub fn crawl_files(dir: &str) {
         "elapsed: {:?}, time per entry: {:?}",
         elapsed, time_per_entry,
     );
-    println!(
-        "processed file, got {} values and {} extended values",
-        values.len(),
-        extended.len(),
-    );
-    println!("values: {:?}", values);
-    println!("extended: {:?}", extended);
+
+    let output_file = File::create("out.json.zst").unwrap();
+    let writer = zstd::Encoder::new(output_file, 0).unwrap();
+    serde_json::to_writer(writer, &map).unwrap();
 }
 
 #[inline]
-fn parse_json(parallel_line_reader: impl ParallelIterator<Item=String>) -> impl ParallelIterator<Item=ArchivedReport> {
+fn parse_json(
+    parallel_line_reader: impl ParallelIterator<Item = String>,
+) -> impl ParallelIterator<Item = ArchivedReport> {
     parallel_line_reader.filter_map(|l: String| unsafe {
         // simd_json::from_str::<ArchivedReport>(l.clone().as_mut_str())
         serde_json::from_str(&l)
@@ -109,22 +103,40 @@ fn parse_json(parallel_line_reader: impl ParallelIterator<Item=String>) -> impl 
     })
 }
 
-fn extract_gms(
-    json_reader: impl ParallelIterator<Item = ArchivedReport>,
-) -> HashMap<String, u32> {
+fn merge_sum(mut a: HashMap<String, u32>, b: HashMap<String, u32>) -> HashMap<String, u32> {
+    for (k, v) in b {
+        *a.entry(k).or_default() += &v;
+    }
+    a
+}
+
+fn extract_gms(json_reader: impl ParallelIterator<Item = ArchivedReport>) -> HashMap<String, u32> {
     json_reader
         .filter(|pcgr| pcgr.is_gm())
         .fold(
-            || HashMap::new(),
-            |a, b| {
-
-            }
+            HashMap::new,
+            |mut a: HashMap<String, u32>, b: ArchivedReport| {
+                let k = format!("strike/{}/season/{}", b.strike_slug(), b.season());
+                *a.entry(format!("{}/a", k)).or_default() += &1;
+                if b.is_completed() {
+                    *a.entry(format!("{}/c", k)).or_default() += &1;
+                }
+                for entry in &b.entries {
+                    let k = format!(
+                        "player/{}/{}/{}",
+                        entry.player.destiny_user_info.membership_type,
+                        entry.player.destiny_user_info.membership_id.0,
+                        k
+                    );
+                    *a.entry(format!("{}/a", k)).or_default() += &1;
+                    if entry.values.completed > 0.5 {
+                        *a.entry(format!("{}/c", k)).or_default() += &1;
+                    }
+                }
+                a
+            },
         )
-        .reduce(
-            || HashMap::new(),
-            |a, b| {
-
-            })
+        .reduce(HashMap::new, merge_sum)
 }
 
 // #[inline]
@@ -163,8 +175,8 @@ struct Values1 {
     // pub team: Option<i64>,
     pub activity_duration_seconds: i64,
     // pub assists: i64,
-    pub completed: i64,
-    pub completion_reason: i64,
+    pub completed: f64,
+    pub completion_reason: f64,
     // pub deaths: i64,
     // pub efficiency: f64,
     // pub fireteam_id: f64,
@@ -318,7 +330,7 @@ struct Team {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct ArchivedReport {
-    #[serde(rename = "_id")]
+    // #[serde(rename = "_id")]
     // pub id: Id,
     pub activity_details: ActivityDetails,
     // pub archived: chrono::DateTime<chrono::Utc>,
@@ -330,7 +342,54 @@ struct ArchivedReport {
 
 impl ArchivedReport {
     fn is_gm(&self) -> bool {
-        self.activity_details.modes.iter().any(|mode| GRANDMASTERS.contains(mode))
+        GRANDMASTERS
+            .binary_search(&self.activity_details.reference_id)
+            .is_ok()
+    }
+
+    fn strike_slug(&self) -> i64 {
+        self.activity_details.reference_id
+    }
+
+    fn season(&self) -> i32 {
+        let id = self.activity_details.instance_id.0;
+
+        if (6_110_577_052..6_369_174_187).contains(&id) {
+            // Worthy
+            return 10;
+        } else if (6_652_421_602..7_132_690_261).contains(&id) {
+            // Arrivals
+            return 11;
+        } else if (7_618_446_979..7_927_738_348).contains(&id) {
+            // Hunt
+            return 12;
+        } else if (8_157_068_252..8_418_736_467).contains(&id) {
+            // Chosen
+            return 13;
+        } else if (8_700_774_175..9_028_999_691).contains(&id) {
+            // Splicer
+            return 14;
+        } else if (9_370_573_998..10_179_519_298).contains(&id) {
+            // Lost
+            return 15;
+        } else if (10_549_012_758..10_800_796_510).contains(&id) {
+            // Risen
+            return 16;
+        } else if (11_087_977_829..11_369_612_788).contains(&id) {
+            // Haunted
+            return 17;
+        } else if id >= 11_734_575_369 {
+            // Plunder
+            return 18;
+        }
+
+        0
+    }
+
+    fn is_completed(&self) -> bool {
+        self.entries
+            .iter()
+            .any(|e: &Entry| e.values.completion_reason < 0.5)
     }
 }
 
@@ -349,4 +408,13 @@ struct Weapon {
     pub values: WeaponStats,
 }
 
-static GRANDMASTERS: Vec<i64> = vec![2136458560, 3381711459, 1203950592, 2112435491, 3293630132, 676886831, 2416314393, 3100302962, 1753547901, 1446478334, 3109193568, 207226563, 3812135451, 4197461112, 1495545956, 3449817631, 3029388704, 554830595, 2599001919, 281497220, 3233498454, 707920309, 2103025315, 3418624832, 4196944364, 1473557543, 1964120205, 968885838, 2766844306, 967120713, 3014390952, 265186825, 89113250, 557845334, 3871967157, 1561733170, 283725097, 3849697860, 2168858559, 2533203708, 3883876601, 1358381372, 3726640183, 2660931443, 2023667984, 3200108048, 2694576755, 68611398, 54961125, 135872558, 3879949581, 380956401, 3597372938, 41222998, 1302909043, 3919254032, 245243710, 3354105309, 766116576, 3455414851];
+static GRANDMASTERS: &[i64] = &[
+    41222998, 54961125, 68611398, 89113250, 135872558, 207226563, 245243710, 265186825, 281497220,
+    283725097, 380956401, 554830595, 557845334, 676886831, 707920309, 766116576, 967120713,
+    968885838, 1203950592, 1302909043, 1358381372, 1446478334, 1473557543, 1495545956, 1561733170,
+    1753547901, 1964120205, 2023667984, 2103025315, 2112435491, 2136458560, 2168858559, 2416314393,
+    2533203708, 2599001919, 2660931443, 2694576755, 2766844306, 3014390952, 3029388704, 3100302962,
+    3109193568, 3200108048, 3233498454, 3293630132, 3354105309, 3381711459, 3418624832, 3449817631,
+    3455414851, 3597372938, 3726640183, 3812135451, 3849697860, 3871967157, 3879949581, 3883876601,
+    3919254032, 4196944364, 4197461112,
+];
