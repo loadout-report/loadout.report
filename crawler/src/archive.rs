@@ -1,6 +1,6 @@
 use indicatif::{
-    HumanDuration, MultiProgress, ParallelProgressIterator, ProgressBar, ProgressBarIter,
-    ProgressIterator, ProgressState, ProgressStyle,
+    HumanDuration, MultiProgress, ParallelProgressIterator, ProgressBar, ProgressIterator,
+    ProgressState, ProgressStyle,
 };
 
 use model::ArchivedReport;
@@ -9,13 +9,11 @@ use rayon::prelude::*;
 
 use std::collections::HashMap;
 use std::fmt::Write;
-use std::fs::{read_dir, DirEntry, File, ReadDir};
+use std::fs::{read_dir, File};
 
-use std::io::{BufRead, BufReader, Lines, Read};
+use std::io::{BufRead, BufReader};
 
-use std::ops::{Add, Div};
 use std::time::{Duration, Instant};
-use std::{fmt, io};
 
 pub mod model;
 
@@ -97,12 +95,11 @@ pub fn crawl_files(dir: &str) {
 fn parse_json(
     parallel_line_reader: impl ParallelIterator<Item = String>,
 ) -> impl ParallelIterator<Item = ArchivedReport> {
-    parallel_line_reader.filter_map(|l: String| unsafe {
+    parallel_line_reader.filter_map(|l: String|
         // simd_json::from_str::<ArchivedReport>(l.clone().as_mut_str())
         serde_json::from_str(&l)
             .inspect_err(|err| println!("{}, {}", err, l))
-            .ok()
-    })
+            .ok())
 }
 
 fn merge_sum(mut a: HashMap<String, u32>, b: HashMap<String, u32>) -> HashMap<String, u32> {

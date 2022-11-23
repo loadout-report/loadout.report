@@ -1,6 +1,6 @@
 #![feature(result_option_inspect)]
 
-use reqwest::{Error, Response};
+
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::net::IpAddr;
