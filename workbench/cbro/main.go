@@ -47,15 +47,6 @@ var activityDefinition map[string]struct {
 }
 
 func init() {
-	flag.Parse()
-
-	b, err := os.ReadFile(*activityDefinitionPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if err := json.Unmarshal(b, &activityDefinition); err != nil {
-		log.Fatal(err)
-	}
 }
 
 type MapReduce[K comparable, V any] struct {
@@ -115,6 +106,16 @@ var StrikeCountMapReduce = MapReduce[string, int]{
 }
 
 func main() {
+
+	flag.Parse()
+
+	b, err := os.ReadFile(*activityDefinitionPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := json.Unmarshal(b, &activityDefinition); err != nil {
+		log.Fatal(err)
+	}
 	log.SetFlags(0)
 	start := time.Now()
 	defer func() { log.Printf("processed in %s", time.Since(start)) }()

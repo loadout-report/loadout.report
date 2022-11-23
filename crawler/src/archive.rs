@@ -58,6 +58,7 @@ pub fn crawl_files(dir: &str) {
     let map: HashMap<String, u32> = read_dir(dir)
         .expect("unable to open directory")
         .flatten()
+        .par_bridge()
         .progress_with(bar)
         .map(|dir_entry| {
             let pb = multi.add(ProgressBar::new(CHUNK_SIZE));
@@ -76,8 +77,7 @@ pub fn crawl_files(dir: &str) {
             let json_reader = parse_json(parallel_line_reader);
             extract_gms(json_reader)
         })
-        .reduce(merge_sum)
-        .unwrap();
+        .reduce(HashMap::new, merge_sum);
 
     let elapsed = time.elapsed();
     let time_per_entry = elapsed / (files * CHUNK_SIZE as usize) as u32;
@@ -86,9 +86,10 @@ pub fn crawl_files(dir: &str) {
         elapsed, time_per_entry,
     );
 
-    let output_file = File::create("out.json.zst").unwrap();
-    let writer = zstd::Encoder::new(output_file, 0).unwrap();
-    serde_json::to_writer(writer, &map).unwrap();
+    let output_file = File::create("out.json.zst").expect("could not open file for writing");
+    let writer =
+        zstd::Encoder::new(output_file, 0).expect("could not create zstd encoder for output");
+    serde_json::to_writer(writer, &map).expect("could not serialize json output");
 }
 
 #[inline]
