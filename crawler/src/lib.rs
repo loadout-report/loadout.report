@@ -7,6 +7,7 @@ use std::net::IpAddr;
 use std::str::FromStr;
 
 pub mod archive;
+pub mod constants;
 pub mod raw;
 
 const PGCR_URL: &str = "https://bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/";
