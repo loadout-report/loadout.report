@@ -55,27 +55,30 @@ pub fn crawl_files(dir: &str) {
     bar.set_style(sty.clone());
 
     let time = Instant::now();
-    let map: HashMap<String, u32> = read_dir(dir)
+    let map: HashMap<String, u32> = read_dir(dir) // each file in a directory as an iterator
         .expect("unable to open directory")
         .flatten()
-        .par_bridge()
-        .progress_with(bar)
+        .par_bridge() // parallelise here
+        .progress_with(bar) // files started progress bar
         .map(|dir_entry| {
-            let pb = multi.add(ProgressBar::new(CHUNK_SIZE));
             let file_name = dir_entry.file_name();
+
+            // progress bar stuff
+            let pb = multi.add(ProgressBar::new(CHUNK_SIZE));
             pb.set_message(file_name.to_str().unwrap().to_string()); // end me
             pb.set_style(sty.clone());
+
             let file = File::open(dir_entry.path()).expect("couldn't open archive file");
             let decoder = zstd::stream::Decoder::new(file).expect("couldn't open decoder");
             let reader = BufReader::new(decoder);
 
             let parallel_line_reader = reader
                 .lines()
-                .filter_map(|l| l.ok())
-                .par_bridge()
-                .progress_with(pb);
-            let json_reader = parse_json(parallel_line_reader);
-            extract_gms(json_reader)
+                .filter_map(|l| l.ok()) // ignore lines that aren't valid utf-8
+                .par_bridge() // parallelise again here
+                .progress_with(pb); // progress bar
+            let json_reader = parse_json(parallel_line_reader); // parse json
+            extract_gms(json_reader) // process ArchivedReport
         })
         .reduce(HashMap::new, merge_sum);
 
