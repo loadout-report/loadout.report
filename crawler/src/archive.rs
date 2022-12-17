@@ -3,19 +3,18 @@ use indicatif::{
     ProgressState, ProgressStyle,
 };
 
-use model::ArchivedReport;
+use crate::pgcr::archive::ArchivedReport;
 use rayon::iter::ParallelIterator;
 use rayon::prelude::*;
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt::Write;
 use std::fs::{read_dir, File};
 
 use std::io::{BufRead, BufReader};
 
 use std::time::{Duration, Instant};
-
-pub mod model;
+use crate::pgcr::extract::{extract_gms, extract_members, merge, merge_sum};
 
 const CHUNK_SIZE: u64 = 10_000_000;
 
@@ -55,7 +54,7 @@ pub fn crawl_files(dir: &str) {
     bar.set_style(sty.clone());
 
     let time = Instant::now();
-    let map: HashMap<String, u32> = read_dir(dir) // each file in a directory as an iterator
+    let map: HashSet<_> = read_dir(dir) // each file in a directory as an iterator
         .expect("unable to open directory")
         .flatten()
         .par_bridge() // parallelise here
@@ -77,10 +76,10 @@ pub fn crawl_files(dir: &str) {
                 .filter_map(|l| l.ok()) // ignore lines that aren't valid utf-8
                 .par_bridge() // parallelise again here
                 .progress_with(pb); // progress bar
-            let json_reader = parse_json(parallel_line_reader); // parse json
-            extract_gms(json_reader) // process ArchivedReport
+            parse_json(parallel_line_reader) // parse json
         })
-        .reduce(HashMap::new, merge_sum);
+        .map(extract_members)
+        .reduce(HashSet::new, merge);
 
     let elapsed = time.elapsed();
     let time_per_entry = elapsed / (files * CHUNK_SIZE as usize) as u32;
@@ -99,45 +98,14 @@ pub fn crawl_files(dir: &str) {
 fn parse_json(
     parallel_line_reader: impl ParallelIterator<Item = String>,
 ) -> impl ParallelIterator<Item = ArchivedReport> {
-    parallel_line_reader.filter_map(|l: String|
-        // simd_json::from_str::<ArchivedReport>(l.clone().as_mut_str())
-        serde_json::from_str(&l)
-            .inspect_err(|err| println!("{}, {}", err, l))
-            .ok())
+    parallel_line_reader.filter_map(|mut l: String|
+        unsafe {
+            simd_json::serde::from_slice(l.as_bytes_mut())
+                // serde_json::from_str(&l)
+                .inspect_err(|err| println!("{}, {}", err, l))
+                .ok()
+        })
+
 }
 
-fn merge_sum(mut a: HashMap<String, u32>, b: HashMap<String, u32>) -> HashMap<String, u32> {
-    for (k, v) in b {
-        *a.entry(k).or_default() += &v;
-    }
-    a
-}
 
-fn extract_gms(json_reader: impl ParallelIterator<Item = ArchivedReport>) -> HashMap<String, u32> {
-    json_reader
-        .filter(|pcgr| pcgr.is_gm())
-        .fold(
-            HashMap::new,
-            |mut a: HashMap<String, u32>, b: ArchivedReport| {
-                let k = format!("strike/{}/season/{}", b.strike_slug(), b.season());
-                *a.entry(format!("{}/a", k)).or_default() += &1;
-                if b.is_completed() {
-                    *a.entry(format!("{}/c", k)).or_default() += &1;
-                }
-                for entry in &b.entries {
-                    let k = format!(
-                        "player/{}/{}/{}",
-                        entry.player.destiny_user_info.membership_type,
-                        entry.player.destiny_user_info.membership_id.0,
-                        k
-                    );
-                    *a.entry(format!("{}/a", k)).or_default() += &1;
-                    if entry.values.completed > 0.5 {
-                        *a.entry(format!("{}/c", k)).or_default() += &1;
-                    }
-                }
-                a
-            },
-        )
-        .reduce(HashMap::new, merge_sum)
-}

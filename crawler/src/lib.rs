@@ -1,4 +1,5 @@
 #![feature(result_option_inspect)]
+#![feature(is_some_and)]
 
 
 use serde::{Deserialize, Serialize};
@@ -6,9 +7,10 @@ use std::collections::HashMap;
 use std::net::IpAddr;
 use std::str::FromStr;
 
-pub mod archive;
+pub mod pgcr;
 pub mod constants;
 pub mod raw;
+pub mod archive;
 
 const PGCR_URL: &str = "https://bungie.net/Platform/Destiny2/Stats/PostGameCarnageReport/";
 const IP_CHECK_URL: &str = "https://api.ipify.org";

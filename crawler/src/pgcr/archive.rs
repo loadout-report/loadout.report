@@ -5,36 +5,11 @@ use std::fmt;
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct Values1 {
-    // pub average_score_per_kill: Option<f64>,
-    // pub average_score_per_life: Option<f64>,
-    // pub standing: Option<i64>,
-    // pub team: Option<i64>,
-    pub activity_duration_seconds: i64,
-    // pub assists: i64,
-    pub completed: f64,
-    pub completion_reason: f64,
-    // pub deaths: i64,
-    // pub efficiency: f64,
-    // pub fireteam_id: f64,
-    // pub kills: i64,
-    // pub kills_deaths_assists: f64,
-    // pub kills_deaths_ratio: f64,
-    // pub opponents_defeated: i64,
-    // pub player_count: i64,
-    pub score: i64,
-    // pub start_seconds: i64,
-    // pub team_score: i64,
-    pub time_played_seconds: i64,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct DestinyUserInfo {
     // pub display_name: Option<String>,
     // pub icon_path: Option<String>,
     pub membership_id: Id,
-    pub membership_type: i64,
+    pub membership_type: u8,
 }
 
 #[derive(Debug, Deserialize)]
@@ -60,26 +35,7 @@ pub struct Player {
     pub race_hash: i64,
 }
 
-#[derive(Debug, Deserialize)]
-#[serde(deny_unknown_fields, rename_all = "camelCase")]
-pub struct Values {
-    pub medal_multi_2x: Option<i64>,
-    pub medal_streak_5x: Option<i64>,
-    pub medal_streak_10x: Option<i64>,
-    pub medal_streak_team: Option<i64>,
-    pub medal_streak_shutdown: Option<i64>,
-    pub medal_payback: Option<i64>,
-    pub medal_avenger: Option<i64>,
-    pub medal_super_shutdown: Option<i64>,
-    pub medal_streak_combined: Option<i64>,
-    pub precision_kills: i64,
-    pub weapon_kills_ability: i64,
-    pub weapon_kills_grenade: i64,
-    pub weapon_kills_melee: i64,
-    pub weapon_kills_super: i64,
-}
-
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Serialize)]
 pub struct Id(pub u64);
 
 impl<'de> Deserialize<'de> for Id {
@@ -134,25 +90,25 @@ pub struct Extended {
 #[serde(rename_all = "camelCase")]
 pub struct Entry {
     pub character_id: Id,
-    // pub extended: Extended,
+    pub extended: Option<Extended>,
     pub player: Player,
-    // pub score: i64,
-    // pub standing: i64,
+    pub score: i64,
+    pub standing: i64,
     // Values1
-    // pub values: HashMap<kstring::KString, f64>,
-    pub values: Values1,
+    pub values: HashMap<kstring::KString, f64>,
+    // pub values: Values1,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ActivityDetails {
-    // pub director_activity_hash: i64,
+    pub director_activity_hash: i64,
     pub instance_id: Id,
-    // pub is_private: bool,
-    // pub mode: i64,
+    pub is_private: bool,
+    pub mode: i64,
     pub modes: Vec<i64>,
     pub reference_id: i64,
-    // pub membership_type: Option<i64>,
+    pub membership_type: Option<i64>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -161,20 +117,20 @@ pub struct Team {
     pub team_id: i64,
     pub standing: i64,
     pub score: i64,
-    // pub team_name: String,
+    pub team_name: String,
 }
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ArchivedReport {
-    // #[serde(rename = "_id")]
-    // pub id: Id,
+    #[serde(rename = "_id")]
+    pub id: Id,
     pub activity_details: ActivityDetails,
-    // pub archived: chrono::DateTime<chrono::Utc>,
+    pub archived: chrono::DateTime<chrono::Utc>,
     pub entries: Vec<Entry>,
     pub period: chrono::DateTime<chrono::Utc>,
-    // pub starting_phase_index: i64,
-    // pub teams: Vec<Team>,
+    pub starting_phase_index: Option<i64>,
+    pub teams: Vec<Team>,
 }
 
 impl ArchivedReport {
@@ -226,7 +182,7 @@ impl ArchivedReport {
     pub fn is_completed(&self) -> bool {
         self.entries
             .iter()
-            .any(|e: &Entry| e.values.completion_reason < 0.5)
+            .any(|e: &Entry| e.values.get("completion_reason").is_some_and(|r| *r < 0.5))
     }
 }
 
