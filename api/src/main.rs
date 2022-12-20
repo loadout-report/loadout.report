@@ -7,16 +7,19 @@ use serde_derive::{Deserialize, Serialize};
 // use tokio::signal::{unix::signal, unix::SignalKind};
 use tokio::sync::Mutex;
 use tokio_graceful_shutdown::{SubsystemHandle, Toplevel};
-use warp::Filter;
 use warp::http::StatusCode;
+use warp::Filter;
 
 use d2_client::D2Api;
-use data::api::{ApiResponse, manifest::model::{self, Hash}};
+use data::api::{
+    manifest::model::{self, Hash},
+    ApiResponse,
+};
 
 #[derive(Deserialize, Serialize)]
 struct GetItemsQuery {
     rarity: Option<i32>,
-    category: Option<Hash>
+    category: Option<Hash>,
 }
 
 #[tokio::main]
@@ -41,7 +44,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .or(api::routes::categories(categories))
         .or(api::routes::players(client).with(warp::log("players")))
         .with(cors)
-        .recover(|err: warp::Rejection| async move {
+        .recover(|err: warp::Rejection| async {
             if let Some(api::ApiError::Unknown) = err.find() {
                 Ok(StatusCode::INTERNAL_SERVER_ERROR)
             } else {
@@ -49,22 +52,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         });
 
-    let (_, server) = warp::serve(routes).bind_with_graceful_shutdown(([0, 0, 0, 0], 8080), async move {
-        info!("waiting for shutdown signal");
-        tokio::signal::ctrl_c()
-            .await
-            .expect("failed to listen to shutdown signal");
-        info!("got shutdown signal");
-    });
+    let (_, server) =
+        warp::serve(routes).bind_with_graceful_shutdown(([0, 0, 0, 0], 8080), async move {
+            info!("waiting for shutdown signal");
+            tokio::signal::ctrl_c()
+                .await
+                .expect("failed to listen to shutdown signal");
+            info!("got shutdown signal");
+        });
     match tokio::join!(tokio::task::spawn(server)).0 {
         Ok(()) => info!("served"),
-        Err(e) => log::error!("ERROR: Thread join error {}", e)
+        Err(e) => log::error!("ERROR: Thread join error {}", e),
     }
 
     info!("shutting down");
     Ok(())
 }
-
 
 fn init_logger() {
     if std::env::var_os("RUST_LOG").is_none() {
@@ -76,12 +79,17 @@ fn init_logger() {
 }
 
 async fn fetch_categories() -> Result<Vec<model::Category>, Box<dyn std::error::Error>> {
-    let url = format!("https://www.bungie.net{}", fetch_content_paths().await?.destiny_item_category_definition);
+    let url = format!(
+        "https://www.bungie.net{}",
+        fetch_content_paths()
+            .await?
+            .destiny_item_category_definition
+    );
 
-    let mut items: HashMap<String, model::CategoryDefinition> = reqwest::get(url).await?
-        .json()
-        .await?;
-    let categories: Vec<_> = items.values_mut()
+    let mut items: HashMap<String, model::CategoryDefinition> =
+        reqwest::get(url).await?.json().await?;
+    let categories: Vec<_> = items
+        .values_mut()
         .map(|i| i.clone())
         .map(model::Category::from)
         .collect();
@@ -93,12 +101,23 @@ fn get_api_key() -> String {
 }
 
 async fn fetch_items() -> Result<Vec<model::Item>, Box<dyn std::error::Error>> {
-    let url = format!("https://www.bungie.net{}", fetch_content_paths().await?.destiny_inventory_item_definition);
-    let mut items: HashMap<String, model::InventoryItem> = reqwest::get(url).await?
-            .json()
-            .await?;
-    let mut items: Vec<_> = items.values_mut()
-        .filter(|i| i.item_category_hashes.is_none() || !i.item_category_hashes.as_ref().unwrap().contains(&3109687656))
+    let url = format!(
+        "https://www.bungie.net{}",
+        fetch_content_paths()
+            .await?
+            .destiny_inventory_item_definition
+    );
+    let mut items: HashMap<String, model::InventoryItem> = reqwest::get(url).await?.json().await?;
+    let mut items: Vec<_> = items
+        .values_mut()
+        .filter(|i| {
+            i.item_category_hashes.is_none()
+                || !i
+                    .item_category_hashes
+                    .as_ref()
+                    .unwrap()
+                    .contains(&3109687656)
+        })
         .map(|i| i.clone())
         .map(model::Item::from)
         .collect();
@@ -106,11 +125,14 @@ async fn fetch_items() -> Result<Vec<model::Item>, Box<dyn std::error::Error>> {
     Ok(items)
 }
 
-async fn fetch_content_paths() -> Result<data::api::manifest::Components, Box<dyn std::error::Error>> {
+async fn fetch_content_paths() -> Result<data::api::manifest::Components, Box<dyn std::error::Error>>
+{
     let client = reqwest::Client::new();
-    let request = client.get("https://www.bungie.net/Platform/Destiny2/Manifest/")
+    let request = client
+        .get("https://www.bungie.net/Platform/Destiny2/Manifest/")
         .header("X-API-Key", get_api_key())
-        .build().unwrap();
+        .build()
+        .unwrap();
     let response = client.execute(request).await?;
     let body: ApiResponse<data::api::manifest::Manifest> = response.json().await?;
     Ok(Result::from(body)?.json_world_component_content_paths.en)

@@ -1,14 +1,14 @@
-use warp::Filter;
 use super::model::CategoryCache;
+use warp::Filter;
 
 pub fn categories(
-    items: CategoryCache
+    items: CategoryCache,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     categories_fetch(items)
 }
 
 fn categories_fetch(
-    categories: CategoryCache
+    categories: CategoryCache,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     warp::path!("items")
         .and(warp::get())
@@ -19,7 +19,7 @@ fn categories_fetch(
 }
 
 fn with_categories(
-    items: CategoryCache
-) -> impl Filter<Extract=(CategoryCache,), Error=std::convert::Infallible> + Clone {
+    items: CategoryCache,
+) -> impl Filter<Extract = (CategoryCache,), Error = std::convert::Infallible> + Clone {
     warp::any().map(move || items.clone())
 }

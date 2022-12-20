@@ -483,7 +483,7 @@ fn handle_permutation(
                     .for_each(|i| *i = 0);
                 available_modslots_count -= 1;
             }
-            i += 1;
+            i += &1;
         }
     }
 
@@ -658,7 +658,7 @@ fn handle_permutation(
                     }
                     used_modslot_index |= 1 << i;
                     cost_amount -= 1;
-                    counter += 1;
+                    counter += &1;
                 }
 
                 costs.decrement_by(cost, cost_amount);
@@ -742,7 +742,7 @@ fn handle_permutation(
             stats.values[stat_id] += 5;
             waste[stat_id].1 -= 5;
             used_mods.push(1 + 2 * stat_id as u8).unwrap();
-            id += 1;
+            id += &1;
         }
     }
 
@@ -1052,14 +1052,14 @@ fn prepare_constant_available_modslots(
     req[0] = max_mod_slots
         .get(&ArmorSlot::ArmorSlotHelmet)
         .unwrap()
-        .value as u8;
-    req[1] = max_mod_slots.get(&ArmorSlot::ArmorSlotChest).unwrap().value as u8;
+        .value;
+    req[1] = max_mod_slots.get(&ArmorSlot::ArmorSlotChest).unwrap().value;
     req[2] = max_mod_slots
         .get(&ArmorSlot::ArmorSlotGauntlet)
         .unwrap()
-        .value as u8;
-    req[3] = max_mod_slots.get(&ArmorSlot::ArmorSlotLegs).unwrap().value as u8;
-    req[4] = max_mod_slots.get(&ArmorSlot::ArmorSlotClass).unwrap().value as u8;
+        .value;
+    req[3] = max_mod_slots.get(&ArmorSlot::ArmorSlotLegs).unwrap().value;
+    req[4] = max_mod_slots.get(&ArmorSlot::ArmorSlotClass).unwrap().value;
     req.sort();
     req
 }

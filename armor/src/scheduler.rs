@@ -37,14 +37,14 @@ pub async fn compute_results(config: JsValue, n: usize) -> Result<(), ComputeErr
     let selected_exotic = if let ExoticChoiceModel::Some(exotic) = config.selected_exotic {
         let tx = db
             .transaction(&["manifestArmor"], TransactionMode::ReadOnly)
-            .map_err(|e| ComputeError::LoadDataError)?;
+            .map_err(|_| ComputeError::LoadDataError)?;
         let manifest_armor = tx.store("manifestArmor").unwrap();
         let armor = manifest_armor
             .index("hash")
             .unwrap()
             .get(&JsValue::from(exotic))
             .await
-            .map_err(|e| ComputeError::LoadDataError)?;
+            .map_err(|_| ComputeError::LoadDataError)?;
         let armor: ManifestArmor =
             serde_wasm_bindgen::from_value(armor).map_err(|e| ComputeError::LoadDataError)?;
         tx.done().await.map_err(|e| ComputeError::LoadDataError)?;
