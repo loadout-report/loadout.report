@@ -30,10 +30,10 @@ pub struct Input {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ExoticResult {
-    icon: String,
-    watermark: String,
-    name: String,
-    hash: Hash,
+    pub icon: String,
+    pub watermark: String,
+    pub name: String,
+    pub hash: Hash,
 }
 
 /// This is the ItemResult returned by the rust application to the javascript
@@ -41,16 +41,16 @@ pub struct ExoticResult {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SanitisedItemResult {
-    exotic: Option<ExoticResult>,
-    mod_count: usize,
-    mod_cost: u8,
-    mods: Vec<StatModifier>,
-    stats: Stats,
-    stats_no_mods: Stats,
-    tiers: u8,
-    waste: u8,
-    items: Vec<Item>,
-    class_item: ClassItem,
+    pub exotic: Option<ExoticResult>,
+    pub mod_count: usize,
+    pub mod_cost: u8,
+    pub mods: Vec<StatModifier>,
+    pub stats: Stats,
+    pub stats_no_mods: Stats,
+    pub tiers: u8,
+    pub waste: u8,
+    pub items: Vec<Item>,
+    pub class_item: ClassItem,
 }
 
 /// This is the ItemResult returned by the worker to the calling rust framework
@@ -59,16 +59,16 @@ pub struct SanitisedItemResult {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ItemResult {
-    exotic: Option<Hash>,
-    mod_count: usize,
-    mod_cost: u8,
-    mods: Vec<StatModifier>,
-    stats: Stats,
-    stats_no_mods: Stats,
-    tiers: u8,
-    waste: u8,
-    items: ArmorSet,
-    class_item: ClassItem,
+    pub exotic: Option<Hash>,
+    pub mod_count: usize,
+    pub mod_cost: u8,
+    pub mods: Vec<StatModifier>,
+    pub stats: Stats,
+    pub stats_no_mods: Stats,
+    pub tiers: u8,
+    pub waste: u8,
+    pub items: ArmorSet,
+    pub class_item: ClassItem,
 }
 
 #[derive(Deserialize, Serialize, Clone)]
@@ -112,11 +112,11 @@ pub struct OutputStats {
 #[derive(Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Output {
-    runtime: Runtime,
-    results: Vec<ItemResult>,
-    total: Option<usize>,
-    done: bool,
-    stats: Option<OutputStats>,
+    pub runtime: Runtime,
+    pub results: Vec<ItemResult>,
+    pub total: Option<usize>,
+    pub done: bool,
+    pub stats: Option<OutputStats>,
 }
 
 impl Worker for ArmorWorker {

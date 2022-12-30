@@ -4,7 +4,7 @@ use crate::model::{
     ArmorInformation, ArmorPerkOrSlot, ArmorSlot, DestinyEnergyType, ExoticChoiceModel,
     InventoryArmor, ManifestArmor, StrippedInventoryArmor, TierType, WorkerConfig,
 };
-use crate::worker::{ArmorWorker, Input};
+use crate::worker::{ArmorWorker, Input, Output};
 use data::api::manifest::model::Hash;
 use gloo_worker::Spawnable;
 use rexie::{KeyRange, TransactionMode};
@@ -127,7 +127,7 @@ pub async fn compute_results(config: JsValue, n: usize) -> Result<(), ComputeErr
 
     for armory in armory.chunk(n) {
         let worker = ArmorWorker::spawner()
-            .callback(|msg| {
+            .callback(|msg: Output| {
                 // todo: use output
                 // rebuild SanitisedItemResult from ItemResult
                 // reconcile threads
