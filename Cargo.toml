@@ -6,7 +6,8 @@ members = [
     "data",
     "d2-client",
     "armor",
-    "crawler"
+    "crawler",
+    "d2-api"
 ]
 
 [profile.release]
