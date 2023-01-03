@@ -1,5 +1,7 @@
 use crate::BungieCredentialType;
+use enumflags2::{bitflags, BitFlags};
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fmt::Display;
 use std::str::FromStr;
 
@@ -177,7 +179,7 @@ pub struct GeneralUser {
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct UserToUserContext {
     pub is_following: bool,
-    pub ignore_status: crate::ignores::model::IgnoreResponse,
+    pub ignore_status: crate::ignores::IgnoreResponse,
     pub global_ignore_end_date: Option<chrono::DateTime<chrono::Utc>>,
 }
 
@@ -195,7 +197,7 @@ pub struct GetCredentialTypesForAccountResponse {
 pub struct MembershipData {
     /// this allows you to see destiny memberships that are visible and linked to this account
     /// (regardless of whether or not they have characters on the world server)
-    pub destiny_memberships: Vec<crate::groupsv2::model::GroupUserInfoCard>,
+    pub destiny_memberships: Vec<crate::groupsv2::GroupUserInfoCard>,
     /// If this property is populated, it will have the membership ID of the account considered
     /// to be "primary" in this user's cross save relationship.
     /// If null, this user has no cross save relationship, nor primary account.
@@ -239,4 +241,110 @@ pub struct SearchResponseDetail {
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct SearchPrefixRequest {
     pub display_name_prefix: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ExactSearchRequest {
+    pub display_name: String,
+    pub display_name_code: i16,
+}
+
+/// The set of all email subscription/opt-in settings and definitions
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct EmailSettings {
+    pub opt_in_definitions: HashMap<String, EmailOptInDefinition>,
+    pub subscription_definitions: HashMap<String, EmailSubscriptionDefinition>,
+    pub views: HashMap<String, EmailViewDefinition>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct EmailOptInDefinition {
+    pub name: String,
+    pub value: i64,
+    pub set_by_default: bool,
+    pub dependent_subscriptions: Vec<EmailSubscriptionDefinition>,
+}
+
+#[bitflags]
+#[repr(u64)]
+#[derive(Copy, Debug, Clone, Serialize, Deserialize)]
+pub enum OptInFlags {
+    Newsletter = 1,
+    System = 2,
+    Marketing = 4,
+    UserResearch = 8,
+    CustomerService = 16,
+    Social = 32,
+    PlayTests = 64,
+    PlayTestsLocal = 128,
+    Careers = 256,
+}
+
+/// Defines a single subscription: permission to send emails for a specific,
+/// focused subject (generally timeboxed, such as for a specific release of a product or feature).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct EmailSubscriptionDefinition {
+    /// The unique identifier for this subscription.
+    pub name: String,
+    /// A dictionary of localized text for the EMail Opt-in setting, keyed by the locale.
+    pub localization: HashMap<String, EmailSettingSubscriptionLocalization>,
+    /// The bitflag value for this subscription. Should be a unique power of two value.
+    #[serde(deserialize_with = "crate::util::serde::zero_as_none")]
+    pub value: Option<BitFlags<OptInFlags>>,
+}
+
+/// Localized text relevant to a given EMail setting in a given localization.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct EmailSettingLocalization {
+    pub title: String,
+    pub description: String,
+}
+
+/// Localized text relevant to a given EMail setting in a given localization.
+/// Extra settings specifically for subscriptions.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct EmailSettingSubscriptionLocalization {
+    pub unknown_user_description: String,
+    pub registered_user_description: String,
+    pub unregistered_user_description: String,
+    pub unknown_user_action_text: String,
+    pub known_user_action_text: String,
+    pub title: String,
+    pub description: String,
+}
+
+/// Represents a data-driven view for Email settings.
+/// Web/Mobile UI can use this data to show new EMail settings consistently
+/// without further manual work.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct EmailViewDefinition {
+    /// The identifier for this view.
+    pub name: String,
+    /// The ordered list of settings to show in this view.
+    pub view_settings: HashMap<String, EmailViewDefinitionSetting>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct EmailViewDefinitionSetting {
+    /// The identifier for this UI Setting, which can be used to relate it
+    /// to custom strings or other data as desired.
+    pub name: String,
+    /// A dictionary of localized text for the EMail setting, keyed by the locale.
+    pub localization: HashMap<String, EmailSettingLocalization>,
+    /// If true, this setting should be set by default if the user hasn't chosen
+    /// whether it's set or cleared yet.
+    pub set_by_default: bool,
+    /// The OptInFlags value to set or clear if this setting is set or cleared in the UI.
+    /// It is the aggregate of all underlying opt-in flags related to this setting.
+    pub opt_in_aggregate_value: Option<BitFlags<OptInFlags>>,
+    /// The subscriptions to show as children of this setting, if any.
+    pub subscriptions: Vec<EmailSubscriptionDefinition>,
 }

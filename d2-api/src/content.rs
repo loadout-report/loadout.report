@@ -155,7 +155,7 @@ pub struct ContentItemPublicContract {
     pub has_age_gate: bool,
     pub minimum_age: i32,
     pub rating_image_path: String,
-    pub author: crate::user::model::GeneralUser,
+    pub author: crate::user::GeneralUser,
     pub auto_english_property_fallback: bool,
     pub properties: HashMap<String, serde_json::Value>,
     pub representations: Vec<ContentRepresentation>,
