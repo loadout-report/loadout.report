@@ -8,6 +8,7 @@ pub mod groupsv2;
 pub mod ignores;
 pub mod queries;
 pub mod user;
+pub mod destiny;
 mod util;
 
 #[repr(u8)]
