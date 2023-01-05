@@ -32,7 +32,7 @@ pub enum ApplicationScopes {
     EditUserData = 256,
     /// Access Vendor and advisor data specific to a user. OBSOLETE. This scope is only used on
     /// the Destiny 1 API.
-    #[deprecated]
+    #[deprecated(note = "deprecated in accordance with API spec")]
     ReadDestinyVendorsAndAdvisors = 512,
     /// Read offer history and claim and apply tokens for the user.
     ReadAndApplyTokens = 1024,

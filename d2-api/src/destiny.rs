@@ -1,3 +1,4 @@
+use crate::destiny::definitions::Hashable;
 use enumflags2::{bitflags, BitFlags};
 use serde::{Deserialize, Serialize};
 
@@ -22,16 +23,53 @@ pub mod responses;
 pub mod sockets;
 pub mod vendors;
 
-#[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct FactionHash(pub Hash);
-#[derive(Clone, Serialize, Deserialize, Debug)]
+#[derive(Copy, Clone, Serialize, Deserialize, Debug, PartialOrd, PartialEq, Ord, Eq, Hash)]
 pub struct Hash(pub u32);
-#[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct ItemHash(pub Hash);
-#[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct ProgressionHash(pub Hash);
-#[derive(Clone, Serialize, Deserialize, Debug)]
-pub struct SeasonHash(pub Hash);
+
+#[macro_export]
+macro_rules! declare_hash_types {
+    ( $( $name:ident ),* ) => {
+        $(
+            #[derive(Copy, Clone, Serialize, Deserialize, Debug, PartialOrd, PartialEq, Ord, Eq, Hash)]
+            #[serde(transparent)]
+            pub struct $name(pub Hash);
+            impl Hashable for $name {}
+        )*
+    };
+}
+
+declare_hash_types![
+    FactionHash,
+    ItemHash,
+    ProgressionHash,
+    SeasonHash,
+    CollectibleHash,
+    LoreHash,
+    ItemCategoryHash,
+    BreakerTypeHash,
+    DamageTypeHash,
+    TraitHash,
+    CooldownHash,
+    ProgressionMappingHash,
+    SocketTypeHash,
+    MaterialRequirementSetHash,
+    SocketCategoryHash,
+    PlugCategoryHash,
+    ObjectiveHash,
+    InventoryBucketHash,
+    ItemTierTypeHash,
+    StatDefinitionHash,
+    StatGroupHash,
+    LabelHash,
+    EquipmentSlotHash,
+    SandboxPatternHash,
+    ChannelHash,
+    DyeHash,
+    ArtArrangementHash,
+    ClassHash,
+    VendorHash,
+    ArtifactHash
+];
 
 // Entities
 /// Information about a current character's status with a Progression.
@@ -154,14 +192,91 @@ pub struct ItemQuantity {
     pub has_conditional_visibility: bool,
 }
 
-// DestinyItemQuantity
-// SocketTypeActionType
-// DestinySocketVisibility
-// DestinySocketCategoryStyle
-// TierType
-// BucketScope
-// BucketCategory
-// ItemLocation
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum SocketVisibility {
+    Visible = 0,
+    Hidden = 1,
+    HiddenWhenEmpty = 2,
+    HiddenIfNoPlugsAvailable = 3,
+}
+
+/// Represents the possible and known UI styles used by the game for rendering Socket Categories.
+#[derive(Clone, Serialize, Deserialize, Debug)]
+pub enum SocketCategoryStyle {
+    Unknown = 0,
+    Reusable = 1,
+    Consumable = 2,
+    Unlockable = 3,
+    Intrinsic = 4,
+    EnergyMeter = 5,
+    LargePerk = 6,
+    Abilities = 7,
+    Supers = 8,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum TierType {
+    Unknown = 0,
+    Currency = 1,
+    Basic = 2,
+    Common = 3,
+    Rare = 4,
+    Superior = 5,
+    Exotic = 6,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum BucketScope {
+    Character = 0,
+    Account = 1,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum BucketCategory {
+    Invisible = 0,
+    Item = 1,
+    Currency = 2,
+    Equippable = 3,
+    Ignored = 4,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ItemLocation {
+    Unknown = 0,
+    Inventory = 1,
+    Vault = 2,
+    Vendor = 3,
+    Postmaster = 4,
+}
+
+#[bitflags]
+#[repr(u32)]
+#[derive(Copy, Debug, Clone, Serialize, Deserialize)]
+pub enum EquippingItemBlockAttributes {
+    EquipOnAcquire = 1,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum AmmunitionType {
+    Primary = 1,
+    Special = 2,
+    Heavy = 3,
+    Unknown = 4,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DyeReference {
+    pub channel_hash: ChannelHash,
+    pub dye_hash: DyeHash,
+}
+
+/// Represents the different kinds of acquisition behavior for progression reward items.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ProgressionRewardItemAcquisitionBehavior {
+    Instant = 0,
+    PlayerClaimRequired = 1,
+}
+
 // DestinyStatAggregationType
 // DestinyStatCategory
 // EquippingItemBlockAttributes
@@ -200,7 +315,7 @@ pub struct ItemQuantity {
 // SpecialItemType
 // DestinyItemType
 // DestinyBreakerType
-// DestinyProgressionRewardItemAcquisitionBehavior
+// *DestinyProgressionRewardItemAcquisitionBehavior
 // ItemBindStatus
 // TransferStatuses
 // ItemState

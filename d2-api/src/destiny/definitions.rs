@@ -1,19 +1,26 @@
 pub mod common;
+pub mod items;
+pub mod sockets;
 
 use crate::destiny::definitions::common::DisplayPropertiesDefinition;
-use crate::destiny::Hash;
+use crate::destiny::{Hash, ProgressionHash};
+use enumflags2::BitFlags;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
+use std::fmt::Debug;
+
+pub trait Hashable: Copy + Clone + Serialize + Debug {}
 
 /// Provides common properties for destiny definitions.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
-pub struct Definition {
+pub struct Definition<T: Hashable> {
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity,
     /// but not globally.
     ///
     /// When entities refer to each other in Destiny content,
     /// it is this hash that they are referring to.
-    pub hash: Hash,
+    pub hash: T,
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// If this is true, then there is an entity with this identifier/type combination,
@@ -46,7 +53,7 @@ pub struct Definition {
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ProgressionDefinition {
     #[serde(flatten)]
-    pub definition: Definition,
+    pub definition: Definition<ProgressionHash>,
     pub display_properties: ProgressionDisplayPropertiesDefinition,
     /// The "Scope" of the progression indicates the source of the progression's live data.
     ///
@@ -76,7 +83,7 @@ pub struct ProgressionDefinition {
     ///
     /// This is purely for convenience, if you're looking at a progression and want to know if
     /// and who it's related to in terms of Faction Reputation.
-    pub faction_hash: Option<DefinitionHash>,
+    pub faction_hash: Option<super::FactionHash>,
     /// The #RGB string value for the color related to this progression, if there is one.
     pub color: Option<super::misc::Color>,
     /// For progressions that have it, this is the rank icon we use in the Companion,
@@ -235,7 +242,7 @@ pub struct InventoryItemDefinition {
     /// There are times when the game will show you a "summary/vague" version of an item - such as a description of its type represented as a DestinyInventoryItemDefinition - rather than display the item itself.
     ///
     /// This happens sometimes when summarizing possible rewards in a tooltip. This is the item displayed instead, if it exists.
-    pub summary_item_hash: Option<super::InventoryItemHash>,
+    pub summary_item_hash: Option<super::ItemHash>,
     /// If any animations were extracted from game content for this item, these will be the definitions of those animations.
     pub animations: Vec<animations::AnimationReference>,
     /// BNet may forbid the execution of actions on this item via the API. If that is occurring, allowActions will be set to false.
@@ -304,7 +311,7 @@ pub struct InventoryItemDefinition {
     /// These are the corresponding trait definition hashes for the entries in traitIds.
     pub trait_hashes: Vec<super::TraitHash>,
     #[serde(flatten)]
-    pub definition: Definition,
+    pub definition: Definition<super::ItemHash>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -339,11 +346,334 @@ pub struct ItemActionBlockDefinition {
     /// Theoretically, an item could have a localized string for a hint about the location in which the action should be performed. In practice, no items yet have this property.
     pub required_location: String,
     /// The identifier hash for the Cooldown associated with this action. We have not pulled this data yet for you to have more data to use for cooldowns.
-    pub required_cooldown_hash: Option<CooldowHash>,
+    pub required_cooldown_hash: Option<super::CooldownHash>,
     /// If true, the item is deleted when the action completes.
     pub delete_on_action: bool,
     /// If true, the entire stack is deleted when the action completes.
     pub consume_entire_stack: bool,
     /// If true, this action will be performed as soon as you earn this item. Some rewards work this way, providing you a single item to pick up from a reward-granting vendor in-game and then immediately consuming itself to provide you multiple items.
     pub use_on_acquire: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ItemActionRequiredItemDefinition {
+    /// The minimum quantity of the item you have to have.
+    pub count: i32,
+    /// The hash identifier of the item you have to have. Use it to look up the DestinyInventoryItemDefinition of the required item.
+    pub item_hash: super::ItemHash,
+    /// If true, the item/quantity will be deleted from your inventory when the action is performed. Otherwise, you'll retain these required items after the action is complete.
+    pub delete_on_action: bool,
+}
+
+/// Inventory Items can reward progression when actions are performed on them. A common example of this in Destiny 1 was Bounties, which would reward Experience on your Character and the like when you completed the bounty.
+///
+/// Note that this maps to a DestinyProgressionMappingDefinition, and *not* a DestinyProgressionDefinition directly. This is apparently so that multiple progressions can be granted progression points/experience at the same time.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ProgressionRewardDefinition {
+    /// The hash identifier of the DestinyProgressionMappingDefinition that contains the progressions for which experience should be applied.
+    pub progression_mapping_hash: super::ProgressionMappingHash,
+    /// The amount of experience to give to each of the mapped progressions.
+    pub amount: i32,
+    /// If true, the game's internal mechanisms to throttle progression should be applied.
+    pub apply_throttles: bool,
+}
+
+/// Aggregations of multiple progressions.
+///
+/// These are used to apply rewards to multiple progressions at once. They can sometimes have human readable data as well, but only extremely sporadically.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ProgressionMappingDefinition {
+    /// Infrequently defined in practice. Defer to the individual progressions' display properties.
+    pub display_properties: DisplayPropertiesDefinition,
+    /// The localized unit of measurement for progression across the progressions defined in this mapping. Unfortunately, this is very infrequently defined. Defer to the individual progressions' display units.
+    pub display_units: String,
+    #[serde(flatten)]
+    pub definition: Definition<super::ProgressionMappingHash>,
+}
+
+/// If an item can have an action performed on it (like "Dismantle"), it will be defined here if you care.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ItemCraftingBlockDefinition {
+    /// A reference to the item definition that is created when crafting with this 'recipe' item.
+    pub output_item_hash: super::ItemHash,
+    /// A list of socket type hashes that describes which sockets are required for crafting with this recipe.
+    pub required_socket_type_hashes: Vec<super::SocketTypeHash>,
+    pub failed_requirement_strings: Vec<String>,
+    /// A reference to the base material requirements for crafting with this recipe.
+    pub base_material_requirements: super::MaterialRequirementSetHash,
+    /// A list of 'bonus' socket plugs that may be available if certain requirements are met.
+    pub bonus_plugs: Vec<ItemCraftingBlockBonusPlugDefinition>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ItemCraftingBlockBonusPlugDefinition {
+    pub socket_type_hash: super::SocketTypeHash,
+    pub plug_item_hash: super::ItemHash,
+}
+
+/// Represent a set of material requirements: Items that either need to be owned or need to be consumed in order to perform an action.
+///
+/// A variety of other entities refer to these as gatekeepers and payments for actions that can be performed in game.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct MaterialRequirementSetDefinition {
+    /// The list of all materials that are required.
+    pub materials: Vec<MaterialRequirement>,
+    #[serde(flatten)]
+    pub definition: Definition<super::MaterialRequirementSetHash>,
+}
+
+/// Many actions relating to items require you to expend materials: - Activating a talent node - Inserting a plug into a socket The items will refer to material requirements by a materialRequirementsHash in these cases, and this is the definition for those requirements in terms of the item required, how much of it is required and other interesting info. This is one of the rare/strange times where a single contract class is used both in definitions *and* in live data response contracts. I'm not sure yet whether I regret that.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct MaterialRequirement {
+    /// The hash identifier of the material required. Use it to look up the material's DestinyInventoryItemDefinition.
+    pub item_hash: super::ItemHash,
+    /// If True, the material will be removed from the character's inventory when the action is performed.
+    pub delete_on_action: bool,
+    /// The amount of the material required.
+    pub count: i32,
+    /// If true, the material requirement count value is constant. Since The Witch Queen expansion, some material requirement counts can be dynamic and will need to be returned with an API call.
+    pub count_is_constant: bool,
+    /// If True, this requirement is "silent": don't bother showing it in a material requirements display. I mean, I'm not your mom: I'm not going to tell you you *can't* show it. But we won't show it in our UI.
+    pub omit_from_requirements: bool,
+}
+
+/// If the item can exist in an inventory - the overwhelming majority of them can and do - then this is the basic properties regarding the item's relationship with the inventory.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ItemInventoryBlockDefinition {
+    /// If this string is populated, you can't have more than one stack with this label in a given inventory. Note that this is different from the equipping block's unique label, which is used for equipping uniqueness.
+    pub stack_unique_label: String,
+    /// The maximum quantity of this item that can exist in a stack.
+    pub max_stack_size: i32,
+    /// The hash identifier for the DestinyInventoryBucketDefinition to which this item belongs. I should have named this "bucketHash", but too many things refer to it now. Sigh.
+    pub bucket_type_hash: super::InventoryBucketHash,
+    /// If the item is picked up by the lost loot queue, this is the hash identifier for the DestinyInventoryBucketDefinition into which it will be placed. Again, I should have named this recoveryBucketHash instead.
+    pub recovery_bucket_type_hash: super::InventoryBucketHash,
+    /// The hash identifier for the Tier Type of the item, use to look up its DestinyItemTierTypeDefinition if you need to show localized data for the item's tier.
+    pub tier_type_hash: super::ItemTierTypeHash,
+    /// If TRUE, this item is instanced. Otherwise, it is a generic item that merely has a quantity in a stack (like Glimmer).
+    pub is_instance_item: bool,
+    /// The localized name of the tier type, which is a useful shortcut so you don't have to look up the definition every time. However, it's mostly a holdover from days before we had a DestinyItemTierTypeDefinition to refer to.
+    pub tier_type_name: String,
+    /// The enumeration matching the tier type of the item to known values, again for convenience sake.
+    pub tier_type: super::TierType,
+    /// The tooltip message to show, if any, when the item expires.
+    pub expiration_tooltip: String,
+    /// If the item expires while playing in an activity, we show a different message.
+    pub expired_in_activity_message: String,
+    /// If the item expires in orbit, we show a... more different message. ("Consummate V's, consummate!")
+    pub expired_in_orbit_message: String,
+    pub suppress_expiration_when_objectives_complete: bool,
+    /// A reference to the associated crafting 'recipe' item definition, if this item can be crafted.
+    pub recipe_item_hash: super::ItemHash,
+}
+
+/// An Inventory (be it Character or Profile level) is comprised of many Buckets. An example of a bucket is "Primary Weapons", where all of the primary weapons on a character are gathered together into a single visual element in the UI: a subset of the inventory that has a limited number of slots, and in this case also has an associated Equipment Slot for equipping an item in the bucket.
+///
+/// Item definitions declare what their "default" bucket is ([InventoryItemDefinition].inventory.bucketTypeHash), and Item instances will tell you which bucket they are currently residing in (DestinyItemComponent.bucketHash). You can use this information along with the DestinyInventoryBucketDefinition to show these items grouped by bucket.
+///
+/// You cannot transfer an item to a bucket that is not its Default without going through a Vendor's "accepted items" (DestinyVendorDefinition.acceptedItems). This is how transfer functionality like the Vault is implemented, as a feature of a Vendor. See the vendor's acceptedItems property for more details.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct InventoryBucketDefinition {
+    pub display_properties: DisplayPropertiesDefinition,
+    /// Where the bucket is found. 0 = Character, 1 = Account
+    pub scope: super::BucketScope,
+    /// An enum value for what items can be found in the bucket. See the BucketCategory enum for more details.
+    pub category: super::BucketCategory,
+    /// Use this property to provide a quick-and-dirty recommended ordering for buckets in the UI. Most UIs will likely want to forsake this for something more custom and manual.
+    pub bucket_order: i32,
+    /// The maximum # of item "slots" in a bucket. A slot is a given combination of item + quantity.
+    ///
+    /// For instance, a Weapon will always take up a single slot, and always have a quantity of 1. But a material could take up only a single slot with hundreds of quantity.
+    pub item_count: i32,
+    /// Sometimes, inventory buckets represent conceptual "locations" in the game that might not be expected. This value indicates the conceptual location of the bucket, regardless of where it is actually contained on the character/account.
+    ///
+    /// See ItemLocation for details.
+    ///
+    /// Note that location includes the Vault and the Postmaster (both of whom being just inventory buckets with additional actions that can be performed on them through a Vendor)
+    pub location: super::ItemLocation,
+    /// If TRUE, there is at least one Vendor that can transfer items to/from this bucket. See the DestinyVendorDefinition's acceptedItems property for more information on how transferring works.
+    pub has_transfer_destination: bool,
+    /// If True, this bucket is enabled. Disabled buckets may include buckets that were included for test purposes, or that were going to be used but then were abandoned but never removed from content *cough*.
+    pub enabled: bool,
+    /// if a FIFO bucket fills up, it will delete the oldest item from said bucket when a new item tries to be added to it. If this is FALSE, the bucket will not allow new items to be placed in it until room is made by the user manually deleting items from it. You can see an example of this with the Postmaster's bucket.
+    pub fifo: bool,
+    #[serde(flatten)]
+    pub definition: Definition<super::InventoryBucketHash>,
+}
+
+/// Primarily for Quests, this is the definition of properties related to the item if it is a quest and its various quest steps.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ItemSetBlockDefinition {
+    /// A collection of hashes of set items, for items such as Quest Metadata items that possess this data.
+    pub item_list: Vec<ItemSetBlockEntryDefinition>,
+    /// If true, items in the set can only be added in increasing order, and adding an item will remove any previous item. For Quests, this is by necessity true. Only one quest step is present at a time, and previous steps are removed as you advance in the quest.
+    pub require_ordered_set_item_add: bool,
+    /// If true, the UI should treat this quest as "featured"
+    pub set_is_featured: bool,
+    /// A string identifier we can use to attempt to identify the category of the Quest.
+    pub set_type: String,
+    /// The name of the quest line that this quest step is a part of.
+    pub quest_line_name: String,
+    /// The description of the quest line that this quest step is a part of.
+    pub quest_line_description: String,
+    /// An additional summary of this step in the quest line.
+    pub quest_step_summary: String,
+}
+
+/// Defines a particular entry in an ItemSet (AKA a particular Quest Step in a Quest)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ItemSetBlockEntryDefinition {
+    /// Used for tracking which step a user reached. These values will be populated in the user's internal state, which we expose externally as a more usable DestinyQuestStatus object. If this item has been obtained, this value will be set in trackingUnlockValueHash.
+    pub tracking_value: i32,
+    /// This is the hash identifier for a DestinyInventoryItemDefinition representing this quest step.
+    pub item_hash: super::ItemHash,
+}
+
+/// Information about the item's calculated stats, with as much data as we can find for the stats without having an actual instance of the item.
+///
+/// Note that this means the entire concept of providing these stats is fundamentally insufficient: we cannot predict with 100% accuracy the conditions under which an item can spawn, so we use various heuristics to attempt to simulate the conditions as accurately as possible. Actual stats for items in-game can and will vary, but these should at least be useful base points for comparison and display.
+///
+/// It is also worth noting that some stats, like Magazine size, have further calculations performed on them by scripts in-game and on the game servers that BNet does not have access to. We cannot know how those stats are further transformed, and thus some stats will be inaccurate even on instances of items in BNet vs. how they appear in-game. This is a known limitation of our item statistics, without any planned fix.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ItemStatBlockDefinition {
+    /// If true, the game won't show the "primary" stat on this item when you inspect it.
+    ///
+    /// NOTE: This is being manually mapped, because I happen to want it in a block that isn't going to directly create this derivative block.
+    pub disable_primary_stat_display: bool,
+    /// If the item's stats are meant to be modified by a DestinyStatGroupDefinition, this will be the identifier for that definition.
+    ///
+    /// If you are using live data or precomputed stats data on the DestinyInventoryItemDefinition.stats.stats property, you don't have to worry about statGroupHash and how it alters stats: the already altered stats are provided to you. But if you want to see how the sausage gets made, or perform computations yourself, this is valuable information.
+    pub stat_group_hash: super::StatGroupHash,
+    /// If you are looking for precomputed values for the stats on a weapon, this is where they are stored. Technically these are the "Display" stat values. Please see DestinyStatsDefinition for what Display Stat Values means, it's a very long story... but essentially these are the closest values BNet can get to the item stats that you see in-game.
+    ///
+    /// These stats are keyed by the DestinyStatDefinition's hash identifier for the stat that's found on the item.
+    pub stats: HashMap<super::StatDefinitionHash, InventoryItemStatDefinition>,
+    /// A quick and lazy way to determine whether any stat other than the "primary" stat is actually visible on the item. Items often have stats that we return in case people find them useful, but they're not part of the "Stat Group" and thus we wouldn't display them in our UI. If this is False, then we're not going to display any of these stats other than the primary one.
+    pub has_displayable_stats: bool,
+    /// This stat is determined to be the "primary" stat, and can be looked up in the stats or any other stat collection related to the item.
+    ///
+    /// Use this hash to look up the stat's value using DestinyInventoryItemDefinition.stats.stats, and the renderable data for the primary stat in the related DestinyStatDefinition.
+    pub primary_base_stat_hash: super::StatDefinitionHash,
+}
+
+/// Defines a specific stat value on an item, and the minimum/maximum range that we could compute for the item based on our heuristics for how the item might be generated.
+///
+/// Not guaranteed to match real-world instances of the item, but should hopefully at least be close. If it's not close, let us know on the Bungie API forums.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct InventoryItemStatDefinition {
+    /// The hash for the DestinyStatDefinition representing this stat.
+    pub stat_hash: super::StatDefinitionHash,
+    /// This value represents the stat value assuming the minimum possible roll but accounting for any mandatory bonuses that should be applied to the stat on item creation.
+    ///
+    /// In Destiny 1, this was different from the "minimum" value because there were certain conditions where an item could be theoretically lower level/value than the initial roll.
+    ///
+    /// In Destiny 2, this is not possible unless Talent Grids begin to be used again for these purposes or some other system change occurs... thus in practice, value and minimum should be the same in Destiny 2. Good riddance.
+    pub value: i32,
+    /// The minimum possible value for this stat that we think the item can roll.
+    pub minimum: i32,
+    /// The maximum possible value for this stat that we think the item can roll.
+    ///
+    /// WARNING: In Destiny 1, this field was calculated using the potential stat rolls on the item's talent grid. In Destiny 2, items no longer have meaningful talent grids and instead have sockets: but the calculation of this field was never altered to adapt to this change. As such, this field should be considered deprecated until we can address this oversight.
+    #[deprecated(note = "deprecated in accordance with API spec")]
+    pub maximum: i32,
+    pub display_maximum: Option<i32>,
+}
+
+/// Items that can be equipped define this block. It contains information we need to understand how and when the item can be equipped.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct EquippingBlockDefinition {
+    /// If the item is part of a gearset, this is a reference to that gearset item.
+    pub gearset_item_hash: super::ItemHash,
+    /// If defined, this is the label used to check if the item has other items of matching types already equipped.
+    ///
+    /// For instance, when you aren't allowed to equip more than one Exotic Weapon, that's because all exotic weapons have identical uniqueLabels and the game checks the to-be-equipped item's uniqueLabel vs. all other already equipped items (other than the item in the slot that's about to be occupied).
+    pub unique_label: String,
+    /// The hash of that unique label. Does not point to a specific definition.
+    pub unique_label_hash: super::LabelHash,
+    /// An equipped item *must* be equipped in an Equipment Slot. This is the hash identifier of the DestinyEquipmentSlotDefinition into which it must be equipped.
+    pub equipment_slot_type_hash: super::EquipmentSlotHash,
+    /// These are custom attributes on the equippability of the item.
+    ///
+    /// For now, this can only be "equip on acquire", which would mean that the item will be automatically equipped as soon as you pick it up.
+    pub attributes: Option<BitFlags<super::EquippingItemBlockAttributes>>,
+    /// Ammo type used by a weapon is no longer determined by the bucket in which it is contained. If the item has an ammo type - i.e. if it is a weapon - this will be the type of ammunition expected.
+    pub ammo_type: Option<super::AmmunitionType>,
+    /// These are strings that represent the possible Game/Account/Character state failure conditions that can occur when trying to equip the item. They match up one-to-one with requiredUnlockExpressions.
+    pub display_strings: Vec<String>,
+}
+
+/// This Block defines the rendering data associated with the item, if any.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ItemTranslationBlockDefinition {
+    pub weapon_pattern_identifier: String,
+    pub weapon_pattern_hash: super::SandboxPatternHash,
+    pub default_dyes: Vec<super::DyeReference>,
+    pub locked_dyes: Vec<super::DyeReference>,
+    pub custom_dyes: Vec<super::DyeReference>,
+    pub arrangements: Vec<GearArtArrangementReference>,
+    pub has_geometry: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct GearArtArrangementReference {
+    pub class_hash: super::ClassHash,
+    pub art_arrangement_hash: super::ArtArrangementHash,
+}
+
+/// Items like Sacks or Boxes can have items that it shows in-game when you view details that represent the items you can obtain if you use or acquire the item.
+///
+/// This defines those categories, and gives some insights into that data's source.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ItemPreviewBlockDefinition {
+    /// A string that the game UI uses as a hint for which detail screen to show for the item. You, too, can leverage this for your own custom screen detail views. Note, however, that these are arbitrarily defined by designers: there's no guarantees of a fixed, known number of these - so fall back to something reasonable if you don't recognize it.
+    pub screen_style: String,
+    /// If the preview data is derived from a fake "Preview" Vendor, this will be the hash identifier for the DestinyVendorDefinition of that fake vendor.
+    pub preview_vendor_hash: super::VendorHash,
+    /// If this item should show you Artifact information when you preview it, this is the hash identifier of the DestinyArtifactDefinition for the artifact whose data should be shown.
+    pub artifact_hash: Option<super::ArtifactHash>,
+    /// If the preview has an associated action (like "Open"), this will be the localized string for that action.
+    pub preview_action_string: String,
+    /// This is a list of the items being previewed, categorized in the same way as they are in the preview UI.
+    pub derived_item_categories: Vec<items::DerivedItemCategoryDefinition>,
+}
+
+/// An item's "Quality" determines its calculated stats. The Level at which the item spawns is combined with its "qualityLevel" along with some additional calculations to determine the value of those stats.
+///
+/// In Destiny 2, most items don't have default item levels and quality, making this property less useful: these apparently are almost always determined by the complex mechanisms of the Reward system rather than statically. They are still provided here in case they are still useful for people. This also contains some information about Infusion.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ItemQualityBlockDefinition {}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct ProgressionRewardItemQuantity {
+    pub reward_at_progression_level: i32,
+    pub acquisition_behavior: super::ProgressionRewardItemAcquisitionBehavior,
+    pub ui_display_style: String,
+    pub claim_unlock_display_strings: Vec<String>,
+    /// The hash identifier for the item in question. Use it to look up the item's DestinyInventoryItemDefinition.
+    pub item_hash: super::ItemHash,
+    /// If this quantity is referring to a specific instance of an item, this will have the item's instance ID. Normally, this will be null.
+    pub item_instance_id: Option<i64>,
+    /// The amount of the item needed/available depending on the context of where DestinyItemQuantity is being used.
+    pub quantity: i32,
+    /// Indicates that this item quantity may be conditionally shown or hidden, based on various sources of state. For example: server flags, account state, or character progress.
+    pub hash_conditional_visibility: bool,
 }
