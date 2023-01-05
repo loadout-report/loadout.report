@@ -9,6 +9,7 @@ pub mod ignores;
 pub mod queries;
 pub mod user;
 pub mod destiny;
+pub mod links;
 mod util;
 
 #[repr(u8)]

@@ -58,7 +58,7 @@ declare_hash_types![
     ObjectiveHash,
     InventoryBucketHash,
     ItemTierTypeHash,
-    StatDefinitionHash,
+    StatHash,
     StatGroupHash,
     LabelHash,
     EquipmentSlotHash,
@@ -68,7 +68,18 @@ declare_hash_types![
     ArtArrangementHash,
     ClassHash,
     VendorHash,
-    ArtifactHash
+    ArtifactHash,
+    InfusionCategoryHash,
+    ProgressionLevelRequirementHash,
+    PowerCapHash,
+    RewardSourceHash,
+    ActivityHash,
+    QuestTypeHash,
+    PresentationNodeHash,
+    EnergyTypeHash,
+    PlugSetHash,
+    TalentGridHash,
+    PerkHash
 ];
 
 // Entities
@@ -268,6 +279,191 @@ pub enum AmmunitionType {
 pub struct DyeReference {
     pub channel_hash: ChannelHash,
     pub dye_hash: DyeHash,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Class {
+    Titan = 0,
+    Hunter = 1,
+    Warlock = 2,
+    Unknown = 3,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum Gender {
+    Male = 0,
+    Female = 1,
+    Unknown = 2,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum DamageType {
+    Kinetic = 1,
+    Arc = 2,
+    Thermal = 3,
+    Void = 4,
+    Raid = 5,
+    Stasis = 6,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ItemSubType {
+    #[deprecated(note = "Items can be both 'Crucible' and something else interesting.")]
+    Crucible = 1,
+    #[deprecated(note = "Items can be both 'Vanguard' and something else interesting.")]
+    Vanguard = 2,
+    #[deprecated(note = "Items can be both Exotic and something else.")]
+    Exotic = 5,
+    AutoRifle = 6,
+    Shotgun = 7,
+    Machinegun = 8,
+    HandCannon = 9,
+    RocketLauncher = 10,
+    FusionRifle = 11,
+    SniperRifle = 12,
+    PulseRifle = 13,
+    ScoutRifle = 14,
+    #[deprecated(note = "Items can be both 'CRM' and something else.")]
+    Crm = 16,
+    Sidearm = 17,
+    Sword = 18,
+    Mask = 19,
+    Shader = 20,
+    Ornament = 21,
+    FusionRifleLine = 22,
+    GrenadeLauncher = 23,
+    Submachinegun = 24,
+    TraceRifle = 25,
+    HelmetArmor = 26,
+    GauntletsArmor = 27,
+    ChestArmor = 28,
+    LegArmor = 29,
+    ClassArmor = 30,
+    Bow = 31,
+    DummyRepeatableBounty = 32,
+    Glaive = 33,
+}
+
+/// If the plug has a specific custom style, this enumeration will represent that style/those styles.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum PlugUiStyles {
+    None = 0,
+    Masterwork = 1,
+}
+
+/// This enum determines whether the plug is available to be inserted.
+/// - Normal means that all existing rules for plug insertion apply.
+/// - UnavailableIfSocketContainsMatchingPlugCategory means that the plug is only available if the socket does NOT match the plug category.
+/// - AvailableIfSocketContainsMatchingPlugCategory means that the plug is only available if the socket DOES match the plug category.
+///
+/// For category matching, use the plug's "plugCategoryIdentifier" property, comparing it to
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum PlugAvailabilityMode {
+    Normal = 0,
+    UnavailableIfSocketContainsMatchingPlugCategory = 1,
+    AvailableIfSocketContainsMatchingPlugCategory = 2,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum EnergyType {
+    Any = 0,
+    Arc = 1,
+    Thermal = 2,
+    Void = 3,
+    Ghost = 4,
+    Subclass = 5,
+    Stasis = 6,
+}
+
+/// Indicates how a socket is populated, and where you should look for valid plug data.
+/// This is a flags enumeration/bitmask field, as you may have to look in multiple sources across multiple components for valid plugs.
+/// For instance, a socket could have plugs that are sourced from its own definition, as well as plugs that are sourced from Character-scoped AND profile-scoped Plug Sets. Only by combining plug data for every indicated source will you be able to know all of the plugs available for a socket.
+#[bitflags]
+#[repr(u32)]
+#[derive(Copy, Debug, Clone, Serialize, Deserialize)]
+pub enum SocketPlugSource {
+    /// If there's no way we can detect to insert new plugs.
+    // None = 0,
+    /// Use plugs found in the player's inventory, based on the socket type rules (see DestinySocketTypeDefinition for more info)
+    ///
+    /// Note that a socket - like Shaders - can have *both* reusable plugs and inventory items inserted theoretically.
+    InventorySourced = 1,
+    /// Use the DestinyItemSocketsComponent.sockets.reusablePlugs property to determine which plugs are valid for this socket. This may have to be combined with other sources, such as plug sets, if those flags are set.
+    ///
+    /// Note that "Reusable" plugs may not necessarily come from a plug set, nor from the "reusablePlugItems" in the socket's Definition data. They can sometimes be "randomized" in which case the only source of truth at the moment is still the runtime DestinyItemSocketsComponent.sockets.reusablePlugs property.
+    ReusableSourced = 2,
+    /// Use the ProfilePlugSets (DestinyProfileResponse.profilePlugSets) component data to determine which plugs are valid for this socket.
+    ProfilePlugSet = 4,
+    /// Use the CharacterPlugSets (DestinyProfileResponse.characterPlugSets) component data to determine which plugs are valid for this socket.
+    CharacterPlugSet = 8,
+}
+
+/// Indicates how a perk should be shown, or if it should be, in the game UI. Maybe useful for those of you trying to filter out internal-use-only perks (or for those of you trying to figure out what they do!)
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ItemPerkVisibility {
+    Visible = 0,
+    Disabled = 1,
+    Hidden = 2,
+}
+
+/// As you run into items that need to be classified for Milestone purposes in ways that we cannot infer via direct data, add a new classification here and use a string constant to represent it in the local item config file.
+///
+/// NOTE: This is not all of the item types available, and some of these are holdovers from Destiny 1 that may or may not still exist.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum SpecialItemType {
+    SpecialCurrency = 0,
+    Armor = 8,
+    Weapon = 9,
+    Engram = 23,
+    Consumable = 24,
+    ExchangeMaterial = 25,
+    MissionReward = 27,
+    Currency = 29,
+}
+
+/// An enumeration that indicates the high-level "type" of the item, attempting to iron out the context specific differences for specific instances of an entity. For instance, though a weapon may be of various weapon "Types", in DestinyItemType they are all classified as "Weapon". This allows for better filtering on a higher level of abstraction for the concept of types.
+///
+/// This enum is provided for historical compatibility with Destiny 1, but an ideal alternative is to use DestinyItemCategoryDefinitions and the DestinyItemDefinition.itemCategories property instead. Item Categories allow for arbitrary hierarchies of specificity, and for items to belong to multiple categories across multiple hierarchies simultaneously. For this enum, we pick a single type as a "best guess" fit.
+///
+/// NOTE: This is not all of the item types available, and some of these are holdovers from Destiny 1 that may or may not still exist.
+///
+/// I keep updating these because they're so damn convenient. I guess I shouldn't fight it.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum ItemType {
+    Currency = 1,
+    Armor = 2,
+    Weapon = 3,
+    Message = 7,
+    Engram = 8,
+    Consumable = 9,
+    ExchangeMaterial = 10,
+    MissionReward = 11,
+    QuestStep = 12,
+    QuestStepComplete = 13,
+    Emblem = 14,
+    Quest = 15,
+    Subclass = 16,
+    ClanBanner = 17,
+    Aura = 18,
+    Mod = 19,
+    Dummy = 20,
+    Ship = 21,
+    Vehicle = 22,
+    Emote = 23,
+    Ghost = 24,
+    Package = 25,
+    Bounty = 26,
+    Wrapper = 27,
+    SeasonalArtifact = 28,
+    Finisher = 29,
+    Pattern = 30,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum BreakerType {
+    ShieldPiercing = 1,
+    Disruption = 2,
+    Stagger = 3,
 }
 
 /// Represents the different kinds of acquisition behavior for progression reward items.
