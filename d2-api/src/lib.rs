@@ -1,19 +1,20 @@
+#[allow(deprecated)]
 use serde::{Deserialize, Serialize};
 
 pub mod app;
 pub mod config;
 pub mod content;
+pub mod destiny;
+#[cfg(feature = "endpoints")]
+pub mod endpoints;
 pub mod forums;
 pub mod groupsv2;
 pub mod ignores;
+pub mod links;
 pub mod queries;
 pub mod user;
-pub mod destiny;
-pub mod links;
 mod util;
 mod wrapper;
-#[cfg(feature = "endpoints")]
-pub mod endpoints;
 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]

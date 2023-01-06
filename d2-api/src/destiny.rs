@@ -1,6 +1,7 @@
 use crate::destiny::definitions::Hashable;
 use enumflags2::{bitflags, BitFlags};
 use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 
 pub mod activities;
 pub mod advanced;
@@ -8,6 +9,7 @@ pub mod artifacts;
 pub mod challenges;
 pub mod character;
 pub mod components;
+pub mod config;
 pub mod constants;
 pub mod definitions;
 pub mod entities;
@@ -22,16 +24,17 @@ pub mod requests;
 pub mod responses;
 pub mod sockets;
 pub mod vendors;
-pub mod config;
 
-#[derive(Copy, Clone, Serialize, Deserialize, Debug, PartialOrd, PartialEq, Ord, Eq, Hash)]
+#[derive(
+    Copy, Clone, Serialize, Deserialize, Debug, PartialOrd, PartialEq, Ord, Eq, Hash, Default,
+)]
 pub struct Hash(pub u32);
 
 #[macro_export]
 macro_rules! declare_hash_types {
     ( $( $name:ident ),* ) => {
         $(
-            #[derive(Copy, Clone, Serialize, Deserialize, Debug, PartialOrd, PartialEq, Ord, Eq, Hash)]
+            #[derive(Copy, Clone, Serialize, Deserialize, Debug, PartialOrd, PartialEq, Ord, Eq, Hash, Default)]
             #[serde(transparent)]
             pub struct $name(pub Hash);
             impl Hashable for $name {}
@@ -80,7 +83,12 @@ declare_hash_types![
     EnergyTypeHash,
     PlugSetHash,
     TalentGridHash,
-    PerkHash
+    PerkHash,
+    ColorHash,
+    RewardSheetHash,
+    RewardItemHash,
+    RewardSiteHash,
+    SoundHash
 ];
 
 // Entities
@@ -226,7 +234,8 @@ pub enum SocketCategoryStyle {
     Supers = 8,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u32)]
 pub enum TierType {
     Unknown = 0,
     Currency = 1,
@@ -268,7 +277,8 @@ pub enum EquippingItemBlockAttributes {
     EquipOnAcquire = 1,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u32)]
 pub enum AmmunitionType {
     Primary = 1,
     Special = 2,
@@ -277,12 +287,14 @@ pub enum AmmunitionType {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct DyeReference {
     pub channel_hash: ChannelHash,
     pub dye_hash: DyeHash,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u32)]
 pub enum Class {
     Titan = 0,
     Hunter = 1,
@@ -290,14 +302,16 @@ pub enum Class {
     Unknown = 3,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u32)]
 pub enum Gender {
     Male = 0,
     Female = 1,
     Unknown = 2,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u32)]
 pub enum DamageType {
     Kinetic = 1,
     Arc = 2,
@@ -307,7 +321,8 @@ pub enum DamageType {
     Stasis = 6,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u32)]
 pub enum ItemSubType {
     #[deprecated(note = "Items can be both 'Crucible' and something else interesting.")]
     Crucible = 1,
@@ -346,7 +361,8 @@ pub enum ItemSubType {
 }
 
 /// If the plug has a specific custom style, this enumeration will represent that style/those styles.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u32)]
 pub enum PlugUiStyles {
     None = 0,
     Masterwork = 1,
@@ -358,14 +374,16 @@ pub enum PlugUiStyles {
 /// - AvailableIfSocketContainsMatchingPlugCategory means that the plug is only available if the socket DOES match the plug category.
 ///
 /// For category matching, use the plug's "plugCategoryIdentifier" property, comparing it to
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u32)]
 pub enum PlugAvailabilityMode {
     Normal = 0,
     UnavailableIfSocketContainsMatchingPlugCategory = 1,
     AvailableIfSocketContainsMatchingPlugCategory = 2,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u32)]
 pub enum EnergyType {
     Any = 0,
     Arc = 1,
@@ -410,7 +428,8 @@ pub enum ItemPerkVisibility {
 /// As you run into items that need to be classified for Milestone purposes in ways that we cannot infer via direct data, add a new classification here and use a string constant to represent it in the local item config file.
 ///
 /// NOTE: This is not all of the item types available, and some of these are holdovers from Destiny 1 that may or may not still exist.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u32)]
 pub enum SpecialItemType {
     SpecialCurrency = 0,
     Armor = 8,
@@ -429,7 +448,8 @@ pub enum SpecialItemType {
 /// NOTE: This is not all of the item types available, and some of these are holdovers from Destiny 1 that may or may not still exist.
 ///
 /// I keep updating these because they're so damn convenient. I guess I shouldn't fight it.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u32)]
 pub enum ItemType {
     Currency = 1,
     Armor = 2,
@@ -460,7 +480,8 @@ pub enum ItemType {
     Pattern = 30,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u32)]
 pub enum BreakerType {
     ShieldPiercing = 1,
     Disruption = 2,
@@ -468,7 +489,8 @@ pub enum BreakerType {
 }
 
 /// Represents the different kinds of acquisition behavior for progression reward items.
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize_repr, Deserialize_repr)]
+#[repr(u32)]
 pub enum ProgressionRewardItemAcquisitionBehavior {
     Instant = 0,
     PlayerClaimRequired = 1,

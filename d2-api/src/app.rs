@@ -130,7 +130,7 @@ pub enum ApplicationStatus {
 pub struct ApplicationDeveloper {
     pub role: DeveloperRole,
     pub api_eula_version: i32,
-    pub user: crate::user::model::InfoCard,
+    pub user: crate::user::InfoCard,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

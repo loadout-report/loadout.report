@@ -126,12 +126,12 @@ pub struct GeneralUser {
     pub normalized_name: Option<String>,
     pub display_name: String,
     // todo: make id
-    #[serde(deserialize_with = "crate::util::serde::zero_as_none")]
+    #[serde(with = "crate::util::serde::zero_as_none")]
     pub profile_picture: Option<i32>,
     // todo: make id
-    #[serde(deserialize_with = "crate::util::serde::zero_as_none")]
+    #[serde(with = "crate::util::serde::zero_as_none")]
     pub profile_theme: Option<i32>,
-    #[serde(deserialize_with = "crate::util::serde::zero_as_none")]
+    #[serde(with = "crate::util::serde::zero_as_none")]
     pub user_title: Option<i32>,
     /// No idea what this is. Seems to be a string of a number?
     #[serde(with = "crate::util::serde::long")]
@@ -201,7 +201,7 @@ pub struct MembershipData {
     /// If this property is populated, it will have the membership ID of the account considered
     /// to be "primary" in this user's cross save relationship.
     /// If null, this user has no cross save relationship, nor primary account.
-    #[serde(deserialize_with = "crate::util::serde::zero_as_none")]
+    #[serde(with = "crate::util::serde::zero_as_none")]
     pub primary_membership_id: Option<MembershipId>,
     pub bungie_net_user: GeneralUser,
 }
@@ -293,7 +293,7 @@ pub struct EmailSubscriptionDefinition {
     /// A dictionary of localized text for the EMail Opt-in setting, keyed by the locale.
     pub localization: HashMap<String, EmailSettingSubscriptionLocalization>,
     /// The bitflag value for this subscription. Should be a unique power of two value.
-    #[serde(deserialize_with = "crate::util::serde::zero_as_none")]
+    #[serde(with = "crate::util::serde::zero_as_none")]
     pub value: Option<BitFlags<OptInFlags>>,
 }
 

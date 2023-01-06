@@ -17,7 +17,8 @@ pub struct DisplayPropertiesDefinition {
     ///
     /// They are currently represented as 96px x 96px images.
     pub icon: String,
-    pub icon_sequences: Vec<IconSequenceDefinition>,
+    /// Icon Sequences seem to be optional.
+    pub icon_sequences: Option<Vec<IconSequenceDefinition>>,
     /// If this item has a high-res icon (at least for now, many things won't),
     /// then the path to that icon will be here.
     pub high_res_icon: Option<String>,

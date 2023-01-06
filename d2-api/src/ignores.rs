@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct IgnoreResponse {
     pub is_ignored: bool,
-    #[serde(deserialize_with = "crate::util::serde::zero_as_none")]
+    #[serde(with = "crate::util::serde::zero_as_none")]
     pub ignore_flags: Option<BitFlags<IgnoreStatus>>,
 }
 

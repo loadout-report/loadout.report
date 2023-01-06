@@ -100,8 +100,8 @@ fn parse_json(
 ) -> impl ParallelIterator<Item = ArchivedReport> {
     parallel_line_reader.filter_map(|mut l: String|
         unsafe {
-            simd_json::serde::from_slice(l.as_bytes_mut())
-                // serde_json::from_str(&l)
+            // simd_json::serde::from_slice(l.as_bytes_mut())
+                serde_json::from_str(&l)
                 .inspect_err(|err| println!("{}, {}", err, l))
                 .ok()
         })

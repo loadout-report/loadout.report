@@ -1,28 +1,30 @@
+use crate::pgcr::archive::{ArchivedReport, DestinyUserInfo, Entry, Id};
+use rayon::prelude::*;
+use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::hash::Hash;
 use std::sync::Arc;
-use rayon::prelude::*;
-use serde::Serialize;
-use crate::pgcr::archive::{ArchivedReport, DestinyUserInfo, Entry, Id};
 
 #[derive(Eq, PartialEq, Copy, Clone, Hash, Serialize)]
 pub struct Membership(u8, Id);
 
-pub fn extract_members(json_reader: impl ParallelIterator<Item = ArchivedReport>) -> HashSet<Membership> {
+pub fn extract_members(
+    json_reader: impl ParallelIterator<Item = ArchivedReport>,
+) -> HashSet<Membership> {
     json_reader
-        .fold(
-            HashSet::new,
-            |acc: HashSet<Membership>, pgcr: ArchivedReport| {
-                let set: HashSet<_> = pgcr.entries.iter()
-                    .map(|e: &Entry| &e.player.destiny_user_info)
-                    .map(|e: &DestinyUserInfo| Membership(e.membership_type, e.membership_id))
-                    .collect();
-                acc.union(&set).map(|x| x.to_owned()).collect()
-            }
-        ).reduce(HashSet::new, merge)
+        .map(|pgcr: ArchivedReport| {
+            pgcr.entries
+                .iter()
+                .map(|e: &Entry| &e.player.destiny_user_info)
+                .map(|e: &DestinyUserInfo| Membership(e.membership_type, e.membership_id))
+                .collect()
+        })
+        .reduce(HashSet::new, merge)
 }
 
-pub fn extract_gms(json_reader: impl ParallelIterator<Item = ArchivedReport>) -> HashMap<String, u32> {
+pub fn extract_gms(
+    json_reader: impl ParallelIterator<Item = ArchivedReport>,
+) -> HashMap<String, u32> {
     json_reader
         .filter(|pcgr| pcgr.is_gm())
         .fold(
@@ -59,5 +61,10 @@ pub fn merge_sum(mut a: HashMap<String, u32>, b: HashMap<String, u32>) -> HashMa
 }
 
 pub fn merge<T: Eq + Hash + Copy>(mut a: HashSet<T>, b: HashSet<T>) -> HashSet<T> {
-    a.union(&b).map(|x| x.to_owned()).collect()
+    for v in b {
+        a.insert(v);
+    }
+    // a.extend(b);
+    return a;
+    // a.union(&b).map(|x| x.to_owned()).collect()
 }

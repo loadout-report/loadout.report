@@ -1,8 +1,8 @@
+pub mod animations;
 pub mod common;
 pub mod items;
 pub mod sockets;
 pub mod sources;
-pub mod animations;
 
 use crate::destiny::definitions::common::DisplayPropertiesDefinition;
 use crate::destiny::{Hash, ProgressionHash};
@@ -158,30 +158,31 @@ pub struct InventoryItemDefinition {
     /// Alternatively, if there is no watermark for the version,
     /// and the item version has a power cap below the current season power cap,
     /// this can be overridden by the iconWatermarkShelved property.
-    pub icon_watermark: String,
+    pub icon_watermark: Option<String>,
     /// If available, this is the 'shelved' release watermark overlay for the icon.
     /// If the item version has a power cap below the current season power cap,
     /// it can be treated as 'shelved', and should be shown with this 'shelved' watermark overlay.
-    pub icon_watermark_shelved: String,
+    pub icon_watermark_shelved: Option<String>,
     /// A secondary icon associated with the item.
     /// Currently this is used in very context specific applications, such as Emblem Nameplates.
-    pub secondary_icon: String,
+    pub secondary_icon: Option<String>,
     /// Pulled from the secondary icon, this is the "secondary background" of the secondary icon.
     /// Confusing? Sure, that's why I call it "overlay" here:
     /// because as far as it's been used thus far, it has been for an optional overlay image.
     /// We'll see if that holds up, but at least for now it explains what this image is a bit better.
-    pub secondary_overlay: String,
+    pub secondary_overlay: Option<String>,
     /// Pulled from the Secondary Icon, this is the "special" background for the item.
     /// For Emblems, this is the background image used on the Details view:
     /// but it need not be limited to that for other types of items.
-    pub secondary_special: String,
+    pub secondary_special: Option<String>,
     /// Sometimes, an item will have a background color.
     /// Most notably this occurs with Emblems, who use the Background Color for small character
     /// nameplates such as the "friends" view you see in-game.
     /// There are almost certainly other items that have background color as well,
     /// though I have not bothered to investigate what items have it nor what purposes they serve:
     /// use it as you will.
-    pub background_color: super::misc::Color,
+    #[serde(with = "crate::util::serde::default_as_none")]
+    pub background_color: Option<super::misc::Color>,
     /// If we were able to acquire an in-game screenshot for the item, the path to that screenshot will be returned here. Note that not all items have screenshots: particularly not any non-equippable items.
     pub screenshot: String,
     /// The localized title/name of the item's type. This can be whatever the designers want, and has no guarantee of consistency between items.
@@ -194,11 +195,11 @@ pub struct InventoryItemDefinition {
     /// In theory, it is a localized string telling you about how you can find the item. I really wish this was more consistent. Many times, it has nothing. Sometimes, it's instead a more narrative-forward description of the item. Which is cool, and I wish all properties had that data, but it should really be its own property.
     pub display_source: String,
     /// An identifier that the game UI uses to determine what type of tooltip to show for the item. These have no corresponding definitions that BNet can link to: so it'll be up to you to interpret and display your UI differently according to these styles (or ignore it).
-    pub tooltip_style: String,
+    pub tooltip_style: Option<String>,
     /// If the item can be "used", this block will be non-null, and will have data related to the action performed when using the item. (Guess what? 99% of the time, this action is "dismantle". Shocker)
     pub action: ItemActionBlockDefinition,
     /// Recipe items will have relevant crafting information available here.
-    pub crafting: ItemCraftingBlockDefinition,
+    pub crafting: Option<ItemCraftingBlockDefinition>,
     /// If this item can exist in an inventory, this block will be non-null. In practice, every item that currently exists has one of these blocks. But note that it is not necessarily guaranteed.
     pub inventory: Option<ItemInventoryBlockDefinition>,
     /// If this item is a quest, this block will be non-null. In practice, I wish I had called this the Quest block, but at the time it wasn't clear to me whether it would end up being used for purposes other than quests. It will contain data about the steps in the quest, and mechanics we can use for displaying and tracking the quest.
@@ -212,17 +213,17 @@ pub struct InventoryItemDefinition {
     /// If this item can be rendered, this block will be non-null and will be populated with rendering information.
     pub translation_block: ItemTranslationBlockDefinition,
     /// If this item can be Used or Acquired to gain other items (for instance, how Eververse Boxes can be consumed to get items from the box), this block will be non-null and will give summary information for the items that can be acquired.
-    pub preview: ItemPreviewBlockDefinition,
+    pub preview: Option<ItemPreviewBlockDefinition>,
     /// If this item can have a level or stats, this block will be non-null and will be populated with default quality (item level, "quality", and infusion) data. See the block for more details, there's often less upfront information in D2 so you'll want to be aware of how you use quality and item level on the definition level now.
     pub quality: ItemQualityBlockDefinition,
     /// The conceptual "Value" of an item, if any was defined. See the DestinyItemValueBlockDefinition for more details.
-    pub value: ItemValueBlockDefinition,
+    pub value: Option<ItemValueBlockDefinition>,
     /// If this item has a known source, this block will be non-null and populated with source information. Unfortunately, at this time we are not generating sources: that is some aggressively manual work which we didn't have time for, and I'm hoping to get back to at some point in the future.
-    pub source_data: ItemSourceBlockDefinition,
+    pub source_data: Option<ItemSourceBlockDefinition>,
     /// If this item has Objectives (extra tasks that can be accomplished related to the item... most frequently when the item is a Quest Step and the Objectives need to be completed to move on to the next Quest Step), this block will be non-null and the objectives defined herein.
-    pub objectives: ItemObjectiveBlockDefinition,
+    pub objectives: Option<ItemObjectiveBlockDefinition>,
     /// If this item has available metrics to be shown, this block will be non-null have the appropriate hashes defined.
-    pub metrics: ItemMetricBlockDefinition,
+    pub metrics: Option<ItemMetricBlockDefinition>,
     /// If this item *is* a Plug, this will be non-null and the info defined herein. See DestinyItemPlugDefinition for more information.
     pub plug: items::ItemPlugDefinition,
     /// If this item has related items in a "Gear Set", this will be non-null and the relationships defined herein.
@@ -280,7 +281,8 @@ pub struct InventoryItemDefinition {
     /// If you see a mis-classed item, please inform the developers in the Bungie API forum.
     pub class_type: super::Class,
     /// Some weapons and plugs can have a "Breaker Type": a special ability that works sort of like damage type vulnerabilities. This is (almost?) always set on items by plugs.
-    pub breaker_type: super::BreakerType,
+    #[serde(with = "crate::util::serde::zero_as_none")]
+    pub breaker_type: Option<super::BreakerType>,
     /// Since we also have a breaker type definition, this is the hash for that breaker type for your convenience. Whether you use the enum or hash and look up the definition depends on what's cleanest for your code.
     pub breaker_type_hash: Option<super::BreakerTypeHash>,
     /// If true, then you will be allowed to equip the item if you pass its other requirements.
@@ -299,10 +301,12 @@ pub struct InventoryItemDefinition {
     /// If the item has a damage type that could be considered to be default, it will be populated here.
     ///
     /// For various upsetting reasons, it's surprisingly cumbersome to figure this out. I hope you're happy.
+    #[serde(with = "crate::util::serde::zero_as_none")]
     pub default_damage_type: Option<super::DamageType>,
     /// Similar to defaultDamageType, but represented as the hash identifier for a DestinyDamageTypeDefinition.
     ///
     /// I will likely regret leaving in the enumeration versions of these properties, but for now they're very convenient.
+    #[serde(with = "crate::util::serde::zero_as_none")]
     pub default_damage_type_hash: Option<super::DamageTypeHash>,
     /// If this item is related directly to a Season of Destiny, this is the hash identifier for that season.
     pub season_hash: Option<super::SeasonHash>,
@@ -334,9 +338,9 @@ pub struct ItemActionBlockDefinition {
     /// The content has this property, however it's not entirely clear how it is used.
     pub is_positive: bool,
     /// If the action has an overlay screen associated with it, this is the name of that screen. Unfortunately, we cannot return the screen's data itself.
-    pub overlay_screen_name: String,
+    pub overlay_screen_name: Option<String>,
     /// The icon associated with the overlay screen for the action, if any.
-    pub overlay_icon: String,
+    pub overlay_icon: Option<String>,
     /// The number of seconds to delay before allowing this action to be performed again.
     pub required_cooldown_seconds: i32,
     /// If the action requires other items to exist or be destroyed, this is the list of those items and requirements.
@@ -345,8 +349,14 @@ pub struct ItemActionBlockDefinition {
     pub progression_rewards: Vec<ProgressionRewardDefinition>,
     /// The internal identifier for the action.
     pub action_type_label: String,
+    #[serde(with = "crate::util::serde::zero_as_none")]
+    pub reward_sheet_hash: Option<super::RewardSheetHash>,
+    #[serde(with = "crate::util::serde::zero_as_none")]
+    pub reward_item_hash: Option<super::RewardItemHash>,
+    #[serde(with = "crate::util::serde::zero_as_none")]
+    pub reward_site_hash: Option<super::RewardSiteHash>,
     /// Theoretically, an item could have a localized string for a hint about the location in which the action should be performed. In practice, no items yet have this property.
-    pub required_location: String,
+    pub required_location: Option<String>,
     /// The identifier hash for the Cooldown associated with this action. We have not pulled this data yet for you to have more data to use for cooldowns.
     pub required_cooldown_hash: Option<super::CooldownHash>,
     /// If true, the item is deleted when the action completes.
@@ -451,7 +461,7 @@ pub struct MaterialRequirement {
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ItemInventoryBlockDefinition {
     /// If this string is populated, you can't have more than one stack with this label in a given inventory. Note that this is different from the equipping block's unique label, which is used for equipping uniqueness.
-    pub stack_unique_label: String,
+    pub stack_unique_label: Option<String>,
     /// The maximum quantity of this item that can exist in a stack.
     pub max_stack_size: i32,
     /// The hash identifier for the DestinyInventoryBucketDefinition to which this item belongs. I should have named this "bucketHash", but too many things refer to it now. Sigh.
@@ -462,6 +472,8 @@ pub struct ItemInventoryBlockDefinition {
     pub tier_type_hash: super::ItemTierTypeHash,
     /// If TRUE, this item is instanced. Otherwise, it is a generic item that merely has a quantity in a stack (like Glimmer).
     pub is_instance_item: bool,
+    /// Undocumented in the API spec.
+    pub non_transferrable_original: bool,
     /// The localized name of the tier type, which is a useful shortcut so you don't have to look up the definition every time. However, it's mostly a holdover from days before we had a DestinyItemTierTypeDefinition to refer to.
     pub tier_type_name: String,
     /// The enumeration matching the tier type of the item to known values, again for convenience sake.
@@ -474,7 +486,7 @@ pub struct ItemInventoryBlockDefinition {
     pub expired_in_orbit_message: String,
     pub suppress_expiration_when_objectives_complete: bool,
     /// A reference to the associated crafting 'recipe' item definition, if this item can be crafted.
-    pub recipe_item_hash: super::ItemHash,
+    pub recipe_item_hash: Option<super::ItemHash>,
 }
 
 /// An Inventory (be it Character or Profile level) is comprised of many Buckets. An example of a bucket is "Primary Weapons", where all of the primary weapons on a character are gathered together into a single visual element in the UI: a subset of the inventory that has a limited number of slots, and in this case also has an associated Equipment Slot for equipping an item in the bucket.
@@ -599,20 +611,29 @@ pub struct InventoryItemStatDefinition {
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct EquippingBlockDefinition {
     /// If the item is part of a gearset, this is a reference to that gearset item.
-    pub gearset_item_hash: super::ItemHash,
+    pub gearset_item_hash: Option<super::ItemHash>,
     /// If defined, this is the label used to check if the item has other items of matching types already equipped.
     ///
     /// For instance, when you aren't allowed to equip more than one Exotic Weapon, that's because all exotic weapons have identical uniqueLabels and the game checks the to-be-equipped item's uniqueLabel vs. all other already equipped items (other than the item in the slot that's about to be occupied).
-    pub unique_label: String,
+    pub unique_label: Option<String>,
     /// The hash of that unique label. Does not point to a specific definition.
-    pub unique_label_hash: super::LabelHash,
+    #[serde(with = "crate::util::serde::zero_as_none")]
+    pub unique_label_hash: Option<super::LabelHash>,
     /// An equipped item *must* be equipped in an Equipment Slot. This is the hash identifier of the DestinyEquipmentSlotDefinition into which it must be equipped.
     pub equipment_slot_type_hash: super::EquipmentSlotHash,
     /// These are custom attributes on the equippability of the item.
     ///
     /// For now, this can only be "equip on acquire", which would mean that the item will be automatically equipped as soon as you pick it up.
+    #[serde(with = "crate::util::serde::zero_as_none")]
     pub attributes: Option<BitFlags<super::EquippingItemBlockAttributes>>,
+    /// Undocumented field.
+    #[serde(with = "crate::util::serde::zero_as_none")]
+    pub equipping_sound_hash: Option<super::SoundHash>,
+    /// Undocumented field.
+    #[serde(with = "crate::util::serde::zero_as_none")]
+    pub horn_sound_hash: Option<super::SoundHash>,
     /// Ammo type used by a weapon is no longer determined by the bucket in which it is contained. If the item has an ammo type - i.e. if it is a weapon - this will be the type of ammunition expected.
+    #[serde(with = "crate::util::serde::zero_as_none")]
     pub ammo_type: Option<super::AmmunitionType>,
     /// These are strings that represent the possible Game/Account/Character state failure conditions that can occur when trying to equip the item. They match up one-to-one with requiredUnlockExpressions.
     pub display_strings: Vec<String>,
@@ -622,7 +643,7 @@ pub struct EquippingBlockDefinition {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct ItemTranslationBlockDefinition {
-    pub weapon_pattern_identifier: String,
+    pub weapon_pattern_identifier: Option<String>,
     pub weapon_pattern_hash: super::SandboxPatternHash,
     pub default_dyes: Vec<super::DyeReference>,
     pub locked_dyes: Vec<super::DyeReference>,
@@ -685,10 +706,14 @@ pub struct ItemQualityBlockDefinition {
     /// The string identifier for this item's "infusability", if any.
     ///
     /// Items that match the same infusionCategoryName are allowed to infuse with each other.
-    #[deprecated(note = "Items can now have multiple infusion categories. Please use infusionCategoryHashes instead.")]
+    #[deprecated(
+        note = "Items can now have multiple infusion categories. Please use infusionCategoryHashes instead."
+    )]
     pub infusion_category_name: String,
     /// The hash identifier for the infusion. It does not map to a Definition entity.
-    #[deprecated(note = "Items can now have multiple infusion categories. Please use infusionCategoryHashes instead.")]
+    #[deprecated(
+        note = "Items can now have multiple infusion categories. Please use infusionCategoryHashes instead."
+    )]
     pub infusion_category_hash: super::InfusionCategoryHash,
     /// If any one of these hashes matches any value in another item's infusionCategoryHashes, the two can infuse with each other.
     pub infusion_category_hashes: Vec<super::InfusionCategoryHash>,
@@ -915,11 +940,11 @@ pub struct ItemTalentGridBlockDefinition {
     /// This is meant to be a subtitle for looking at the talent grid. In practice, somewhat frustratingly, this always merely says the localized word for "Details". Great. Maybe it'll have more if talent grids ever get used for more than builds and subclasses again.
     pub item_detail_string: String,
     /// A shortcut string identifier for the "build" in question, if this talent grid has an associated build. Doesn't map to anything we can expose at the moment.
-    pub build_name: String,
+    pub build_name: Option<String>,
     /// If the talent grid implies a damage type, this is the enum value for that damage type.
     pub hud_damage_type: Option<super::DamageType>,
     /// If the talent grid has a special icon that's shown in the game UI (like builds, funny that), this is the identifier for that icon. Sadly, we don't actually get that icon right now. I'll be looking to replace this with a path to the actual icon itself.
-    pub hud_icon: String,
+    pub hud_icon: Option<String>,
 }
 
 /// An intrinsic perk on an item, and the requirements for it to be activated.
@@ -949,4 +974,18 @@ pub struct ProgressionRewardItemQuantity {
     pub quantity: i32,
     /// Indicates that this item quantity may be conditionally shown or hidden, based on various sources of state. For example: server flags, account state, or character progress.
     pub hash_conditional_visibility: bool,
+}
+
+mod tests {
+    use std::collections::HashMap;
+    use std::fs::File;
+
+    #[test]
+    fn test_load_inventory_item_definitions_from_file() {
+        let file = File::open("data/manifest/DestinyInventoryItemDefinition.json")
+            .expect("Failed to open DestinyInventoryItemDefinition.json");
+        let data =
+            serde_json::from_reader::<_, HashMap<String, super::InventoryItemDefinition>>(file)
+                .expect("Failed to parse DestinyInventoryItemDefinition.json");
+    }
 }

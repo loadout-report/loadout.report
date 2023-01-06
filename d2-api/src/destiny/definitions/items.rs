@@ -1,6 +1,6 @@
-use serde::{Deserialize, Serialize};
 use crate::destiny;
 use crate::destiny::definitions;
+use serde::{Deserialize, Serialize};
 
 /// Defines the tier type of an item. Mostly this provides human readable properties for types like Common, Rare, etc...
 ///

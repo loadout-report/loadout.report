@@ -26,5 +26,13 @@ This library is intended to be used by d2-client and other libraries.
   as well as a good default cache implementation.
 
 
+### fuck
+Non-exhaustive list of random fields that don't seem to be documented but returned by manifest or similar endpoints
+DestinyColor.colorHash
+DestinyItemActionBlockDefinition.rewardSheetHash
+DestinyItemActionBlockDefinition.rewardItemHash
+DestinyItemActionBlockDefinition.rewardSiteHash
+DestinyItemInventoryBlockDefinition.nonTransferrableOriginal
+DestinyEquippingBlockDefinition.equippingSoundHash
 
 
