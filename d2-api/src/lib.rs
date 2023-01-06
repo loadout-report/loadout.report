@@ -11,6 +11,9 @@ pub mod user;
 pub mod destiny;
 pub mod links;
 mod util;
+mod wrapper;
+#[cfg(feature = "endpoints")]
+pub mod endpoints;
 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]

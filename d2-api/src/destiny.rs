@@ -22,6 +22,7 @@ pub mod requests;
 pub mod responses;
 pub mod sockets;
 pub mod vendors;
+pub mod config;
 
 #[derive(Copy, Clone, Serialize, Deserialize, Debug, PartialOrd, PartialEq, Ord, Eq, Hash)]
 pub struct Hash(pub u32);
