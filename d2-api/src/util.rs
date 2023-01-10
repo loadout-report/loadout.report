@@ -2,18 +2,36 @@ pub mod serde {
     use serde::de::IntoDeserializer;
     use serde::Deserialize;
 
-    pub fn empty_string_as_none<'de, D, T>(de: D) -> Result<Option<T>, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-        T: serde::Deserialize<'de>,
-    {
-        let opt = Option::<String>::deserialize(de)?;
-        let opt = opt.as_ref().map(String::as_str);
-        match opt {
-            None | Some("") => Ok(None),
-            Some(s) => T::deserialize(s.into_deserializer()).map(Some),
+    pub mod empty_string_as_none {
+        use serde::de::IntoDeserializer;
+        use serde::{de, Deserialize, Deserializer, Serialize, Serializer};
+        use std::fmt::Display;
+
+        pub fn deserialize<'de, D, T>(de: D) -> Result<Option<T>, D::Error>
+            where
+                D: serde::Deserializer<'de>,
+                T: serde::Deserialize<'de>,
+        {
+            let opt = Option::<String>::deserialize(de)?;
+            let opt = opt.as_ref().map(String::as_str);
+            match opt {
+                None | Some("") => Ok(None),
+                Some(s) => T::deserialize(s.into_deserializer()).map(Some),
+            }
+        }
+
+        pub fn serialize<T, S>(value: &Option<T>, serializer: S) -> Result<S::Ok, S::Error>
+            where
+                T: Serialize,
+                S: Serializer,
+        {
+            match value {
+                None => serializer.serialize_str(""),
+                Some(v) => serializer.serialize_some(&v),
+            }
         }
     }
+
 
     pub mod zero_as_none {
         use serde::de::IntoDeserializer;

@@ -3,7 +3,7 @@ use thiserror::Error;
 pub mod auth;
 pub mod destiny;
 
-const PLATFORM: &str = "http://localhost:5655";
+const PLATFORM: &str = "https://www.bungie.net";
 
 #[derive(Error, Debug)]
 pub enum ApiError {

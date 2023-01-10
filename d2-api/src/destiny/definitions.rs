@@ -90,7 +90,7 @@ pub struct ProgressionDefinition {
     pub color: Option<super::misc::Color>,
     /// For progressions that have it, this is the rank icon we use in the Companion,
     /// displayed above the progressions' rank value.
-    #[serde(deserialize_with = "crate::util::serde::empty_string_as_none")]
+    #[serde(with = "crate::util::serde::empty_string_as_none")]
     pub rank_icon: Option<String>,
     pub reward_items: Vec<ProgressionRewardItemQuantity>,
 }
@@ -202,6 +202,10 @@ pub struct InventoryItemDefinition {
     pub crafting: Option<ItemCraftingBlockDefinition>,
     /// If this item can exist in an inventory, this block will be non-null. In practice, every item that currently exists has one of these blocks. But note that it is not necessarily guaranteed.
     pub inventory: Option<ItemInventoryBlockDefinition>,
+    /// Undocumented.
+    pub acquire_reward_site_hash: Option<super::RewardSiteHash>,
+    /// Undocumented.
+    pub acquire_unlock_hash: Option<super::AcquireUnlockHash>,
     /// If this item is a quest, this block will be non-null. In practice, I wish I had called this the Quest block, but at the time it wasn't clear to me whether it would end up being used for purposes other than quests. It will contain data about the steps in the quest, and mechanics we can use for displaying and tracking the quest.
     pub set_data: Option<ItemSetBlockDefinition>,
     /// If this item can have stats (such as a weapon, armor, or vehicle), this block will be non-null and populated with the stats found on the item.
@@ -225,15 +229,15 @@ pub struct InventoryItemDefinition {
     /// If this item has available metrics to be shown, this block will be non-null have the appropriate hashes defined.
     pub metrics: Option<ItemMetricBlockDefinition>,
     /// If this item *is* a Plug, this will be non-null and the info defined herein. See DestinyItemPlugDefinition for more information.
-    pub plug: items::ItemPlugDefinition,
+    pub plug: Option<items::ItemPlugDefinition>,
     /// If this item has related items in a "Gear Set", this will be non-null and the relationships defined herein.
-    pub gearset: ItemGearsetBlockDefinition,
+    pub gearset: Option<ItemGearsetBlockDefinition>,
     /// If this item is a "reward sack" that can be opened to provide other items, this will be non-null and the properties of the sack contained herein.
-    pub sack: ItemSackBlockDefinition,
+    pub sack: Option<ItemSackBlockDefinition>,
     /// If this item has any Sockets, this will be non-null and the individual sockets on the item will be defined herein.
-    pub sockets: ItemSocketBlockDefinition,
+    pub sockets: Option<ItemSocketBlockDefinition>,
     /// Summary data about the item.
-    pub summary: ItemSummaryBlockDefinition,
+    pub summary: Option<ItemSummaryBlockDefinition>,
     /// If the item has a Talent Grid, this will be non-null and the properties of the grid defined herein. Note that, while many items still have talent grids, the only ones with meaningful Nodes still on them will be Subclass/"Build" items.
     pub talent_grid: ItemTalentGridBlockDefinition,
     /// If the item has stats, this block will be defined. It has the "raw" investment stats for the item. These investment stats don't take into account the ways that the items can spawn, nor do they take into account any Stat Group transformations. I have retained them for debugging purposes, but I do not know how useful people will find them.
@@ -247,10 +251,11 @@ pub struct InventoryItemDefinition {
     /// This happens sometimes when summarizing possible rewards in a tooltip. This is the item displayed instead, if it exists.
     pub summary_item_hash: Option<super::ItemHash>,
     /// If any animations were extracted from game content for this item, these will be the definitions of those animations.
-    pub animations: Vec<animations::AnimationReference>,
+    pub animations: Option<Vec<animations::AnimationReference>>,
     /// BNet may forbid the execution of actions on this item via the API. If that is occurring, allowActions will be set to false.
     pub allow_actions: bool,
     /// If we added any help or informational URLs about this item, these will be those links.
+    #[serde(default)]
     pub links: Vec<crate::links::HyperlinkReference>,
     /// The boolean will indicate to us (and you!) whether something *could* happen when you transfer this item from the Postmaster that might be considered a "destructive" action.
     ///
@@ -290,6 +295,7 @@ pub struct InventoryItemDefinition {
     /// This being false means that you cannot equip the item under any circumstances.
     pub equippable: bool,
     /// Theoretically, an item can have many possible damage types. In *practice*, this is not true, but just in case weapons start being made that have multiple (for instance, an item where a socket has reusable plugs for every possible damage type that you can choose from freely), this field will return all of the possible damage types that are available to the weapon by default.
+    #[serde(default)]
     pub damage_type_hashes: Vec<super::DamageTypeHash>,
     /// This is the list of all damage types that we know ahead of time the item can take on. Unfortunately, this does not preclude the possibility of something funky happening to give the item a damage type that cannot be predicted beforehand: for example, if some designer decides to create arbitrary non-reusable plugs that cause damage type to change.
     ///
@@ -297,6 +303,7 @@ pub struct InventoryItemDefinition {
     /// - Intrinsic perks
     /// - Talent Node perks
     /// - Known, reusable plugs for sockets
+    #[serde(default)]
     pub damage_types: Vec<super::DamageType>,
     /// If the item has a damage type that could be considered to be default, it will be populated here.
     ///
@@ -306,7 +313,7 @@ pub struct InventoryItemDefinition {
     /// Similar to defaultDamageType, but represented as the hash identifier for a DestinyDamageTypeDefinition.
     ///
     /// I will likely regret leaving in the enumeration versions of these properties, but for now they're very convenient.
-    #[serde(with = "crate::util::serde::zero_as_none")]
+    #[serde(default, with = "crate::util::serde::zero_as_none")]
     pub default_damage_type_hash: Option<super::DamageTypeHash>,
     /// If this item is related directly to a Season of Destiny, this is the hash identifier for that season.
     pub season_hash: Option<super::SeasonHash>,
@@ -318,6 +325,8 @@ pub struct InventoryItemDefinition {
     pub trait_hashes: Vec<super::TraitHash>,
     #[serde(flatten)]
     pub definition: Definition<super::ItemHash>,
+    /// Undocumented. Might be part of the definition.
+    pub blacklisted: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -334,7 +343,8 @@ pub struct ItemActionBlockDefinition {
     /// Localized text for the verb of the action being performed.
     pub verb_name: String,
     /// Localized text describing the action being performed.
-    pub verb_description: String,
+    #[serde(with = "crate::util::serde::empty_string_as_none")]
+    pub verb_description: Option<String>,
     /// The content has this property, however it's not entirely clear how it is used.
     pub is_positive: bool,
     /// If the action has an overlay screen associated with it, this is the name of that screen. Unfortunately, we cannot return the screen's data itself.
@@ -348,7 +358,7 @@ pub struct ItemActionBlockDefinition {
     /// If performing this action earns you Progression, this is the list of progressions and values granted for those progressions by performing this action.
     pub progression_rewards: Vec<ProgressionRewardDefinition>,
     /// The internal identifier for the action.
-    pub action_type_label: String,
+    pub action_type_label: Option<String>,
     #[serde(with = "crate::util::serde::zero_as_none")]
     pub reward_sheet_hash: Option<super::RewardSheetHash>,
     #[serde(with = "crate::util::serde::zero_as_none")]

@@ -88,7 +88,8 @@ declare_hash_types![
     RewardSheetHash,
     RewardItemHash,
     RewardSiteHash,
-    SoundHash
+    SoundHash,
+    AcquireUnlockHash
 ];
 
 // Entities

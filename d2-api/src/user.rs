@@ -38,13 +38,13 @@ pub struct Membership {
     pub id: MembershipId,
     /// Display Name the player has chosen for themselves.
     /// The display name is optional when the data type is used as input to a platform API.
-    #[serde(deserialize_with = "crate::util::serde::empty_string_as_none")]
+    #[serde(with = "crate::util::serde::empty_string_as_none")]
     pub display_name: Option<String>,
     /// The bungie global display name, if set.
     /// The sdk automatically coerces this value to an empty string if None, and vice versa.
     // todo: replace with wrapper struct
     #[serde(rename = "bungieGlobalDisplayName")]
-    #[serde(deserialize_with = "crate::util::serde::empty_string_as_none")]
+    #[serde(with = "crate::util::serde::empty_string_as_none")]
     pub global_display_name: Option<String>,
     /// The bungie global display name code, if set.
     #[serde(rename = "bungieGlobalDisplayNameCode")]
@@ -154,7 +154,7 @@ pub struct GeneralUser {
     pub profile_picture_wide_path: Option<String>,
     pub profile_theme_name: String,
     pub user_title_display: String,
-    #[serde(deserialize_with = "crate::util::serde::empty_string_as_none")]
+    #[serde(with = "crate::util::serde::empty_string_as_none")]
     pub status_text: Option<String>,
     // todo: zero date as none
     #[serde(deserialize_with = "crate::util::serde::zero_date_as_none")]
@@ -228,7 +228,7 @@ pub struct SearchResponse {
 pub struct SearchResponseDetail {
     // todo: replace with wrapper struct
     #[serde(rename = "bungieGlobalDisplayName")]
-    #[serde(deserialize_with = "crate::util::serde::empty_string_as_none")]
+    #[serde(with = "crate::util::serde::empty_string_as_none")]
     pub global_display_name: Option<String>,
     #[serde(rename = "bungieGlobalDisplayNameCode")]
     pub global_display_name_code: Option<i16>,
