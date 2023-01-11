@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::iter::once;
 use std::ops::{Add, AddAssign};
+use wasm_bindgen::prelude::*;
 
 pub mod stats;
 

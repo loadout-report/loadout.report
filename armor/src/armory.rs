@@ -1,4 +1,5 @@
-use crate::model::{ArmorSlot, StrippedInventoryArmor};
+use itertools::Itertools;
+use crate::model::{ArmorSet, ArmorSlot, StrippedInventoryArmor};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Default, Clone)]
@@ -89,6 +90,21 @@ impl Armory {
         ];
         let max = sets.iter().max().unwrap();
         (sets.iter().position(|l| l == max).unwrap(), *max)
+    }
+}
+
+impl IntoIterator for Armory {
+    type Item = ArmorSet;
+    type IntoIter = impl Iterator<Item=Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.helmets.into_iter()
+            .cartesian_product(self.gauntlets.into_iter())
+            .cartesian_product(self.chests.into_iter())
+            .cartesian_product(self.legs.into_iter())
+            .map(|(((helmet, gauntlets), chest), legs)| {
+                ArmorSet::new(helmet, gauntlets, chest, legs)
+            })
     }
 }
 

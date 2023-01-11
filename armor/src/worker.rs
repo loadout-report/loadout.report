@@ -71,6 +71,23 @@ pub struct ItemResult {
     pub class_item: ClassItem,
 }
 
+impl From<(StrippedItemResult, ClassItem)> for ItemResult {
+    fn from((item, class_item): (StrippedItemResult, ClassItem)) -> Self {
+        Self {
+            exotic: item.exotic,
+            mod_count: item.mod_count,
+            mod_cost: item.mod_cost,
+            mods: item.mods.to_vec(),
+            stats: item.stats,
+            stats_no_mods: item.stats_no_mods,
+            tiers: item.tiers,
+            waste: item.waste,
+            items: item.items,
+            class_item,
+        }
+    }
+}
+
 #[derive(Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct ClassItem {
@@ -192,16 +209,7 @@ fn run_job(
     let mut total_results = 0;
     let mut do_not_output = false;
 
-    for set in armory
-        .helmets
-        .iter()
-        .cartesian_product(armory.gauntlets.iter())
-        .cartesian_product(armory.chests.iter())
-        .cartesian_product(armory.legs.iter())
-        .map(|(((helmet, gauntlets), chest), legs)| {
-            ArmorSet::new(*helmet, *gauntlets, *chest, *legs)
-        })
-    {
+    for set in armory.clone() {
         let (ok, required_class_item) = check_slots(
             &config,
             modslot_requirement,
@@ -234,35 +242,26 @@ fn run_job(
             &set,
             stat_bonus,
             available_modslots,
-            do_not_output,
+            do_not_output, // this can exit early if we don't want to output the item
+            // do we maybe want to calc output separately?
         );
         match result {
             Ok(result) => {
                 total_results += 1;
 
-                let result = ItemResult {
-                    exotic: result.exotic,
-                    mod_count: result.mod_count,
-                    mod_cost: result.mod_cost,
-                    mods: result.mods.to_vec(),
-                    stats: result.stats,
-                    stats_no_mods: result.stats_no_mods,
-                    tiers: result.tiers,
-                    waste: result.waste,
-                    items: result.items,
-                    class_item: ClassItem {
-                        perk: required_class_item.unwrap_or_default(),
-                        affinity: required_class_el,
-                    },
-                };
+                let result = ItemResult::from((result, ClassItem {
+                    perk: required_class_item.unwrap_or_default(),
+                    affinity: required_class_el
+                }));
 
                 results.push(result);
                 listed_results += 1;
+
+                // don't output any more if we've reached the limit (divided by chunk count)
                 do_not_output = do_not_output
                     || (config.limit_parsed_results && listed_results >= 50_000_usize / n)
                     || listed_results >= 1_000_000_usize / n;
-                if results.len() >= 5000 {
-                    // todo: respond to caller
+                if results.len() == 5000 {
                     scope.respond(
                         id,
                         Output {
@@ -280,6 +279,10 @@ fn run_job(
                 if let PermutationError::DoNotOutput = err {
                     total_results += 1
                 }
+                // ignored errors
+                // Unknown,
+                // TooManyMods,
+                // WastedStats,
             }
         }
     }
@@ -320,9 +323,8 @@ fn handle_permutation(
     // todo: we're ignoring the add constant 1 resilience option for now
     let mut base_stats = set.stat_total();
 
-    if !set.chest.is_exotic && config.add_constant_1_resilience {
-        base_stats = base_stats + SimpleModifierValue::new(SimpleArmorStat::Resilience, 1);
-    }
+    // add 1 resilience if chest isn't exotic and the config flag is given
+    base_stats.values[1] += (!set.chest.is_exotic && config.add_constant_1_resilience) as u8;
 
     let mut stats = base_stats + bonus;
 
@@ -334,51 +336,33 @@ fn handle_permutation(
 
     let mut required_mods = [
         0.max(
-            config
-                .minimum_stat_tiers
-                .get(&SimpleArmorStat::Mobility)
-                .unwrap()
-                .value
+            config.minimum_stat_tiers
+                .get(&SimpleArmorStat::Mobility).unwrap().value
                 - stats[SimpleArmorStat::Mobility] / 10,
         ),
         0.max(
-            config
-                .minimum_stat_tiers
-                .get(&SimpleArmorStat::Resilience)
-                .unwrap()
-                .value
+            config.minimum_stat_tiers
+                .get(&SimpleArmorStat::Resilience).unwrap().value
                 - stats[SimpleArmorStat::Resilience] / 10,
         ),
         0.max(
-            config
-                .minimum_stat_tiers
-                .get(&SimpleArmorStat::Recovery)
-                .unwrap()
-                .value
+            config.minimum_stat_tiers
+                .get(&SimpleArmorStat::Recovery).unwrap().value
                 - stats[SimpleArmorStat::Recovery] / 10,
         ),
         0.max(
-            config
-                .minimum_stat_tiers
-                .get(&SimpleArmorStat::Discipline)
-                .unwrap()
-                .value
+            config.minimum_stat_tiers
+                .get(&SimpleArmorStat::Discipline).unwrap().value
                 - stats[SimpleArmorStat::Discipline] / 10,
         ),
         0.max(
-            config
-                .minimum_stat_tiers
-                .get(&SimpleArmorStat::Intellect)
-                .unwrap()
-                .value
+            config.minimum_stat_tiers
+                .get(&SimpleArmorStat::Intellect).unwrap().value
                 - stats[SimpleArmorStat::Intellect] / 10,
         ),
         0.max(
-            config
-                .minimum_stat_tiers
-                .get(&SimpleArmorStat::Strength)
-                .unwrap()
-                .value
+            config.minimum_stat_tiers
+                .get(&SimpleArmorStat::Strength).unwrap().value
                 - stats[SimpleArmorStat::Strength] / 10,
         ),
     ];
@@ -686,6 +670,7 @@ fn handle_permutation(
         return Err(PermutationError::DoNotOutput);
     }
 
+    // calculate output
     if config.try_limit_wasted_stats && available_modslots_count > 0 {
         // todo: we have modslots remaining, let's see if we can limit wasted stats
         let mut waste: heapless::Vec<(u8, u8, u8), 6> = Waste::from(stats)
