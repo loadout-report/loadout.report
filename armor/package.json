@@ -3,8 +3,9 @@
   "private": true,
   "scripts": {
     "build:wasm-st": "wasm-pack build --target web",
-    "build:wasm-mt": "cross-env RUSTFLAGS=\"-C target-feature=+atomics,+bulk-memory,+mutable-globals\" rustup run nightly wasm-pack build --target web --out-dir pkg-parallel -- --features parallel -Z build-std=panic_abort,std",
+    "build:wasm-mt": "cross-env RUSTFLAGS=\"-C target-feature=+atomics,+bulk-memory,+mutable-globals\" rustup run nightly wasm-pack build --target web --out-dir pkg-parallel --scope parallel -- --features parallel -Z build-std=panic_abort,std",
     "build:wasm": "run-p build:wasm-st build:wasm-mt",
+    "dist": "cp -r pkg/ ../../D2ArmorPicker/src/assets/wasm && cp -r pkg-parallel/ ../../D2ArmorPicker/src/assets/parallel",
     "build": "npm run build:wasm && webpack build ./index.js --mode production -o dist --output-filename index.js && cp index.html dist/"
   },
   "devDependencies": {

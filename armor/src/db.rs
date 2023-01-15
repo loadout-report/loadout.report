@@ -2,7 +2,7 @@ use rexie::*;
 
 pub async fn build_database() -> Result<Rexie> {
     Rexie::builder("d2armorpicker-v2")
-        .version(19)
+        .version(190)
         .add_object_store(
             ObjectStore::new("manifestArmor")
                 .key_path("id")

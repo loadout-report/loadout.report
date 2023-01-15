@@ -1,3 +1,4 @@
+use std::iter::FromIterator;
 use itertools::Itertools;
 use crate::model::{ArmorSet, ArmorSlot, StrippedInventoryArmor};
 use serde::{Deserialize, Serialize};
@@ -108,6 +109,7 @@ impl IntoIterator for Armory {
     }
 }
 
+
 impl From<Vec<StrippedInventoryArmor>> for Armory {
     fn from(input: Vec<StrippedInventoryArmor>) -> Self {
         input.iter().fold(Default::default(), |mut t, i| {
@@ -118,6 +120,22 @@ impl From<Vec<StrippedInventoryArmor>> for Armory {
                 ArmorSlot::ArmorSlotChest => t.chests.push(*i),
                 ArmorSlot::ArmorSlotLegs => t.legs.push(*i),
                 ArmorSlot::ArmorSlotClass => t.class_items.push(*i),
+            }
+            t
+        })
+    }
+}
+
+impl FromIterator<StrippedInventoryArmor> for Armory {
+    fn from_iter<T: IntoIterator<Item=StrippedInventoryArmor>>(iter: T) -> Self {
+        iter.into_iter().fold(Default::default(), |mut t, i| {
+            match i.slot {
+                ArmorSlot::ArmorSlotNone => (),
+                ArmorSlot::ArmorSlotHelmet => t.helmets.push(i),
+                ArmorSlot::ArmorSlotGauntlet => t.gauntlets.push(i),
+                ArmorSlot::ArmorSlotChest => t.chests.push(i),
+                ArmorSlot::ArmorSlotLegs => t.legs.push(i),
+                ArmorSlot::ArmorSlotClass => t.class_items.push(i),
             }
             t
         })

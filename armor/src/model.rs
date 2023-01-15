@@ -1,13 +1,14 @@
 use data::api::manifest::model::Hash;
 use gloo_worker::HandlerId;
 use num_derive::FromPrimitive;
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
 use stats::Stats;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::iter::once;
 use std::ops::{Add, AddAssign};
 use wasm_bindgen::prelude::*;
+use serde_repr::{Serialize_repr, Deserialize_repr};
 
 pub mod stats;
 
@@ -36,7 +37,7 @@ pub struct StrippedInventoryArmor {
     pub perk: ArmorPerkOrSlot,
     pub is_exotic: bool,
     pub rarity: TierType,
-    pub exotic_perk_hash: Hash,
+    pub exotic_perk_hash: Option<Hash>,
     // may not need this
     pub is_sunset: bool,
     pub item_type: i32,
@@ -111,10 +112,13 @@ impl From<InventoryArmor> for ArmorInformation {
 }
 
 #[derive(Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct InventoryArmor {
     pub id: i32,
+    #[serde(with = "crate::long")]
     pub item_instance_id: Hash,
     pub masterworked: bool,
+    #[serde(default)]
     pub may_be_bugged: bool,
     // if there was an error in the parsing
     pub mobility: u8,
@@ -125,7 +129,7 @@ pub struct InventoryArmor {
     pub strength: u8,
     pub energy_level: u8,
     pub energy_affinity: DestinyEnergyType,
-    pub stat_plug_hashes: Vec<Hash>,
+    // pub stat_plug_hashes: Vec<Hash>, // unused
     // or Vec<Option<Hash>>
     pub hash: Hash,
     pub name: String,
@@ -135,9 +139,10 @@ pub struct InventoryArmor {
     pub slot: ArmorSlot,
     pub clazz: CharacterClass,
     pub perk: ArmorPerkOrSlot,
+    #[serde(with = "crate::bool_from_int")]
     pub is_exotic: bool,
     pub rarity: TierType,
-    pub exotic_perk_hash: Hash,
+    pub exotic_perk_hash: Option<Hash>,
     pub armor2: bool,
     pub is_sunset: bool,
     pub raw_data: Option<String>,
@@ -185,7 +190,7 @@ impl From<InventoryArmor> for InventoryArmorComponents {
     }
 }
 
-#[derive(Deserialize, Clone, Copy)]
+#[derive(Deserialize, Debug, Clone, Copy)]
 #[serde(rename_all = "camelCase")]
 pub struct ManifestArmor {
     pub hash: Hash,
@@ -193,13 +198,15 @@ pub struct ManifestArmor {
 }
 
 #[derive(Copy, Clone, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct DestinyItemInvestmentStatDefinition {
     pub stat_type_hash: Hash,
     pub value: i32,
     pub is_conditionally_active: bool,
 }
 
-#[derive(Copy, Clone, Default, Deserialize, Serialize, Eq, PartialEq)]
+#[derive(Copy, Clone, Default, Deserialize_repr, Serialize_repr, Eq, PartialEq)]
+#[repr(u8)]
 pub enum TierType {
     #[default]
     Unknown = 0,
@@ -229,8 +236,8 @@ pub struct Item {
     pub stats: Stats,
 }
 
-#[derive(Copy, Clone, Deserialize, Serialize)]
-#[serde(rename_all = "camelCase")]
+#[derive(Copy, Clone, Deserialize_repr, Serialize_repr)]
+#[repr(i32)]
 pub enum CharacterClass {
     None = -1,
     Titan = 0,
@@ -262,7 +269,8 @@ pub enum StatModifier {
     MajorStrength,
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize, Eq, PartialEq, Hash)]
+#[derive(Copy, Clone, Debug, Deserialize_repr, Serialize_repr, Eq, PartialEq, Hash, FromPrimitive)]
+#[repr(i32)]
 pub enum ArmorSlot {
     ArmorSlotNone,
     ArmorSlotHelmet,
@@ -272,7 +280,8 @@ pub enum ArmorSlot {
     ArmorSlotClass,
 }
 
-#[derive(Copy, Clone, Serialize, Deserialize, Eq, PartialEq, Hash, FromPrimitive)]
+#[derive(Copy, Clone, Deserialize_repr, Serialize_repr, Eq, PartialEq, Hash, FromPrimitive)]
+#[repr(i32)]
 pub enum SimpleArmorStat {
     Mobility,
     Resilience,
@@ -356,9 +365,15 @@ pub struct WorkerConfig {
     pub character_class: CharacterClass,
     pub add_constant_1_resilience: bool,
     pub disabled_items: Vec<Hash>,
+    #[serde(skip)]
     pub minimum_stat_tiers: HashMap<SimpleArmorStat, FixableSelection<u8>>,
-    pub maximum_stat_mods: i32,
+    #[serde(rename = "minimumStatTiers")]
+    pub minimum_stat_tiers_: HashMap<String, FixableSelection<u8>>,
+    // pub maximum_stat_mods: i32,
+    #[serde(skip)]
     pub maximum_mod_slots: HashMap<ArmorSlot, FixableSelection<u8>>,
+    #[serde(rename = "maximumModSlots")]
+    pub maximum_mod_slots_: HashMap<String, FixableSelection<u8>>,
     pub allow_blue_armor_pieces: bool,
     pub ignore_sunset_armor: bool,
     pub assume_legendaries_masterworked: bool,
@@ -373,13 +388,20 @@ pub struct WorkerConfig {
     pub selected_mod_element: ModifierType,
     pub enabled_mods: Vec<StatMod>,
     pub selected_exotic: ExoticChoiceModel,
+    #[serde(skip)]
     pub armor_affinities: HashMap<ArmorSlot, FixableSelection<DestinyEnergyType>>,
+    #[serde(rename = "armorAffinities")]
+    pub armor_affinities_: HashMap<String, FixableSelection<DestinyEnergyType>>,
+    #[serde(skip)]
     pub armor_perks: HashMap<ArmorSlot, FixableSelection<ArmorPerkOrSlot>>,
+    #[serde(rename = "armorPerks")]
+    pub armor_perks_: HashMap<String, FixableSelection<ArmorPerkOrSlot>>,
     pub ignore_armor_affinities_on_masterworked_items: bool,
     pub ignore_armor_affinities_on_non_masterworked_items: bool,
 }
 
-#[derive(Copy, Clone, Deserialize, Serialize, Eq, PartialEq, Hash, Default)]
+#[derive(Copy, Clone, Deserialize_repr, Serialize_repr, Eq, PartialEq, Hash, FromPrimitive, Default)]
+#[repr(i32)]
 pub enum ArmorPerkOrSlot {
     #[default]
     None,
@@ -434,7 +456,8 @@ impl TryFrom<usize> for ArmorPerkOrSlot {
     }
 }
 
-#[derive(Copy, Clone, Deserialize, Serialize, Eq, PartialEq, Hash, Default)]
+#[derive(Copy, Clone, Deserialize_repr, Serialize_repr, Eq, PartialEq, Hash, FromPrimitive, Default)]
+#[repr(i32)]
 pub enum DestinyEnergyType {
     #[default]
     Any = 0,
@@ -628,7 +651,8 @@ impl ModifierValue {
     }
 }
 
-#[derive(Deserialize, Serialize, Copy, Clone, Hash, Eq, PartialEq)]
+#[derive(Copy, Clone, Deserialize_repr, Serialize_repr, Eq, PartialEq, Hash, FromPrimitive)]
+#[repr(i32)]
 pub enum ModifierType {
     CombatStyleMod,
     Stasis,
