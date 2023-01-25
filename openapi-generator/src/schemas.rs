@@ -1,29 +1,37 @@
+mod enums;
+mod objects;
+pub mod reference;
 
-pub mod enums {
-    use genco::lang::rust::Tokens;
+use genco::lang::rust::Tokens;
+use crate::model;
+use crate::model::Schema;
 
-    pub struct Enum {
-
-    }
-
-    pub fn is_enum(schema: &super::super::model::Schema) -> bool {
-        schema.enum_.is_some()
-    }
-
-    pub fn parse_enum(schema: &super::super::model::Schema) -> Enum {
-        todo!()
-    }
-
-    pub fn render_enum(enum_: Enum) -> Tokens {
-        todo!()
-    }
-
+pub enum Type {
+    Enum(enums::Enum),
+    Object(objects::Object),
 }
 
-pub mod objects {
-
-    pub fn is_object(schema: &super::super::model::Schema) -> bool {
-        schema.type_.is_some() && schema.type_.as_ref().unwrap() == "object"
+impl From<Schema> for Type {
+    fn from(value: Schema) -> Self {
+        if value.enum_.is_some() {
+            return Type::Enum(From::from(value));
+        }
+        if value.type_.is_some() && value.type_.as_ref().unwrap() == "object" {
+            return Type::Object(From::from(value));
+        }
+        unreachable!()
     }
+}
 
+impl Render for Type {
+    fn render(&self, name: String) -> Tokens {
+        match self {
+            Type::Enum(e) => e.render(name),
+            Type::Object(s) => s.render(name),
+        }
+    }
+}
+
+pub trait Render {
+    fn render(&self, name: String) -> Tokens;
 }

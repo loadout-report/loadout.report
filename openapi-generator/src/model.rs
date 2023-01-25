@@ -74,7 +74,7 @@ pub struct Components {
     // security_schemes: HashMap<String, SecurityScheme>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct Schema {
     #[serde(rename = "enum")]
@@ -109,7 +109,7 @@ pub struct Schema {
     pub description: Option<String>,
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Clone, Debug, Deserialize)]
 #[serde(deny_unknown_fields, rename_all = "camelCase")]
 pub struct EnumValue {
     pub numeric_value: String,

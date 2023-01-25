@@ -1,12 +1,16 @@
-use std::fs::File;
-use genco::lang::Rust;
-use genco::{quote, Tokens};
+use std::collections::HashMap;
+use std::fs::{create_dir_all, File};
+use std::io::Write;
+use genco::lang::{rust::Tokens};
+use genco::{quote};
 use crate::model::{Schema, Spec};
+use crate::schemas::{Render, Type};
+use crate::schemas::reference::resolve;
 
 mod model;
 mod schemas;
 
-fn read_spec(path: &str) -> Spec {
+pub fn read_spec(path: &str) -> Spec {
     let file = File::open(path).unwrap();
     let spec: Spec = serde_json::from_reader(file).unwrap();
     spec
@@ -23,63 +27,52 @@ fn calculate_name(name: &str) -> (Vec<String>, String) {
     (namespace, name)
 }
 
-fn format_description(description: Option<String>) -> String {
+pub fn format_description(description: Option<String>) -> String {
     description
         .unwrap_or_else(|| String::from("No documentation provided.")).lines()
         .map(|l| format!("/// {}", l)).collect::<Vec<_>>().join("\r")
 }
 
 fn render_schema(
-    namespace: Vec<String>,
     name: String,
-    schema: &model::Schema
-) -> Tokens<Rust> {
-    // println!("{:#?}", schema);
-    if schemas::enums::is_enum(schema) {
-        let parsed = schemas::enums::parse_enum(schema);
-        return schemas::enums::render_enum(parsed);
-    }
-    if let Some(type_) = &schema.type_ {
-        if type_ == "integer" {
-            if let Some(enum_values) = &schema.enum_ {
-                // new enum
-                let variants = &schema.enum_values.as_ref().unwrap();
-                let variants: Tokens<Rust> = variants.iter()
-                    .flat_map(|v| quote! {
-                        $(format_description(v.description.clone()))
-                        $['\r']
-                        $(v.identifier.clone()) = $(v.numeric_value.parse::<i32>().unwrap()),
-                        $['\r']
-                    })
-                    .collect();
+    schema: Schema
+) -> Tokens {
+    Type::from(schema).render(name)
+}
 
-                let tokens: Tokens<Rust> = quote! {
-                    $(format_description(schema.description.clone()))
-                    $(if schema.enum_is_bitmask {
-                        #[bitflags]
-                        #[repr(u32)]
-                        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize_repr, Deserialize_repr)]
-                    } else {
-                        #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
-                    })
-                    pub enum $name {
-                        $variants
-                    }
-                };
-                return tokens;
-
-            }
-        }
-    } else {
-        // this should be a ref
+pub fn generate(spec: Spec, output: &str) {
+    let schemas: Vec<_> = spec.components.schemas.into_iter().map(|(name, schema)| {
+        let (namespace, name) = resolve(&name);
+        (namespace, name, schema)
+    }).collect();
+    let mut sorted_schemas = HashMap::new();
+    for (namespace, name, schema) in schemas {
+        sorted_schemas.entry(namespace)
+            .or_insert_with(|| Vec::new())
+            .push((name, schema));
     }
-    unreachable!()
+    for (namespace, schemas) in sorted_schemas {
+        // dir is all but the last segment of namespace
+        let path = format!("{}/models/{}", output, namespace);
+        let dir = path.split('/').collect::<Vec<_>>();
+        let dir = dir[..dir.len() - 1].join("/");
+        let name = namespace.split('/').last().unwrap();
+        create_dir_all(&dir).unwrap();
+        let file = format!("{}/{}.rs", path, name);
+        let mut file = File::create(file).unwrap();
+        let tokens: Tokens = schemas.into_iter().flat_map(|(name, schema)| {
+            render_schema(name, schema)
+        }).collect();
+        file.write_all(tokens.to_file_string()
+            .unwrap().as_bytes())
+            .unwrap();
+    }
 }
 
 
 #[cfg(test)]
 mod tests {
-    use crate::render_schema;
+    use crate::{render_schema, schemas};
 
     #[test]
     fn read_spec() {
@@ -89,9 +82,9 @@ mod tests {
         let schema = schemas.get("Applications.ApplicationScopes").unwrap();
 
         let mut scope = codegen::Scope::new();
-        let (namespace, name) = super::calculate_name("Applications.ApplicationScopes");
-        let schema = render_schema(namespace, name, schema);
-        println!("{:?}", schema);
+        let (namespace, name) = schemas::reference::resolve("Applications.ApplicationScopes");
+        let schema = render_schema(namespace, name, schema.clone());
+        println!("{:?}", schema.to_file_string().unwrap());
         // println!("{:?}", spec);
     }
 }
