@@ -7,6 +7,7 @@ use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::iter::once;
 use std::ops::{Add, AddAssign};
+use futures::future::OptionFuture;
 use wasm_bindgen::prelude::*;
 use serde_repr::{Serialize_repr, Deserialize_repr};
 
@@ -47,6 +48,12 @@ pub struct StrippedInventoryArmor {
 impl StrippedInventoryArmor {
     pub fn base_stats(self) -> Stats {
         self.stats
+    }
+
+    pub(crate) fn is_fotl_mask(&self) -> bool {
+        self.hash == 199733460
+            || self.hash == 2545426109
+            || self.hash == 3224066584
     }
 
     pub fn stats(self) -> Stats {
@@ -359,6 +366,16 @@ impl ExoticChoiceModel {
     }
 }
 
+impl From<ExoticChoiceModel> for Option<Hash> {
+    fn from(value: ExoticChoiceModel) -> Self {
+        match value {
+            ExoticChoiceModel::All => None,
+            ExoticChoiceModel::None => None,
+            ExoticChoiceModel::Some(h) => Some(h),
+        }
+    }
+}
+
 #[derive(Deserialize, Serialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct WorkerConfig {
@@ -382,10 +399,13 @@ pub struct WorkerConfig {
     pub only_use_masterworked_items: bool,
     pub limit_parsed_results: bool,
     pub try_limit_wasted_stats: bool,
+    /// use festival of the lost armor
+    pub use_fotl_armor: bool,
     pub only_show_results_with_no_wasted_stats: bool,
     pub show_wasted_stats_column: bool,
     pub show_potential_tier_column: bool,
-    pub selected_mod_element: ModifierType,
+    // unnecessary
+    // pub selected_mod_element: ModifierType,
     pub enabled_mods: Vec<StatMod>,
     pub selected_exotic: ExoticChoiceModel,
     #[serde(skip)]
@@ -526,7 +546,7 @@ impl ArmorSet {
             .unwrap()
     }
 
-    pub fn iter(&self) -> impl Iterator<Item = StrippedInventoryArmor> {
+    pub fn iter(&self) -> impl Iterator<Item=StrippedInventoryArmor> {
         once(self.helmet)
             .chain(once(self.gauntlets))
             .chain(once(self.chest))
@@ -536,7 +556,7 @@ impl ArmorSet {
 
 impl IntoIterator for ArmorSet {
     type Item = StrippedInventoryArmor;
-    type IntoIter = impl Iterator<Item = StrippedInventoryArmor>;
+    type IntoIter = impl Iterator<Item=StrippedInventoryArmor>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.iter()

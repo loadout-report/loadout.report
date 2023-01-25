@@ -5,6 +5,7 @@ use yew::{utils};
 use yew::{Children};
 
 pub mod item;
+pub mod roll;
 
 pub use item::CarouselItem;
 

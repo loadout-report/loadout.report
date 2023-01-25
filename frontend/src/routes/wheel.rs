@@ -1,16 +1,19 @@
 use yew::prelude::*;
+use std::rc::Rc;
 use yew_hooks::prelude::*;
 use crate::components::wheel::{CarouselWheel, CarouselItem};
+use crate::components::wheel::roll::Roll;
 use js_sys::Math::{floor, random};
 
 use yew::html;
+use yew::suspense::{Suspension, SuspensionResult};
 use data::api::manifest::model::Item;
 
 #[derive(Properties, PartialEq, Eq, Clone)]
 pub struct WheelProps {
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq, Eq)]
 struct RollOption {
     name: String,
     icon: String,
@@ -21,6 +24,19 @@ impl RollOption {
         RollOption {
             name,
             icon,
+        }
+    }
+}
+
+
+
+fn use_items() -> SuspensionResult<Vec<RollOption>> {
+    match load_items() {
+        Some(items) => Ok(items),
+        None => {
+            let (s, handle) = Suspension::new();
+            on_load_items_complete(move || {handle.resume();});
+            Err(s)
         }
     }
 }
@@ -69,28 +85,13 @@ pub fn wheel(_props: &WheelProps) -> Html {
     html! {
         <div class="app">
             <h1>{"Wheel of Misfortune"}</h1>
-            <CarouselWheel></CarouselWheel>
-            <p>
-                <button {onclick}>{"Roll a gun"}</button>
-                {
-                    if let Some(roll) = (*exotic).clone() {
-                        html!(
-                            <div>
-                                <img style="width: 96px; height: 96px" src={roll.icon.clone()} alt={"exotic"} />
-                                <h3>{roll.name.clone()}</h3>
-                            </div>
-                        )
-                    } else {
-                        html!(
-                            <div><p></p></div>
-                        )
-                    }
-                }
-            </p>
-
+            <ContextProvider<Rc<Vec<RollOption>>> context={exotics}>
+                <Roll />
+            </ContextProvider<Rc<Vec<RollOption>>>>
         </div>
     }
 }
+
 
 async fn fetch_exotics() -> Result<Vec<Item>, String> {
     let result = reqwest::get("http://localhost:8080/items?rarity=6&category=1").await.map_err(|err| err.to_string())?;

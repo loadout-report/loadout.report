@@ -10,19 +10,11 @@ mod model;
 mod scheduler;
 mod utils;
 mod worker;
-
-use wasm_bindgen::prelude::*;
+mod wasm;
+mod file;
 
 #[cfg(feature = "parallel")]
 use rayon::prelude::*;
-
-#[cfg(feature = "parallel")]
-pub use wasm_bindgen_rayon::init_thread_pool;
-
-#[wasm_bindgen]
-pub fn init_log() {
-    wasm_logger::init(wasm_logger::Config::default());
-}
 
 pub mod long {
     use std::fmt::Display;

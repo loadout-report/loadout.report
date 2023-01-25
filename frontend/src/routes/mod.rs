@@ -25,8 +25,8 @@ pub enum AppRoute {
 
 /// Switch app routes
 #[allow(clippy::let_unit_value)]
-pub fn switch(routes: &AppRoute) -> Html {
-    match routes.clone() {
+pub fn switch(routes: AppRoute) -> Html {
+    match routes {
         AppRoute::Home => html! { <Home /> },
         AppRoute::About => html! { <About /> },
         AppRoute::Wheel => html! { <Wheel /> },

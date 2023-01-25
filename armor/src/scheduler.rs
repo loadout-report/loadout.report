@@ -1,13 +1,9 @@
 use crate::armory::Armory;
 use crate::db::build_database;
-use crate::model::{
-    ArmorInformation, ArmorPerkOrSlot, ArmorSlot, DestinyEnergyType, ExoticChoiceModel,
-    InventoryArmor, ManifestArmor, StrippedInventoryArmor, TierType, WorkerConfig,
-};
+use crate::model::{ArmorInformation, ArmorPerkOrSlot, ArmorSlot, CharacterClass, DestinyEnergyType, ExoticChoiceModel, InventoryArmor, ManifestArmor, StrippedInventoryArmor, TierType, WorkerConfig};
 use crate::worker::{ArmorWorker, check_slots, Input, ItemResult, Output, PermutationError, prepare_constant_available_modslots, prepare_constant_element_requirement, prepare_constant_modslot_requirement, prepare_constant_stat_bonus, Runtime};
-use data::api::manifest::model::Hash;
 use gloo_worker::Spawnable;
-use rexie::{KeyRange, TransactionMode};
+use rexie::{KeyRange, Rexie, TransactionMode};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
 use std::str::FromStr;
@@ -18,6 +14,7 @@ use wasm_bindgen::JsValue;
 
 #[cfg(feature = "parallel")]
 use rayon::prelude::*;
+use crate::db;
 
 #[derive(Debug)]
 pub enum ComputeError {
@@ -44,69 +41,11 @@ impl Into<JsValue> for ComputeError {
     }
 }
 
-fn coerce_string_hashmap<K, V>(data: HashMap<String, V>) -> HashMap<K, V>
-    where K: FromPrimitive + std::hash::Hash + Eq,
-{
-    data
-        .into_iter()
-        .filter_map(|(key, value)| {
-            let key = K::from_i64(key.parse::<i64>().unwrap());
-            key.map(|key| (key, value))
-        })
-        .collect()
-}
 
 #[cfg(feature = "parallel")]
-#[wasm_bindgen]
-pub async fn compute_results(config: JsValue) -> Result<JsValue, ComputeError> {
-    let mut config: WorkerConfig = serde_wasm_bindgen::from_value(config).map_err(ComputeError::ConfigParseError)?;
-    config.armor_perks = coerce_string_hashmap(config.armor_perks_.clone());
-    config.minimum_stat_tiers = coerce_string_hashmap(config.minimum_stat_tiers_.clone());
-    config.maximum_mod_slots = coerce_string_hashmap(config.maximum_mod_slots_.clone());
-    config.armor_affinities = coerce_string_hashmap(config.armor_affinities_.clone());
-    let db = build_database().await.map_err(ComputeError::LoadDataError)?;
-
-    let selected_exotic = if let ExoticChoiceModel::Some(exotic) = config.selected_exotic {
-        let tx = db
-            .transaction(&["manifestArmor"], TransactionMode::ReadOnly)
-            .map_err(ComputeError::LoadDataError)?;
-        let manifest_armor = tx.store("manifestArmor").unwrap();
-        let armor = manifest_armor
-            .index("hash")
-            .unwrap()
-            .get(&JsValue::from(exotic as i32))
-            .await
-            .map_err(ComputeError::LoadDataError)?;
-        let armor: ManifestArmor =
-            serde_wasm_bindgen::from_value(armor).map_err(ComputeError::DataParseError)?;
-        tx.done().await.map_err(ComputeError::LoadDataError)?;
-        Some(armor)
-    } else {
-        None
-    };
+pub async fn compute_results(config: WorkerConfig, armor: Vec<InventoryArmor>, selected_exotic: &Option<ManifestArmor>) -> Result<usize, ComputeError> {
 
     debug!("selected exotic: {:?}", selected_exotic);
-
-    let armor: Vec<InventoryArmor> = {
-        let tx = db
-            .transaction(&["inventoryArmor"], TransactionMode::ReadOnly)
-            .map_err(ComputeError::LoadDataError)?;
-        let inventory_armor = tx
-            .store("inventoryArmor")
-            .map_err(ComputeError::LoadDataError)?;
-        let key_range = KeyRange::only(&(config.character_class as u32).into()).unwrap();
-        let armor = inventory_armor.index("clazz").unwrap();
-        let armor = armor
-            .get_all(Some(&key_range), None, None, None)
-            .await
-            .map_err(ComputeError::LoadDataError)?;
-        armor
-            .iter()
-            .into_iter()
-            .flat_map(|(_, value)| serde_wasm_bindgen::from_value(value.clone()).inspect_err(|err| warn!("could not parse armor, {}", err.to_string())))
-            .collect()
-    };
-
     debug!("loaded armor pieces: {}", armor.len());
 
     let armor: Vec<StrippedInventoryArmor> = armor.into_iter().map(|i| Into::into(i)).collect();
@@ -115,6 +54,7 @@ pub async fn compute_results(config: JsValue) -> Result<JsValue, ComputeError> {
         .iter()
         .filter(|i| i.slot != ArmorSlot::ArmorSlotNone)
         .filter(|i| !config.disabled_items.contains(&i.item_instance_id))
+        .filter(|i| !config.use_fotl_armor || i.slot != ArmorSlot::ArmorSlotHelmet || i.is_fotl_mask())
         .filter(|i| config.selected_exotic != ExoticChoiceModel::None || !i.is_exotic)
         .filter(|i| {
             config.selected_exotic == ExoticChoiceModel::All
@@ -235,129 +175,11 @@ pub async fn compute_results(config: JsValue) -> Result<JsValue, ComputeError> {
         .count();
 
     // let vec: Vec<()> = Vec::new();
-    Ok(serde_wasm_bindgen::to_value(&count).unwrap())
+    Ok(count)
 }
 
 #[cfg(not(feature = "parallel"))]
-#[wasm_bindgen]
-pub async fn compute_results(config: JsValue) -> Result<JsValue, ComputeError> {
+pub async fn compute_results(config: WorkerConfig) -> Result<Vec<()>, ComputeError> {
     let vec: Vec<()> = Vec::new();
-    Ok(serde_wasm_bindgen::to_value(&vec).unwrap())
-}
-
-pub async fn compute_results_old(config: JsValue) -> Result<JsValue, ComputeError> {
-    let n = 3;
-    let config: WorkerConfig = serde_wasm_bindgen::from_value(config).unwrap();
-
-    let db = build_database().await.unwrap();
-
-    let selected_exotic = if let ExoticChoiceModel::Some(exotic) = config.selected_exotic {
-        let tx = db
-            .transaction(&["manifestArmor"], TransactionMode::ReadOnly)
-            .map_err(ComputeError::LoadDataError)?;
-        let manifest_armor = tx.store("manifestArmor").unwrap();
-        let armor = manifest_armor
-            .index("hash")
-            .unwrap()
-            .get(&JsValue::from(exotic))
-            .await
-            .map_err(ComputeError::LoadDataError)?;
-        let armor: ManifestArmor =
-            serde_wasm_bindgen::from_value(armor).map_err(ComputeError::DataParseError)?;
-        tx.done().await.map_err(ComputeError::LoadDataError)?;
-        Some(armor)
-    } else {
-        None
-    };
-
-    // todo: single iteration to split vectors
-    let armor: Vec<InventoryArmor> = {
-        let tx = db
-            .transaction(&["inventoryArmor"], TransactionMode::ReadOnly)
-            .map_err(ComputeError::LoadDataError)?;
-        let inventory_armor = tx
-            .store("inventory_armor")
-            .map_err(ComputeError::LoadDataError)?;
-        let key_range = KeyRange::only(&(config.character_class as u32).into()).unwrap();
-        let armor = inventory_armor.index("clazz").unwrap();
-        let armor = armor
-            .get_all(Some(&key_range), None, None, None)
-            .await
-            .map_err(ComputeError::LoadDataError)?;
-        armor
-            .iter()
-            .into_iter()
-            .map(|(_, value)| serde_wasm_bindgen::from_value(value.clone()).unwrap())
-            .collect()
-    };
-
-    let armor_info: HashMap<Hash, ArmorInformation> = armor
-        .iter()
-        .map(|i| (i.hash, Into::into(i.clone())))
-        .collect();
-
-    let armor: Vec<StrippedInventoryArmor> = armor.iter().map(|i| Into::into(i.clone())).collect();
-
-    let armor: Vec<_> = armor
-        .iter()
-        .filter(|i| i.slot != ArmorSlot::ArmorSlotNone)
-        .filter(|i| !config.disabled_items.contains(&i.item_instance_id))
-        .filter(|i| config.selected_exotic != ExoticChoiceModel::None || !i.is_exotic)
-        .filter(|i| {
-            config.selected_exotic == ExoticChoiceModel::All
-                || selected_exotic.is_some_and(|e| e.slot != i.slot || e.hash == i.hash)
-        })
-        .filter(|i| !config.only_use_masterworked_items || i.masterworked)
-        .filter(|i| {
-            config.allow_blue_armor_pieces
-                || i.rarity == TierType::Exotic
-                || i.rarity == TierType::Superior
-        })
-        .filter(|i| !config.ignore_sunset_armor || !i.is_sunset)
-        .filter(|i| {
-            let affinity = config.armor_affinities.get(&i.slot).unwrap();
-            !affinity.fixed
-                || affinity.value == DestinyEnergyType::Any
-                || (i.masterworked && config.ignore_armor_affinities_on_masterworked_items)
-                || (!i.masterworked && config.ignore_armor_affinities_on_non_masterworked_items)
-                || affinity.value == i.energy_affinity
-        })
-        .filter(|i| {
-            let perks = config.armor_perks.get(&i.slot).unwrap();
-            i.is_exotic
-                || !perks.fixed
-                || perks.value == ArmorPerkOrSlot::None
-                || perks.value == i.perk
-        })
-        .map(|i| {
-            if (i.is_exotic && config.assume_exotics_masterworked)
-                || config.assume_legendaries_masterworked
-                || (i.slot == ArmorSlot::ArmorSlotClass && config.assume_class_item_masterworked)
-            {
-                return i.assume_masterwork();
-            }
-            *i
-        })
-        .collect();
-
-    let armory: Armory = Into::into(armor);
-
-    for armory in armory.chunk(n) {
-        let worker = ArmorWorker::spawner()
-            .callback(|msg: Output| {
-                // todo: use output
-                // rebuild SanitisedItemResult from ItemResult
-                // reconcile threads
-            })
-            .spawn("/assets/worker.js");
-
-        worker.send(Input {
-            config: config.clone(),
-            armory,
-            n,
-        })
-    }
-
-    let vec: Vec<()> = Vec::new();
-    Ok(serde_wasm_bindgen::to_value(&vec).unwrap())
+    Ok(vec)
 }
