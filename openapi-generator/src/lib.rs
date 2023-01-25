@@ -34,7 +34,7 @@ fn render_schema(
     name: String,
     schema: &model::Schema
 ) -> Tokens<Rust> {
-    println!("{:#?}", schema);
+    // println!("{:#?}", schema);
     if schemas::enums::is_enum(schema) {
         let parsed = schemas::enums::parse_enum(schema);
         return schemas::enums::render_enum(parsed);
@@ -91,7 +91,7 @@ mod tests {
         let mut scope = codegen::Scope::new();
         let (namespace, name) = super::calculate_name("Applications.ApplicationScopes");
         let schema = render_schema(namespace, name, schema);
-        println!("{}", schema);
+        println!("{:?}", schema);
         // println!("{:?}", spec);
     }
 }

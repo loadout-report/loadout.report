@@ -1,6 +1,7 @@
 extern crate core;
 
 use data::api::{ApiResponse, model::profile::{Membership, ProfileStruct}};
+use data::api::model::profile::{ExactSearchRequest, UserInfo};
 use crate::cache::Cache;
 
 pub mod cache;
@@ -66,6 +67,16 @@ impl D2Api {
         let profile = self.fetch_player(membership, use_cache).await?;
         todo!();
         Ok(profile)
+    }
+
+    pub async fn search_player(&self, search_player_options: &ExactSearchRequest) -> Result<Vec<UserInfo>, Box<dyn std::error::Error>> {
+        let request = self.client.post("http://localhost:58989/Platform/Destiny2/SearchDestinyPlayerByBungieName/-1/")
+            .header("x-api-key", self.api_key.as_str())
+            .json(search_player_options)
+            .build()?;
+        let response: ApiResponse<Vec<UserInfo>> = self.client.execute(request).await?.json().await?;
+        let data = Result::from(response)?;
+        Ok(data)
     }
 
 }

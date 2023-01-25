@@ -28,4 +28,8 @@ gloo-storage = "0.2.2"
 js-sys = "0.3.60"
 strum_macros = "0.24"
 strum = { version = "0.24", features = ["derive"] }
+gloo-net = "0.2.6"
+web-sys = { version = "0.3.60", features = ["HtmlInputElement"] }
+obfstr = "0.4.1"
+rustgie_types = "0.2.0"
 

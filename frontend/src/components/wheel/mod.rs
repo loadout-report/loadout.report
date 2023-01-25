@@ -1,69 +1,112 @@
+use log::info;
 use stylist::style;
 use stylist::yew::use_style;
 use yew::prelude::*;
 use yew::{utils};
 use yew::{Children};
+use yew::suspense::{use_future, UseFutureHandle};
+use data::api::manifest::model::Item;
+use roll::Roll;
 
-pub mod item;
 pub mod roll;
 
-pub use item::CarouselItem;
 
-#[derive(Clone, Properties, PartialEq)]
-pub struct Props {
-    #[prop_or(Callback::noop())]
-    pub onrollfinish_signal: Callback<usize>,
-    #[prop_or(true)]
-    pub loading: bool,
-    #[prop_or_default]
-    pub children: Children,
+#[derive(Clone, PartialEq, Eq, Debug)]
+pub struct RollOption {
+    pub name: String,
+    pub icon: String,
 }
 
-pub enum Message {
-    RollFinishEvent(usize)
-}
-
-#[function_component(CarouselWheel)]
-pub fn carousel_wheel(props: &Props) -> Html {
-    let container_style = use_style!(
-        overflow: hidden;
-        width: 480px;
-        text-align: center;
-    );
-    let style = use_style!(
-        background-color: pink;
-        display: flex;
-        overflow-x: auto;
-        scroll-snap-type: x mandatory;
-        scroll-behavior: smooth;
-        -webkit-overflow-scrolling: touch;
-
-        -ms-overflow-style: none;
-        scrollbar-width: none;
-        ::-webkit-scrollbar {
-            display: none;
+impl RollOption {
+    fn new(name: String, icon: String) -> Self {
+        RollOption {
+            name,
+            icon,
         }
-    );
-
-    let image = String::from("https://www.bungie.net/common/destiny2_content/icons/e4b1e51834802439cb342a439b0079cf.jpg");
-
-    let items = (1..=20).map(|id| item::Item {
-        image: image.clone(),
-        id
-    }).collect::<Vec<_>>();
-
-    html!(
-        <div class={container_style}>
-            <div class={style}>
-                {
-                    for items.iter().map(|item| {
-                        html!(
-                            <CarouselItem key={format!("{}", item.id)} item={item.clone()} />
-                        )
-                    })
-                }
-            </div>
-        </div>
-    )
+    }
 }
 
+async fn get_roll_options() -> Result<Vec<RollOption>, gloo_net::Error> {
+    let mut special = vec![
+        RollOption::new("Ghostbusters".to_string(), "https://media.discordapp.net/attachments/907098694992687144/1034233774503907480/unknown.png".to_string()),
+        RollOption::new("Space Cowboys".to_string(), "https://media.discordapp.net/attachments/907098694992687144/1034226634376630355/unknown.png?width=457&height=676".to_string()),
+        RollOption::new("Rat Pack".to_string(), "".to_string()),
+        RollOption::new("Siva Crisis 2".to_string(), "".to_string()),
+        RollOption::new("Drifter would be proud".to_string(), "https://media.discordapp.net/attachments/907098694992687144/1034228384475123712/unknown.png".to_string()),
+        RollOption::new("Arrow to the Knee".to_string(), "https://media.discordapp.net/attachments/907098694992687144/1034217287030419456/unknown.png?width=886&height=676".to_string())
+    ];
+    let mut fetched_exotics: Vec<RollOption> = fetch_exotics()
+        .await?
+        .iter()
+        .map(|item| RollOption::new(item.label.clone(), item.icon.clone()))
+        .collect();
+    special.append(&mut fetched_exotics);
+    // info!("fetched exotics: {:?}", special);
+    Ok(special)
+}
+
+
+async fn fetch_exotics() -> Result<Vec<Item>, gloo_net::Error> {
+    info!("fetching exotics");
+    let result = gloo_net::http::Request::get("http://localhost:58080/items?rarity=6&category=1").send().await?;
+    let definitions: Vec<Item> = result.json::<Vec<Item>>().await?;
+    return Ok(definitions);
+}
+
+
+#[derive(Clone, PartialEq, Eq, Debug, Properties)]
+pub struct LoadedWheelProps {
+    pub players: Vec<String>,
+}
+
+
+#[function_component(LoadedWheel)]
+pub fn loaded_wheel(props: &LoadedWheelProps) -> HtmlResult {
+    let roll_options: UseFutureHandle<Result<Vec<RollOption>, gloo_net::Error>> = use_future(|| async {
+        let roll_options = get_roll_options().await?;
+        // info!("roll options: {:?}", roll_options);
+        Ok(roll_options)
+    })?;
+    let roll_options = match *roll_options {
+        Ok(ref res) => html! {
+            <>
+              {
+                  props.players.iter().map(|player| {
+                    html! {
+                      <div key={player.to_owned()}>
+                        <p>{player.to_owned()}</p>
+                        <Roll roll_options={res.to_owned()} />
+                      </div>
+                    }
+                  }).collect::<Html>()
+              }
+            </>
+        },
+        Err(ref failure) => failure.to_string().into()
+    };
+
+    Ok(html! {
+        <>
+            {roll_options}
+        </>
+    })
+}
+
+#[derive(Clone, PartialEq, Eq, Debug, Properties)]
+struct RollOptionProviderProps {
+    roll_options: Vec<RollOption>,
+}
+
+#[function_component(RollOptionProvider)]
+fn roll_option_provider(props: &RollOptionProviderProps) -> Html {
+    info!("roll options: {:?}", props.roll_options);
+    let options = use_memo(|_| {
+        props.roll_options.to_owned()
+    }, ());
+
+    html! {
+        // <ContextProvider<Rc<Vec<RollOption>>> context={options}>
+            //<Roll roll_options={props.roll_options} />
+        // </ContextProvider<Rc<Vec<RollOption>>>>
+    }
+}

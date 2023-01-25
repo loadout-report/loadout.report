@@ -35,7 +35,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("loaded categories");
     info!("loaded manifest");
 
-    let cors = warp::cors().allow_any_origin().allow_methods(vec!["GET"]);
+    let cors = warp::cors().allow_any_origin()
+        .allow_header("x-api-key")
+        .allow_header("content-type")
+        .allow_methods(vec!["GET", "POST"]);
     let root = warp::get().and(warp::path::end()).map(|| "API root");
 
     let client = D2Api::new(get_api_key().as_str());
@@ -53,7 +56,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         });
 
     let (_, server) =
-        warp::serve(routes).bind_with_graceful_shutdown(([0, 0, 0, 0], 8080), async move {
+        warp::serve(routes).bind_with_graceful_shutdown(([0, 0, 0, 0], 58080), async move {
             info!("waiting for shutdown signal");
             tokio::signal::ctrl_c()
                 .await

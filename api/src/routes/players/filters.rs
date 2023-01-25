@@ -1,13 +1,25 @@
 use std::convert::Infallible;
 use warp::Filter;
 use d2_client::D2Api;
+use data::api::model::profile::ExactSearchRequest;
 
 
 pub fn players(
     client: D2Api
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     fetch_player(client.clone())
+        .or(search(client.clone()))
         .or(fetch_loadout(client))
+}
+
+pub fn search(
+    client: D2Api
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("players" / "search")
+        .and(warp::post())
+        .and(warp::body::json::<ExactSearchRequest>())
+        .and(with_client(client))
+        .and_then(super::handlers::search)
 }
 
 pub fn fetch_player(

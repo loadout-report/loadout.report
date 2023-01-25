@@ -10,7 +10,7 @@ impl Membership {
     }
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct ProfileStruct {
     pub profile: Option<ComponentResponse<Profile>>,
@@ -21,13 +21,13 @@ pub struct ProfileStruct {
     pub characters: Option<ComponentResponse<HashMap<String, Character>>>
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct CharacterEquipment {
     pub items: Vec<Item>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Item {
     pub item_hash: i64,
@@ -48,7 +48,7 @@ pub struct Item {
     pub metric_objective: Option<Objective>,
 }
 
-#[derive(Serialize, Deserialize, Copy, Clone)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Objective {
     pub objective_hash: i64,
@@ -58,13 +58,13 @@ pub struct Objective {
     pub visible: bool,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct CharacterPlugSets {
     pub plugs: HashMap<String, Vec<DatumPlug>>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct DatumPlug {
     pub plug_item_hash: i64,
@@ -73,7 +73,7 @@ pub struct DatumPlug {
     pub insert_fail_indexes: Option<Vec<i64>>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct ItemComponents {
     pub instances: ComponentResponse<HashMap<String, Instance>>,
@@ -82,7 +82,7 @@ pub struct ItemComponents {
     pub perks: ComponentResponse<HashMap<String, Perks>>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Instance {
     pub damage_type: i64,
@@ -100,7 +100,7 @@ pub struct Instance {
     pub breaker_type_hash: Option<i64>,
 }
 
-#[derive(Serialize, Deserialize, Copy, Clone)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Energy {
     pub energy_type_hash: i64,
@@ -110,7 +110,7 @@ pub struct Energy {
     pub energy_unused: i64,
 }
 
-#[derive(Serialize, Deserialize, Copy, Clone)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Stat {
     pub stat_hash: i64,
@@ -118,13 +118,13 @@ pub struct Stat {
 }
 
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Perks {
     pub perks: Vec<Perk>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Perk {
     pub perk_hash: i64,
@@ -134,13 +134,13 @@ pub struct Perk {
 }
 
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Sockets {
     pub sockets: Vec<Socket>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Socket {
     pub plug_hash: Option<i64>,
@@ -149,13 +149,13 @@ pub struct Socket {
     pub enable_fail_indexes: Option<Vec<i64>>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Stats {
     pub stats: HashMap<String, Stat>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct Profile {
     pub user_info: UserInfo,
@@ -168,7 +168,7 @@ pub struct Profile {
     pub current_season_reward_power_cap: i64,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct UserInfo {
     pub cross_save_override: i64,
@@ -182,13 +182,13 @@ pub struct UserInfo {
 }
 
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct ProfilePlugSets {
     pub plugs: HashMap<String, Vec<DataPlug>>,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct DataPlug {
     pub plug_item_hash: i64,
@@ -198,14 +198,14 @@ pub struct DataPlug {
     pub insert_fail_indexes: Option<Vec<i64>>,
     pub enable_fail_indexes: Option<Vec<i64>>,
 }
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct ComponentResponse<T: Clone> {
     data: Option<T>,
     privacy: i64,
 }
 
-#[derive(Serialize, Deserialize, Clone)]
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct Character {
     membership_id: String,
@@ -232,11 +232,20 @@ pub struct Character {
     title_record_hash: i64,
 }
 
-#[derive(Serialize, Deserialize, Copy, Clone)]
+#[derive(Serialize, Deserialize, Copy, Clone, Debug, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct EmblemColor {
     red: i64,
     green: i64,
     blue: i64,
     alpha: i64,
+}
+
+
+#[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
+pub struct ExactSearchRequest {
+    #[serde(rename = "displayName")]
+    pub name: String,
+    #[serde(rename = "displayNameCode")]
+    pub code: i16,
 }
