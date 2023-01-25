@@ -6,8 +6,10 @@ mod booleans;
 
 use std::collections::HashMap;
 use genco::lang::rust::Tokens;
+use genco::quote;
 use crate::model::Schema;
 use crate::schemas::{Render};
+use crate::format_description;
 
 pub struct Property {
     name: String,
@@ -29,17 +31,49 @@ pub enum PropertyType {
 
 pub struct Object {
     properties: Vec<Property>,
+    description: Option<String>,
 }
 
 impl From<Schema> for Object {
     fn from(value: Schema) -> Self {
-        unimplemented!()
+        let properties = value.properties.unwrap().into_iter()
+            .map(|(name, schema)| {
+                let description = schema.description.clone();
+                let nullable = schema.nullable.unwrap_or(false);
+                let type_ = match schema.type_.as_ref().unwrap().as_str() {
+                    "array" => PropertyType::Array(From::from(schema)),
+                    "string" => PropertyType::String(From::from(schema)),
+                    "number" => PropertyType::Number(From::from(schema)),
+                    "integer" => PropertyType::Number(From::from(schema)),
+                    "boolean" => PropertyType::Boolean(From::from(schema)),
+                    "object" => PropertyType::Reference(schema.ref_.unwrap()),
+                    _ => unreachable!(),
+                };
+                Property {
+                    name,
+                    description,
+                    type_,
+                    nullable,
+                }
+            })
+            .collect();
+
+        Object {
+            properties,
+            description: value.description,
+        }
     }
 }
 
 impl Render for Object {
     fn render(&self, name: String) -> Tokens {
-        unimplemented!()
+        quote! {
+            $(format_description(self.description.clone()))
+            #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+            pub struct $name {
+                // todo: properties
+            }
+        }
     }
 }
 
