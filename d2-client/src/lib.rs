@@ -1,6 +1,10 @@
 extern crate core;
 
-use data::api::{ApiResponse, model::profile::{Membership, ProfileStruct}};
+use rustgie::types::BungieMembershipType;
+use rustgie::types::destiny::DestinyComponentType;
+use rustgie::types::destiny::responses::DestinyProfileResponse;
+use rustgie::types::user::UserInfoCard;
+use data::api::{ApiResponse, ComponentType, model::profile::{Membership, ProfileStruct}};
 use data::api::model::profile::{ExactSearchRequest, UserInfo};
 use crate::cache::Cache;
 
@@ -46,35 +50,42 @@ impl D2Api {
         todo!()
     }
 
-    pub async fn fetch_player(&self, membership: Membership, use_cache: bool) -> Result<ProfileStruct, Box<dyn std::error::Error>> {
+    pub async fn fetch_player(&self, membership: Membership, use_cache: bool) -> Result<DestinyProfileResponse, Box<dyn std::error::Error>> {
         let mut cache = self.cache.profile.lock().await;
         if use_cache {
             if let Some(cached) = cache.get(&membership) {
                 return Ok(cached.clone());
             }
         }
-        let url = format!("https://bungie.net/Platform/Destiny2/{}/Profile/{}/?components=100,200,205,300,302,304", membership.0, membership.1);
-        let request = self.client.get(url)
-            .header("x-api-key", self.api_key.as_str())
-            .build()?;
-        let response: ApiResponse<ProfileStruct> = self.client.execute(request).await?.json().await?;
-        let data = Result::from(response)?;
-        let _ = cache.insert(membership, data.clone());
-        Ok(data)
+        let client = rustgie::RustgieClientBuilder::new().with_api_key(self.api_key.as_str())
+            .build().unwrap();
+        let response = client.destiny2_get_profile(membership.1, parse_membership_type(membership.0).unwrap(), Some(vec![
+            DestinyComponentType::Profiles,
+            DestinyComponentType::Characters,
+            DestinyComponentType::CharacterEquipment,
+            DestinyComponentType::ItemInstances,
+            DestinyComponentType::ItemPerks,
+            DestinyComponentType::ItemStats,
+            DestinyComponentType::Collectibles,
+            DestinyComponentType::Transitory,
+        ]), None).await?;
+        let _ = cache.insert(membership, response.clone());
+        Ok(response)
     }
 
-    pub async fn fetch_loadout(&self, membership: Membership, use_cache: bool) -> Result<ProfileStruct, Box<dyn std::error::Error>> {
+
+    pub async fn fetch_loadout(&self, membership: Membership, use_cache: bool) -> Result<DestinyProfileResponse, Box<dyn std::error::Error>> {
         let profile = self.fetch_player(membership, use_cache).await?;
         todo!();
         Ok(profile)
     }
 
-    pub async fn search_player(&self, search_player_options: &ExactSearchRequest) -> Result<Vec<UserInfo>, Box<dyn std::error::Error>> {
+    pub async fn search_player(&self, search_player_options: &ExactSearchRequest) -> Result<Vec<UserInfoCard>, Box<dyn std::error::Error>> {
         let request = self.client.post("http://localhost:58989/Platform/Destiny2/SearchDestinyPlayerByBungieName/-1/")
             .header("x-api-key", self.api_key.as_str())
             .json(search_player_options)
             .build()?;
-        let response: ApiResponse<Vec<UserInfo>> = self.client.execute(request).await?.json().await?;
+        let response: ApiResponse<Vec<UserInfoCard>> = self.client.execute(request).await?.json().await?;
         let data = Result::from(response)?;
         Ok(data)
     }
@@ -82,3 +93,18 @@ impl D2Api {
 }
 
 
+
+fn parse_membership_type(t: i32) -> Option<BungieMembershipType> {
+    match t {
+        0 => Some(BungieMembershipType::None),
+        1 => Some(BungieMembershipType::TigerXbox),
+        2 => Some(BungieMembershipType::TigerPsn),
+        3 => Some(BungieMembershipType::TigerSteam),
+        4 => Some(BungieMembershipType::TigerBlizzard),
+        5 => Some(BungieMembershipType::TigerStadia),
+        10 => Some(BungieMembershipType::TigerDemon),
+        254 => Some(BungieMembershipType::BungieNext),
+        -1 => Some(BungieMembershipType::All),
+        _ => None,
+    }
+}

@@ -1,11 +1,12 @@
 use std::sync::{Arc};
 use lru_time_cache::LruCache;
+use rustgie::types::destiny::responses::DestinyProfileResponse;
 use tokio::sync::Mutex;
 use data::api::model::profile::{Membership, ProfileStruct};
 
 #[derive(Clone)]
 pub struct Cache {
-    pub(crate) profile: Arc<Mutex<LruCache<Membership, ProfileStruct>>>,
+    pub(crate) profile: Arc<Mutex<LruCache<Membership, DestinyProfileResponse>>>,
     pub(crate) manifest: manifest::Cache,
 }
 

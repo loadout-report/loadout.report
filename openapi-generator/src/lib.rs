@@ -1,3 +1,5 @@
+extern crate core;
+
 use std::collections::HashMap;
 use std::fs::{create_dir_all, File};
 use std::io::Write;
@@ -58,7 +60,7 @@ pub fn generate(spec: Spec, output: &str) {
         let dir = dir[..dir.len() - 1].join("/");
         let name = namespace.split('/').last().unwrap();
         create_dir_all(&dir).unwrap();
-        let file = format!("{}/{}.rs", path, name);
+        let file = format!("{}/{}.rs", dir, name);
         let mut file = File::create(file).unwrap();
         let tokens: Tokens = schemas.into_iter().flat_map(|(name, schema)| {
             render_schema(name, schema)
@@ -83,7 +85,7 @@ mod tests {
 
         let mut scope = codegen::Scope::new();
         let (namespace, name) = schemas::reference::resolve("Applications.ApplicationScopes");
-        let schema = render_schema(namespace, name, schema.clone());
+        let schema = render_schema(name, schema.clone());
         println!("{:?}", schema.to_file_string().unwrap());
         // println!("{:?}", spec);
     }

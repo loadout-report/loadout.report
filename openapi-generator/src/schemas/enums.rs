@@ -34,6 +34,7 @@ impl Render for Enum {
             .collect();
 
         quote! {
+            $['\r']
             $(format_description(self.description.clone()))
             #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize_repr, Deserialize_repr)]
             pub enum $name {

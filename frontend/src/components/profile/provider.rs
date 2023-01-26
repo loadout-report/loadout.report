@@ -16,8 +16,9 @@ pub fn provider(props: &ProviderProps) -> Html {
     );
 
     html! {
-        <ContextProvider<Rc<Profile>> context={profile}>
+        <ContextProvider<Rc<DestinyProfileResponse>> context={profile}>
           { for props.children.iter() }
-        </ContextProvider<Rc<Profile>>>
+        </ContextProvider<Rc<DestinyProfileResponse>>>
     }
 }
+

@@ -2,7 +2,6 @@ use log::info;
 use serde_derive::{Serialize, Deserialize};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
-use data::api::model::profile::Profile;
 use crate::client::ExactSearchRequest;
 
 

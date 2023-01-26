@@ -74,7 +74,7 @@ impl Client {
 
     pub async fn get_profile(&self, membership_type: i32, membership_id: i64) -> Result<DestinyProfileResponse, reqwest::Error> {
         info!("getting profile");
-        self.client.get(&format!("{}/players/{}/{}/profile", API_BASE, membership_type, membership_id))
+        self.client.get(&format!("{}/players/{}/{}", API_BASE, membership_type, membership_id))
             .send()
             .await?
             .json::<DestinyProfileResponse>()
