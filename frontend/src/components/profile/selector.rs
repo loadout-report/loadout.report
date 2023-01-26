@@ -1,8 +1,8 @@
 use log::info;
+use rustgie::types::user::ExactSearchRequest;
 use serde_derive::{Serialize, Deserialize};
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
-use crate::client::ExactSearchRequest;
 
 
 #[derive(Clone, PartialEq, Properties)]
@@ -37,4 +37,12 @@ pub fn player_selector(props: &SelectorProps) -> Html {
             // <button {onclick} type="button">{"Search"}</button>
         </div>
     }
+}
+
+fn to_exact_search_request(s: &str) -> ExactSearchRequest {
+        let mut split = s.split('#');
+        let name = split.next().unwrap_or_default().to_string();
+        let code = split.next().unwrap_or_default().to_string();
+        let code = code.parse().unwrap_or_default();
+        ExactSearchRequest { display_name: Some(name.to_string()), display_name_code: code }
 }

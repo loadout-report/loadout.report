@@ -2,7 +2,8 @@ use std::borrow::Borrow;
 use std::ops::Deref;
 use std::rc::Rc;
 use log::{info, warn};
-use rustgie_types::user::UserInfoCard;
+use rustgie::types::user::UserInfoCard;
+
 use yew::prelude::*;
 use crate::client::Client;
 use super::*;

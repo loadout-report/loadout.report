@@ -1,15 +1,20 @@
+use anyhow::Context;
 use log::info;
-use rustgie_types::{SingleComponentResponseOfDestinyProfileCollectiblesComponent, SingleComponentResponseOfDestinyProfileTransitoryComponent};
-use rustgie_types::destiny::definitions::collectibles::DestinyCollectibleDefinition;
-use rustgie_types::destiny::responses::{DestinyLinkedProfilesResponse, DestinyProfileResponse};
-use rustgie_types::user::UserInfoCard;
+use rustgie::{RustgieClient, RustgieClientBuilder};
+use rustgie::types::api_response_::BungieApiResponse;
+use rustgie::types::BungieMembershipType;
+use rustgie::types::destiny::definitions::collectibles::DestinyCollectibleDefinition;
+use rustgie::types::destiny::DestinyComponentType;
+use rustgie::types::destiny::responses::{DestinyLinkedProfilesResponse, DestinyProfileResponse};
+use rustgie::types::user::{ExactSearchRequest, UserInfoCard};
+
 use serde_derive::{Serialize, Deserialize};
 
 const API_BASE: &str = env!("API_BASE");
 
 #[derive(Clone, Debug)]
 pub struct Client {
-    pub client: reqwest::Client,
+    pub api_key: String,
 }
 
 impl PartialEq for Client {
@@ -18,96 +23,84 @@ impl PartialEq for Client {
     }
 }
 
+pub fn rc(api_key: &str) -> RustgieClient {
+    rustgie::RustgieClientBuilder::new().with_api_key(api_key).build().unwrap()
+}
+
 impl Client {
     pub fn new() -> Self {
         Self {
-            client: reqwest::Client::new(),
+            api_key: String::from("")
         }
     }
 
     pub fn with_api_key(api_key: &str) -> Self {
-        let mut headers = reqwest::header::HeaderMap::new();
-        headers.insert("X-API-Key", api_key.parse().unwrap());
-        let client = reqwest::Client::builder()
-            .default_headers(headers)
-            .build()
-            .unwrap();
-        Self { client }
+        Self {
+            api_key: String::from(api_key)
+        }
     }
 
-    pub async fn search(&self, search_request: ExactSearchRequest) -> Result<Vec<UserInfoCard>, reqwest::Error> {
+    pub async fn search(&self, search_request: ExactSearchRequest) -> Result<Vec<UserInfoCard>, anyhow::Error> {
         info!("searching for user");
-        self.client.post(format!("{}/players/search", API_BASE))
-            .json(&search_request)
-            .send()
-            .await?
-            .json::<Vec<UserInfoCard>>()
-            .await
+        rc(&self.api_key).destiny2_search_destiny_player_by_bungie_name(BungieMembershipType::All, search_request, None).await
     }
 
-    pub async fn get_collectibles(&self) -> Result<Vec<DestinyCollectibleDefinition>, reqwest::Error> {
+    pub async fn get_collectibles(&self) -> Result<Vec<DestinyCollectibleDefinition>, anyhow::Error> {
         info!("getting collectibles");
-        self.client.get(format!("{}/collectibles", API_BASE))
-            .send()
-            .await?
-            .json::<Vec<DestinyCollectibleDefinition>>()
-            .await
+        let client = rc(&self.api_key);
+        let manifest = client.destiny2_get_destiny_manifest(None).await?;
+        let content_paths = manifest.json_world_component_content_paths.unwrap();
+        let collectible_ref = content_paths.get("en").unwrap().get("DestinyCollectibleDefinition").unwrap();
+        let collectible_url = format!("https://www.bungie.net{}", collectible_ref);
+        reqwest::get(&collectible_url).await.context("couldn't fetch manifest data")?.json().await.context("couldn't parse manifest data")
     }
 
-    pub async fn get_profile_collectibles(&self, membership_type: i32, membership_id: i64) -> Result<SingleComponentResponseOfDestinyProfileCollectiblesComponent, reqwest::Error> {
+    pub async fn get_profile(&self, membership_type: i32, membership_id: i64) -> Result<DestinyProfileResponse, anyhow::Error> {
         info!("getting profile");
-        self.client.get(&format!("{}/players/{}/{}/collectibles", API_BASE, membership_type, membership_id))
-            .send()
-            .await?
-            .json::<SingleComponentResponseOfDestinyProfileCollectiblesComponent>()
+        rc(&self.api_key).destiny2_get_profile(
+            membership_id,
+            parse_membership_type(membership_type).unwrap(),
+            Some(vec![
+                DestinyComponentType::Profiles,
+                DestinyComponentType::Characters,
+                DestinyComponentType::CharacterEquipment,
+                DestinyComponentType::ItemInstances,
+                DestinyComponentType::ItemPerks,
+                DestinyComponentType::ItemStats,
+                DestinyComponentType::Collectibles,
+                DestinyComponentType::Transitory,
+            ]), None).await
+    }
+
+    pub async fn get_linked_profiles(&self, membership_id: i64) -> Result<DestinyLinkedProfilesResponse, anyhow::Error> {
+        info!("fuck");
+        rc(&self.api_key)
+            .destiny2_get_linked_profiles(membership_id, BungieMembershipType::All, Some(true), None)
             .await
     }
 
-    pub async fn get_profile_transitive_data(&self, membership_type: i32, membership_id: i64) -> Result<SingleComponentResponseOfDestinyProfileTransitoryComponent, reqwest::Error> {
-        info!("getting profile");
-        self.client.get(&format!("{}/players/{}/{}/transitive", API_BASE, membership_type, membership_id))
-            .send()
-            .await?
-            .json::<SingleComponentResponseOfDestinyProfileTransitoryComponent>()
-            .await
-    }
-
-    pub async fn get_profile(&self, membership_type: i32, membership_id: i64) -> Result<DestinyProfileResponse, reqwest::Error> {
-        info!("getting profile");
-        self.client.get(&format!("{}/players/{}/{}", API_BASE, membership_type, membership_id))
-            .send()
-            .await?
-            .json::<DestinyProfileResponse>()
-            .await
-    }
-
-
-    pub async fn get_main_profile(&self, membership_id: i64) -> Result<DestinyProfileResponse, reqwest::Error> {
+    pub async fn get_main_profile(&self, membership_id: i64) -> Result<DestinyProfileResponse, anyhow::Error> {
         info!("getting main profile");
-        self.client.get(&format!("{}/players_main/{}", API_BASE, membership_id))
-            .send()
-            .await?
-            .json::<DestinyProfileResponse>()
-            .await
+        let linked_profiles = self.get_linked_profiles(membership_id).await?;
+        let linked_profiles = linked_profiles.profiles.unwrap();
+        let membership_type = linked_profiles.iter().find(|p| p.is_cross_save_primary).unwrap().membership_type;
+        self.get_profile(membership_type as i32, membership_id).await
     }
 
 }
 
-#[derive(Clone, PartialEq, Eq, Debug, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ExactSearchRequest {
-    #[serde(rename = "displayName")]
-    pub name: String,
-    #[serde(rename = "displayNameCode")]
-    pub code: i16,
-}
 
-impl From<&str> for ExactSearchRequest {
-    fn from(value: &str) -> Self {
-        let mut split = value.split('#');
-        let name = split.next().unwrap_or_default().to_string();
-        let code = split.next().unwrap_or_default().to_string();
-        let code = code.parse().unwrap_or_default();
-        Self { name, code }
+fn parse_membership_type(t: i32) -> Option<BungieMembershipType> {
+    match t {
+        0 => Some(BungieMembershipType::None),
+        1 => Some(BungieMembershipType::TigerXbox),
+        2 => Some(BungieMembershipType::TigerPsn),
+        3 => Some(BungieMembershipType::TigerSteam),
+        4 => Some(BungieMembershipType::TigerBlizzard),
+        5 => Some(BungieMembershipType::TigerStadia),
+        10 => Some(BungieMembershipType::TigerDemon),
+        254 => Some(BungieMembershipType::BungieNext),
+        -1 => Some(BungieMembershipType::All),
+        _ => None,
     }
 }
