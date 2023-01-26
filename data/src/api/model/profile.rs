@@ -1,7 +1,7 @@
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 
-#[derive(Hash, Copy, Clone, Ord, PartialOrd, Eq, PartialEq)]
+#[derive(Hash, Copy, Clone, Ord, PartialOrd, Eq, PartialEq, Debug)]
 pub struct Membership (pub i32, pub i64);
 
 impl Membership {

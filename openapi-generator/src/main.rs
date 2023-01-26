@@ -11,6 +11,14 @@ fn main() {
     let input = args().nth(1).unwrap();
     let output = args().nth(2).unwrap();
 
+    if args().len() > 3 {
+        let delete = args().nth(3).unwrap();
+        if delete == "delete" {
+            println!("Deleting output directory: {}", output);
+            std::fs::remove_dir_all(&output).unwrap();
+        }
+    }
+
     // output most not exist
     if std::path::Path::new(&output).exists() {
         println!("Output file already exists.");

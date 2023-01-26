@@ -22,7 +22,22 @@ pub async fn get_player(
 ) -> Result<impl warp::Reply, warp::Rejection> {
     let membership = Membership::new(membership_type, membership_id);
     client
-        .fetch_loadout(membership, query.cache.unwrap_or(true))
+        .fetch_player(membership, query.cache.unwrap_or(true))
+        .await
+        .map(|loadout| warp::reply::json(&loadout))
+        .map_err(|err| {
+            warn!("got error loading profile: {}", err);
+            warp::reject::custom(ApiError::Unknown)
+        })
+}
+
+pub async fn get_main_player(
+    membership_id: i64,
+    query: FetchPlayerOptions,
+    client: D2Api,
+) -> Result<impl warp::Reply, warp::Rejection> {
+    client
+        .get_main_profile(membership_id)
         .await
         .map(|loadout| warp::reply::json(&loadout))
         .map_err(|err| {

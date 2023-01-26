@@ -1,8 +1,9 @@
 extern crate core;
 
+use log::info;
 use rustgie::types::BungieMembershipType;
 use rustgie::types::destiny::DestinyComponentType;
-use rustgie::types::destiny::responses::DestinyProfileResponse;
+use rustgie::types::destiny::responses::{DestinyLinkedProfilesResponse, DestinyProfileResponse};
 use rustgie::types::user::UserInfoCard;
 use data::api::{ApiResponse, ComponentType, model::profile::{Membership, ProfileStruct}};
 use data::api::model::profile::{ExactSearchRequest, UserInfo};
@@ -33,11 +34,11 @@ impl D2Api {
             cache: Cache::new(),
         }
     }
-    
+
     pub fn players() {
-        
+
     }
-    
+
     pub fn manifest(&self) -> manifest::ManifestApi {
         manifest::ManifestApi { client: self.clone() }
     }
@@ -59,7 +60,9 @@ impl D2Api {
         }
         let client = rustgie::RustgieClientBuilder::new().with_api_key(self.api_key.as_str())
             .build().unwrap();
-        let response = client.destiny2_get_profile(membership.1, parse_membership_type(membership.0).unwrap(), Some(vec![
+        info!("Fetching player: {:?}", membership);
+        let membership_type = parse_membership_type(membership.0).unwrap();
+        let response = client.destiny2_get_profile(membership.1, membership_type, Some(vec![
             DestinyComponentType::Profiles,
             DestinyComponentType::Characters,
             DestinyComponentType::CharacterEquipment,
@@ -81,7 +84,7 @@ impl D2Api {
     }
 
     pub async fn search_player(&self, search_player_options: &ExactSearchRequest) -> Result<Vec<UserInfoCard>, Box<dyn std::error::Error>> {
-        let request = self.client.post("http://localhost:58989/Platform/Destiny2/SearchDestinyPlayerByBungieName/-1/")
+        let request = self.client.post("https://www.bungie.net/Platform/Destiny2/SearchDestinyPlayerByBungieName/-1/")
             .header("x-api-key", self.api_key.as_str())
             .json(search_player_options)
             .build()?;
@@ -89,6 +92,25 @@ impl D2Api {
         let data = Result::from(response)?;
         Ok(data)
     }
+
+    pub async fn get_linked_profiles(&self, membership_id: i64) -> Result<DestinyLinkedProfilesResponse, Box<dyn std::error::Error>> {
+        info!("fuck");
+        let request = self.client.get(format!("https://www.bungie.net/Platform/Destiny2/-1/Profile/{}/LinkedProfiles?getAllMemberships=true", membership_id))
+            .header("x-api-key", self.api_key.as_str())
+            .build()?;
+        let response: ApiResponse<DestinyLinkedProfilesResponse> = self.client.execute(request).await?.json().await?;
+        let data = Result::from(response)?;
+        Ok(data)
+    }
+
+    pub async fn get_main_profile(&self, membership_id: i64) -> Result<DestinyProfileResponse, Box<dyn std::error::Error>> {
+        info!("getting main profile");
+        let linked_profiles = self.get_linked_profiles(membership_id).await?;
+        let linked_profiles = linked_profiles.profiles.unwrap();
+        let membership_type = linked_profiles.iter().find(|p| p.is_cross_save_primary).unwrap().membership_type;
+        self.fetch_player(Membership::new(membership_type as i32, membership_id), false).await
+    }
+
 
 }
 

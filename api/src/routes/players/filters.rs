@@ -8,6 +8,7 @@ pub fn players(
     client: D2Api
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
     fetch_player(client.clone())
+        .or(fetch_main_player(client.clone()))
         .or(search(client.clone()))
         .or(fetch_loadout(client))
 }
@@ -30,6 +31,16 @@ pub fn fetch_player(
         .and(warp::query::<super::model::FetchPlayerOptions>())
         .and(with_client(client))
         .and_then(super::handlers::get_player)
+}
+
+pub fn fetch_main_player(
+    client: D2Api
+) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
+    warp::path!("players_main" / i64)
+        .and(warp::get())
+        .and(warp::query::<super::model::FetchPlayerOptions>())
+        .and(with_client(client))
+        .and_then(super::handlers::get_main_player)
 }
 
 pub fn fetch_loadout(

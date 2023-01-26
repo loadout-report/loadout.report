@@ -2,7 +2,7 @@ use yew::prelude::*;
 use std::rc::Rc;
 use yew_hooks::prelude::*;
 use crate::components::wheel::LoadedWheel;
-use crate::components::profile::ProfileSelector;
+use crate::components::fireteam::FireteamWrapper;
 use crate::components::profile::ProfileWrapper;
 use js_sys::Math::{floor, random};
 use log::info;
@@ -28,9 +28,11 @@ pub fn wheel() -> Html {
         <div class="app">
             <h1>{"Wheel of Misfortune"}</h1>
             <ProfileWrapper>
-                <Suspense {fallback}>
-                    <LoadedWheel players={vec![]} />
-                </Suspense>
+                <FireteamWrapper>
+                    <Suspense {fallback}>
+                        <LoadedWheel />
+                    </Suspense>
+                </FireteamWrapper>
             </ProfileWrapper>
         </div>
     }

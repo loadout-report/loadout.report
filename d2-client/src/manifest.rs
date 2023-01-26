@@ -28,7 +28,7 @@ impl ManifestApi {
     }
 
     async fn fetch_content_paths(&self) -> Result<data::api::manifest::Components, Box<dyn std::error::Error>> {
-        let mut builder = self.client.client.get("http://localhost:8989/Platform/Destiny2/Manifest/");
+        let mut builder = self.client.client.get("https://www.bungie.net/Platform/Destiny2/Manifest/");
         if let Some(last_modified) = self.client.cache.manifest.metadata.lock().await.last_modified {
             builder = builder.header(IF_MODIFIED_SINCE, format!("{}", last_modified.format(LAST_MODIFIED_FORMAT)))
         }

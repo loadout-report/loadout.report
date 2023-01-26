@@ -26,7 +26,10 @@ impl From<Schema> for Type {
                     Some(type_) => match type_.as_str() {
                         "object" => match &value.dictionary_key {
                             Some(_) => Type::Dictionary(From::from(value)),
-                            None => Type::Object(From::from(value)),
+                            None => match &value.properties {
+                                Some(_) => Type::Object(From::from(value)),
+                                None => Type::Any
+                            }
                         },
                         "array" => Type::Array(From::from(value)),
                         _ => unreachable!()

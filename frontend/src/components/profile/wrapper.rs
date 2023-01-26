@@ -27,16 +27,13 @@ pub fn wrapper(props: &WrapperProps) -> Html {
             wasm_bindgen_futures::spawn_local(async move {
                 info!("searching for profile: {:?}", search_request);
                 let user_info: Option<Vec<UserInfoCard>> = client.search(search_request).await.inspect_err(|err| warn!("error searching for profile: {:?}", err)).ok();
-                if let Some(info) = user_info.map(|info| {
+                if let Some(info) = user_info.and_then(|info| {
                     let first = info.first();
-                    if let Some(first) = first {
-                        Some(first.clone())
-                    } else {
-                        None
+                    first.cloned()
+                }) {
+                    if let Ok(profile) = client.get_profile(info.membership_type as i32, info.membership_id).await.inspect_err(|err| warn!("error getting profile: {:?}", err)) {
+                        profile_handle.set(Some(profile))
                     }
-                }).flatten() {
-                    client.get_profile(info.membership_type as i32, info.membership_id).await.inspect_err(|err| warn!("error getting profile: {:?}", err)).ok()
-                        .map(|profile| profile_handle.set(Some(profile)));
                 }
             });
         })

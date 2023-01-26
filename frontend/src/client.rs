@@ -1,7 +1,7 @@
 use log::info;
 use rustgie_types::{SingleComponentResponseOfDestinyProfileCollectiblesComponent, SingleComponentResponseOfDestinyProfileTransitoryComponent};
 use rustgie_types::destiny::definitions::collectibles::DestinyCollectibleDefinition;
-use rustgie_types::destiny::responses::DestinyProfileResponse;
+use rustgie_types::destiny::responses::{DestinyLinkedProfilesResponse, DestinyProfileResponse};
 use rustgie_types::user::UserInfoCard;
 use serde_derive::{Serialize, Deserialize};
 
@@ -75,6 +75,16 @@ impl Client {
     pub async fn get_profile(&self, membership_type: i32, membership_id: i64) -> Result<DestinyProfileResponse, reqwest::Error> {
         info!("getting profile");
         self.client.get(&format!("{}/players/{}/{}", API_BASE, membership_type, membership_id))
+            .send()
+            .await?
+            .json::<DestinyProfileResponse>()
+            .await
+    }
+
+
+    pub async fn get_main_profile(&self, membership_id: i64) -> Result<DestinyProfileResponse, reqwest::Error> {
+        info!("getting main profile");
+        self.client.get(&format!("{}/players_main/{}", API_BASE, membership_id))
             .send()
             .await?
             .json::<DestinyProfileResponse>()

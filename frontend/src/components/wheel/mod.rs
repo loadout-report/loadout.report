@@ -1,4 +1,6 @@
+use std::rc::Rc;
 use log::info;
+use rustgie_types::destiny::responses::DestinyProfileResponse;
 use stylist::style;
 use stylist::yew::use_style;
 use yew::prelude::*;
@@ -56,7 +58,7 @@ async fn fetch_exotics() -> Result<Vec<Item>, gloo_net::Error> {
 
 #[derive(Clone, PartialEq, Eq, Debug, Properties)]
 pub struct LoadedWheelProps {
-    pub players: Vec<String>,
+    // pub players: Vec<String>,
 }
 
 
@@ -67,14 +69,21 @@ pub fn loaded_wheel(props: &LoadedWheelProps) -> HtmlResult {
         // info!("roll options: {:?}", roll_options);
         Ok(roll_options)
     })?;
+
+    let fireteam: Rc<Vec<DestinyProfileResponse>> = use_context::<Rc<Vec<DestinyProfileResponse>>>().unwrap();
     let roll_options = match *roll_options {
         Ok(ref res) => html! {
             <>
               {
-                  props.players.iter().map(|player| {
+                  fireteam.iter().map(|player| {
+                    let player_name = player.profile.clone()
+                        .and_then(|profile| profile.data)
+                        .and_then(|data| data.user_info)
+                        .and_then(|info| info.display_name)
+                        .unwrap();
                     html! {
-                      <div key={player.to_owned()}>
-                        <p>{player.to_owned()}</p>
+                      <div key={player_name.to_owned()}>
+                        <p>{player_name.to_owned()}</p>
                         <Roll roll_options={res.to_owned()} />
                       </div>
                     }
