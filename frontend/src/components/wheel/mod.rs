@@ -1,6 +1,6 @@
 use std::rc::Rc;
 use log::info;
-use rustgie_types::destiny::responses::DestinyProfileResponse;
+use rustgie::types::destiny::responses::DestinyProfileResponse;
 use stylist::style;
 use stylist::yew::use_style;
 use yew::prelude::*;

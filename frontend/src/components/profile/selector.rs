@@ -25,7 +25,7 @@ pub fn player_selector(props: &SelectorProps) -> Html {
             if e.key() == "Enter" {
                 let target = e.target_unchecked_into::<HtmlInputElement>();
                 let value: String = target.value();
-                onprofile(value.as_str().into());
+                onprofile(to_exact_search_request(value.as_str()));
             }
         }
     };

@@ -1,6 +1,6 @@
 use yew::prelude::*;
 use std::rc::Rc;
-use rustgie_types::destiny::responses::DestinyProfileResponse;
+use rustgie::types::destiny::responses::DestinyProfileResponse;
 
 #[derive(Clone, PartialEq, Debug, Properties)]
 pub struct ProviderProps {
