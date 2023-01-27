@@ -12,8 +12,6 @@ use wheel::Wheel;
 /// App routes
 #[derive(Routable, Debug, Clone, PartialEq, Eq)]
 pub enum AppRoute {
-    #[at("/about")]
-    About,
     #[not_found]
     #[at("/page-not-found")]
     PageNotFound,
@@ -28,7 +26,6 @@ pub enum AppRoute {
 pub fn switch(routes: AppRoute) -> Html {
     match routes {
         AppRoute::Home => html! { <Home /> },
-        AppRoute::About => html! { <About /> },
         AppRoute::Wheel => html! { <Wheel /> },
         AppRoute::PageNotFound => html! { "Page not found" },
     }
