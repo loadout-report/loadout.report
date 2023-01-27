@@ -46,7 +46,7 @@ async fn get_roll_options(client: &Client) -> Result<Vec<RollOption>, anyhow::Er
         .iter()
         .map(|item| RollOption::new(
             item.display_properties.as_ref().unwrap().name.clone().unwrap(),
-            item.display_properties.as_ref().unwrap().icon.clone().unwrap()
+            format!("https://www.bungie.net{}", item.display_properties.as_ref().unwrap().icon.clone().unwrap())
         ))
         .collect();
     special.append(&mut fetched_exotics);
