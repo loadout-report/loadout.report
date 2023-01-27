@@ -6,11 +6,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - dockerfile: ./api/Dockerfile
+            image: ghcr.io/loadout.report/api
+          #- dockerfile: ./src/Dockerfile-dril4net-distribution
+            # image: ghcr.io/username/image2
     permissions:
       contents: read
       deployments: write
     name: Build docker images and publish to ghcr.io
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
       - name: Set up Docker Buildx
@@ -19,12 +29,18 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PACKAGE_TOKEN }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ matrix.image }}
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
-          # context: .
-          file: ./api/Dockerfile
+          context: .
+          file: ${{ matrix.dockerfile }}
           push: true
-          tags: ghcr.io/loadout-report/api:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
