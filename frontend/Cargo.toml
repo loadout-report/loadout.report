@@ -35,4 +35,5 @@ obfstr = "0.4.1"
 futures = "0.3.25"
 rustgie = { git = "https://github.com/cfi2017/rustgie" }
 anyhow = "1.0.68"
+rexie = { version = "0.4.2", features = ["wee_alloc"] }
 
