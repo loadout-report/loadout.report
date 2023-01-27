@@ -117,7 +117,11 @@ impl Client {
         info!("getting main profile");
         let linked_profiles = self.get_linked_profiles(membership_id).await?;
         let linked_profiles = linked_profiles.profiles.unwrap();
-        let membership_type = linked_profiles.iter().find(|p| p.is_cross_save_primary).unwrap().membership_type;
+        let membership_type = if linked_profiles.len() > 1 {
+            linked_profiles.iter().find(|p| p.is_cross_save_primary).unwrap().membership_type
+        } else {
+            linked_profiles[0].membership_type
+        };
         self.get_profile(membership_type as i32, membership_id).await
     }
 
