@@ -1,14 +1,18 @@
 use std::rc::Rc;
 use log::info;
+use rustgie::types::destiny::definitions::DestinyInventoryItemDefinition;
 use rustgie::types::destiny::responses::DestinyProfileResponse;
+use rustgie::types::destiny::TierType;
 use stylist::style;
 use stylist::yew::use_style;
 use yew::prelude::*;
 use yew::{utils};
 use yew::{Children};
 use yew::suspense::{use_future, UseFutureHandle};
-use data::api::manifest::model::Item;
+use data::api::manifest::model::{Hash, Item};
 use roll::Roll;
+use crate::client::Client;
+use crate::components::wheel::roll::_RollProps::roll_options;
 
 pub mod roll;
 
@@ -28,7 +32,7 @@ impl RollOption {
     }
 }
 
-async fn get_roll_options() -> Result<Vec<RollOption>, gloo_net::Error> {
+async fn get_roll_options(client: &Client) -> Result<Vec<RollOption>, anyhow::Error> {
     let mut special = vec![
         RollOption::new("Ghostbusters".to_string(), "https://media.discordapp.net/attachments/907098694992687144/1034233774503907480/unknown.png".to_string()),
         RollOption::new("Space Cowboys".to_string(), "https://media.discordapp.net/attachments/907098694992687144/1034226634376630355/unknown.png?width=457&height=676".to_string()),
@@ -37,22 +41,29 @@ async fn get_roll_options() -> Result<Vec<RollOption>, gloo_net::Error> {
         RollOption::new("Drifter would be proud".to_string(), "https://media.discordapp.net/attachments/907098694992687144/1034228384475123712/unknown.png".to_string()),
         RollOption::new("Arrow to the Knee".to_string(), "https://media.discordapp.net/attachments/907098694992687144/1034217287030419456/unknown.png?width=886&height=676".to_string())
     ];
-    let mut fetched_exotics: Vec<RollOption> = fetch_exotics()
+    let mut fetched_exotics: Vec<RollOption> = fetch_exotics(client)
         .await?
         .iter()
-        .map(|item| RollOption::new(item.label.clone(), item.icon.clone()))
+        .map(|item| RollOption::new(
+            item.display_properties.as_ref().unwrap().name.clone().unwrap(),
+            item.display_properties.as_ref().unwrap().icon.clone().unwrap()
+        ))
         .collect();
     special.append(&mut fetched_exotics);
     // info!("fetched exotics: {:?}", special);
     Ok(special)
 }
 
-
-async fn fetch_exotics() -> Result<Vec<Item>, gloo_net::Error> {
+async fn fetch_exotics(client: &Client) -> Result<Vec<DestinyInventoryItemDefinition>, anyhow::Error> {
     info!("fetching exotics");
-    let result = gloo_net::http::Request::get("http://localhost:58080/items?rarity=6&category=1").send().await?;
-    let definitions: Vec<Item> = result.json::<Vec<Item>>().await?;
-    return Ok(definitions);
+    let items = client.get_items_definitions().await?;
+    let mut exotics: Vec<DestinyInventoryItemDefinition> = items
+        .iter()
+        .filter(|(_, item)| item.inventory.as_ref().unwrap().tier_type == TierType::Exotic)
+        .filter(|(_, item)| item.item_category_hashes.as_ref().unwrap().contains(&1))
+        .map(|(_, item)| item.clone())
+        .collect();
+    return Ok(exotics);
 }
 
 
@@ -61,17 +72,26 @@ pub struct LoadedWheelProps {
     // pub players: Vec<String>,
 }
 
+// let other_roll_options: UseFutureHandle<Result<Vec<RollOption>, gloo_net::Error>> = use_future(|| async {
+// let roll_options: Vec<RollOption> = get_roll_options().await?;
+// Ok(roll_options)
+// })?;
 
 #[function_component(LoadedWheel)]
 pub fn loaded_wheel(props: &LoadedWheelProps) -> HtmlResult {
-    let roll_options: UseFutureHandle<Result<Vec<RollOption>, gloo_net::Error>> = use_future(|| async {
-        let roll_options = get_roll_options().await?;
-        // info!("roll options: {:?}", roll_options);
-        Ok(roll_options)
-    })?;
+    let client: Rc<Client> = use_context().expect("no client");
+
+    let options: UseFutureHandle<Result<Vec<RollOption>, anyhow::Error>> = {
+        let client = client.clone();
+        use_future(|| async move {
+            let client = client.clone();
+            let options: Vec<RollOption> = get_roll_options(&client).await?;
+            Ok(options)
+        })?
+    };
 
     let fireteam: Rc<Vec<DestinyProfileResponse>> = use_context::<Rc<Vec<DestinyProfileResponse>>>().unwrap();
-    let roll_options = match *roll_options {
+    let template = match *options {
         Ok(ref res) => html! {
             <>
               {
@@ -96,7 +116,7 @@ pub fn loaded_wheel(props: &LoadedWheelProps) -> HtmlResult {
 
     Ok(html! {
         <>
-            {roll_options}
+            {template}
         </>
     })
 }

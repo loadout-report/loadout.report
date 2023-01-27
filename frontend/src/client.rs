@@ -1,14 +1,18 @@
+use std::collections::HashMap;
 use anyhow::Context;
 use log::info;
 use rustgie::{RustgieClient, RustgieClientBuilder};
 use rustgie::types::api_response_::BungieApiResponse;
 use rustgie::types::BungieMembershipType;
+use rustgie::types::destiny::config::DestinyManifest;
 use rustgie::types::destiny::definitions::collectibles::DestinyCollectibleDefinition;
+use rustgie::types::destiny::definitions::DestinyInventoryItemDefinition;
 use rustgie::types::destiny::DestinyComponentType;
 use rustgie::types::destiny::responses::{DestinyLinkedProfilesResponse, DestinyProfileResponse};
 use rustgie::types::user::{ExactSearchRequest, UserInfoCard};
 
 use serde_derive::{Serialize, Deserialize};
+use data::api::manifest::model::Item;
 
 const API_BASE: &str = env!("API_BASE");
 
@@ -45,10 +49,35 @@ impl Client {
         rc(&self.api_key).destiny2_search_destiny_player_by_bungie_name(BungieMembershipType::All, search_request, None).await
     }
 
+    pub async fn get_manifest(&self) -> Result<DestinyManifest, anyhow::Error> {
+        let client = rc(&self.api_key);
+        client.destiny2_get_destiny_manifest(None).await
+    }
+
+    pub async fn get_items_definitions(&self) -> Result<HashMap<String, DestinyInventoryItemDefinition>, anyhow::Error> {
+        info!("getting item definitions");
+        let manifest = self.get_manifest().await?;
+        let content_paths = manifest.json_world_component_content_paths.unwrap();
+        let item_definitions_ref = content_paths.get("en").unwrap().get("DestinyInventoryItemDefinition").unwrap();
+        let item_definitions_url = format!("https://www.bungie.net{}", item_definitions_ref);
+        reqwest::get(&item_definitions_url)
+            .await.context("couldn't fetch manifest data")?.json::<HashMap<String, DestinyInventoryItemDefinition>>()
+            .await.context("couldn't parse manifest data")
+    }
+
+    pub async fn get_items(&self) -> Result<Vec<DestinyInventoryItemDefinition>, anyhow::Error> {
+        let mut items = self.get_items_definitions().await?;
+        let mut items: Vec<_> = items.values_mut()
+            .filter(|i| i.item_category_hashes.is_none() || !i.item_category_hashes.as_ref().unwrap().contains(&3109687656))
+            .map(|i| i.clone())
+            .collect();
+        items.sort_by_key(|i| i.display_properties.as_ref().unwrap().name.clone());
+        Ok(items)
+    }
+
     pub async fn get_collectibles(&self) -> Result<Vec<DestinyCollectibleDefinition>, anyhow::Error> {
         info!("getting collectibles");
-        let client = rc(&self.api_key);
-        let manifest = client.destiny2_get_destiny_manifest(None).await?;
+        let manifest = self.get_manifest().await?;
         let content_paths = manifest.json_world_component_content_paths.unwrap();
         let collectible_ref = content_paths.get("en").unwrap().get("DestinyCollectibleDefinition").unwrap();
         let collectible_url = format!("https://www.bungie.net{}", collectible_ref);
