@@ -29,11 +29,21 @@ pub fn wrapper(props: &WrapperProps) -> Html {
             wasm_bindgen_futures::spawn_local(async move {
                 let members = profile.as_ref().clone().profile_transitory_data
                     .and_then(|x| x.data)
-                    .and_then(|x| x.party_members)
-                    .unwrap();
+                    .and_then(|x| x.party_members);
+                let members = match members {
+                    Some(m) => m,
+                    None => {
+                        warn!("No party members found. User may not be online.");
+                        return;
+                    }
+                };
+                let membership_id = profile.profile.map(|p| p.data?.user_info?.membership_id).unwrap_or_default();
 
                 let future = members.iter()
                     .map(|m| m.membership_id)
+                    .filter(|m| {
+                        *m != membership_id
+                    })
                     .map(|m| client.get_main_profile(m))
                     .collect::<Vec<_>>();
                 let future = futures::future::join_all(future);
@@ -42,6 +52,7 @@ pub fn wrapper(props: &WrapperProps) -> Html {
                 let profiles = profiles.into_iter()
                     .filter_map(|x| x.ok())
                     .collect::<Vec<_>>();
+                let profiles = vec![profile.clone(), profiles].concat();
                 fireteam_handle.set(Some(profiles));
             });
         }, profile.clone());
