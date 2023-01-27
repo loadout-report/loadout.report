@@ -11,7 +11,7 @@ jobs:
       matrix:
         include:
           - dockerfile: ./api/Dockerfile
-            image: ghcr.io/loadout.report/api
+            image: ghcr.io/loadout-report/api
           #- dockerfile: ./src/Dockerfile-dril4net-distribution
             # image: ghcr.io/username/image2
     permissions:
