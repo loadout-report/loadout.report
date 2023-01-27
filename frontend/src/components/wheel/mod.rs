@@ -99,7 +99,7 @@ pub fn loaded_wheel(props: &LoadedWheelProps) -> HtmlResult {
                     let player_name = player.profile.clone()
                         .and_then(|profile| profile.data)
                         .and_then(|data| data.user_info)
-                        .and_then(|info| info.display_name)
+                        .map(|info| info.bungie_global_display_name.unwrap_or(info.display_name.unwrap_or_default()))
                         .unwrap();
                     html! {
                       <div key={player_name.to_owned()}>
