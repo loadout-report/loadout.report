@@ -1,16 +1,19 @@
 # Build Stage
-FROM rust:1.67-slim-bullseye AS builder
+FROM rust:latest AS builder
+
+RUN rustup toolchain install nightly
+RUN rustup target add x86_64-unknown-linux-musl
+RUN apt update && apt install -y musl-tools musl-dev
+RUN update-ca-certificates
 
 WORKDIR /usr/src/
-RUN rustup toolchain install nightly
 # RUN rustup target add x86_64-unknown-linux-musl
 
 WORKDIR /usr/src/loadout.report
 COPY . .
-RUN cargo build --release --package api  # --target x86_64-unknown-linux-musl
+RUN cargo build --release --package api --target x86_64-unknown-linux-musl
 
 # Bundle Stage
-FROM alpine
+FROM gcr.io/distroless/static-debian11:nonroot
 COPY --from=builder /usr/src/loadout.report/target/x86_64-unknown-linux-musl/release/api .
-USER 1000
 CMD ["/api"]

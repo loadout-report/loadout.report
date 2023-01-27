@@ -11,7 +11,7 @@ lru_time_cache = "0.11.11"
 log = "0.4.17"
 uuid = "1.1.2"
 chrono = "0.4.22"
-rustgie = { git = "https://github.com/ashakoor/rustgie", features = ["rustls"] }
+rustgie = { git = "https://github.com/cfi2017/rustgie", features = ["rustls", "cookies", "gzip"], default-features = false }
 
 [dev-dependencies]
 tokio-test = "*"
