@@ -11,7 +11,7 @@ WORKDIR /usr/src/
 
 WORKDIR /usr/src/loadout.report
 COPY . .
-RUN cargo build --release --package api --target x86_64-unknown-linux-musl
+RUN cargo +nightly build --release --package api --target x86_64-unknown-linux-musl
 
 # Bundle Stage
 FROM gcr.io/distroless/static-debian11:nonroot
