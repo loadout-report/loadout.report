@@ -27,4 +27,4 @@ jobs:
           # context: .
           file: ./api/Dockerfile
           push: true
-          tags: ghcr.io/cfi2017/loadout.report/api:latest
+          tags: ghcr.io/loadout-report/api:latest
