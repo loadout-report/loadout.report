@@ -1,7 +1,7 @@
 # Build Stage
 FROM rust:latest AS builder
 
-RUN rustup toolchain install nightly
+RUN rustup default nightly
 RUN rustup target add x86_64-unknown-linux-musl
 RUN apt update && apt install -y musl-tools musl-dev
 RUN update-ca-certificates
@@ -11,7 +11,7 @@ WORKDIR /usr/src/
 
 WORKDIR /usr/src/loadout.report
 COPY . .
-RUN cargo +nightly build --release --package api --target x86_64-unknown-linux-musl
+RUN cargo build --release --package api --target x86_64-unknown-linux-musl
 
 # Bundle Stage
 FROM gcr.io/distroless/static-debian11:nonroot
