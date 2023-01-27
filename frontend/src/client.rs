@@ -70,6 +70,11 @@ impl Client {
         let mut items: Vec<_> = items.values_mut()
             .filter(|i| i.item_category_hashes.is_none() || !i.item_category_hashes.as_ref().unwrap().contains(&3109687656))
             .map(|i| i.clone())
+            .map(|mut i| {
+                let image = i.display_properties.clone().unwrap().icon.map(|url| "https://www.bungie.net".to_string() + url.as_str()).unwrap_or_default();
+                i.display_properties.as_mut().unwrap().icon = Some(image);
+                i
+            })
             .collect();
         items.sort_by_key(|i| i.display_properties.as_ref().unwrap().name.clone());
         Ok(items)
