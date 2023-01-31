@@ -5,7 +5,7 @@ authors = ["Carlo Field <carlo@swiss.dev>"]
 edition = "2018"
 
 [dependencies]
-reqwest = {version = "0.11.12", default-features = false, features = ["rustls-tls", "json"]}
+reqwest = {git = "https://github.com/loadout-report/reqwest-freebind", default-features = false, features = ["rustls-tls", "json"]}
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 chrono = { version = "0.4.23", features = ["serde"] }
@@ -19,10 +19,17 @@ rayon = "1.6.0"
 simd-json = { version = "0.7.0", features = ["known-key"] }
 itertools = "0.10.5"
 kstring = { version = "2.0.0", features = ["serde"] }
+ipnet = "2.7.1"
+anyhow = "1.0.68"
+
+
+[target.'cfg(windows)'.dependencies]
 snmalloc-rs = { version = "0.3.3", features = ["native-cpu"] }
+
+[target.'cfg(not(windows))'.dependencies]
+jemallocator = "0.5.0"
+jemalloc-sys = "0.5.2+5.3.0-patched"
 # mimalloc = { version = "*", default-features = false }
-# snmalloc-rs = { version = "0.3.3" }
-# jemallocator = "0.5.0"
 
 [dev-dependencies]
 criterion = {version = "0.3", features = ["html_reports"]}
