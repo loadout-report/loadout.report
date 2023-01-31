@@ -16,11 +16,13 @@ zstd = "0.11.2"
 jsonl = "4.0.1"
 indicatif = {version = "0.17.2", features = ["rayon"]}
 rayon = "1.6.0"
-simd-json = { version = "0.7.0", features = ["known-key"] }
+# simd-json = { version = "0.7.0", features = ["known-key"] }
 itertools = "0.10.5"
 kstring = { version = "2.0.0", features = ["serde"] }
 ipnet = "2.7.1"
 anyhow = "1.0.68"
+env_logger = "0.10.0"
+log = "0.4"
 
 
 [target.'cfg(windows)'.dependencies]
