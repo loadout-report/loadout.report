@@ -53,24 +53,38 @@ pub fn generate(spec: Spec, output: &str) {
             .or_insert_with(|| Vec::new())
             .push((name, schema));
     }
+    let header = generate_header_bytes();
     for (namespace, schemas) in sorted_schemas {
         // dir is all but the last segment of namespace
         let path = format!("{}/models/{}", output, namespace);
         let dir = path.split('/').collect::<Vec<_>>();
-        let dir = dir[..dir.len() - 1].join("/");
+        let dir = dir[..dir.len() - 1].join("/").to_lowercase();
         let name = namespace.split('/').last().unwrap();
         create_dir_all(&dir).unwrap();
-        let file = format!("{}/{}.rs", dir, name);
+        let file = format!("{}/{}.rs", dir, name).to_lowercase();
         let mut file = File::create(file).unwrap();
         let tokens: Tokens = schemas.into_iter().flat_map(|(name, schema)| {
             render_schema(name, schema)
         }).collect();
+        file.write_all(&header).unwrap();
         file.write_all(tokens.to_file_string()
             .unwrap().as_bytes())
             .unwrap();
     }
 }
 
+fn generate_header_bytes() -> Vec<u8> {
+    generate_header().to_file_string().unwrap().as_bytes().to_vec()
+}
+
+fn generate_header() -> Tokens {
+    quote!(
+        use serde::{Serialize, Deserialize};
+        use serde_repr::{Serialize_repr, Deserialize_repr};
+        $['\r']
+        $['\r']
+    )
+}
 
 #[cfg(test)]
 mod tests {

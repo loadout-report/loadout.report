@@ -28,6 +28,9 @@ impl Render for Enum {
             .flat_map(|v| quote! {
                         $(format_description(v.description.clone()))
                         $['\r']
+                        $(if v.description.clone().map(|s| s.to_lowercase().contains("deprecated")).unwrap_or_default() {
+                            #[deprecated]
+                        })
                         $(v.identifier.clone()) = $(v.numeric_value.parse::<i32>().unwrap()),
                         $['\r']
                     })
@@ -35,11 +38,25 @@ impl Render for Enum {
 
         quote! {
             $['\r']
+            $['\r']
             $(format_description(self.description.clone()))
+            $(if self.is_bitmask {
+                format!("/// todo: bitmask")
+            })
             #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize_repr, Deserialize_repr)]
+            #[repr($(to_rust_repr(&self.format)))]
             pub enum $name {
                 $variants
             }
         }
     }
+}
+
+fn to_rust_repr(format: &str) -> String {
+    match format {
+        "int32" => "u32",
+        "int64" => "u64",
+        "byte" => "u8",
+        _ => unimplemented!("Unknown format: {}", format),
+    }.to_string()
 }

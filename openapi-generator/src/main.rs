@@ -14,8 +14,10 @@ fn main() {
     if args().len() > 3 {
         let delete = args().nth(3).unwrap();
         if delete == "delete" {
-            println!("Deleting output directory: {}", output);
-            std::fs::remove_dir_all(&output).unwrap();
+            println!("Deleting output directory: {output}");
+            if std::path::Path::new(&output).exists() {
+                std::fs::remove_dir_all(&output).unwrap();
+            }
         }
     }
 
