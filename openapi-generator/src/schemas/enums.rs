@@ -41,7 +41,7 @@ impl Render for Enum {
             $['\r']
             $(format_description(self.description.clone()))
             $(if self.is_bitmask {
-                format!("/// todo: bitmask")
+                $(format!("/// todo: bitmask"))
             })
             #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize_repr, Deserialize_repr)]
             #[repr($(to_rust_repr(&self.format)))]

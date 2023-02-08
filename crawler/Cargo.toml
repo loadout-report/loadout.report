@@ -24,7 +24,6 @@ anyhow = "1.0.68"
 env_logger = "0.10.0"
 log = "0.4"
 
-
 [target.'cfg(windows)'.dependencies]
 snmalloc-rs = { version = "0.3.3", features = ["native-cpu"] }
 

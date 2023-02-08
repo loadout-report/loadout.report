@@ -44,12 +44,17 @@ impl From<Schema> for Type {
 
 impl Render for Type {
     fn render(&self, name: String) -> Tokens {
-        match self {
+        let tokens = match self {
             Type::Enum(e) => e.render(name),
             Type::Object(s) => s.render(name),
             Type::Dictionary(d) => d.render(name),
             Type::Array(a) => a.render(name),
             Type::Any => render_any(name),
+        };
+        quote! {
+            $['\n']
+            $['\n']
+            $tokens
         }
     }
 }
