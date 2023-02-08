@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run generator" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run openapi.json generated" />
+    <option name="command" value="run openapi.json generated delete" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$/openapi-generator" />
     <option name="channel" value="DEFAULT" />
     <option name="requiredFeatures" value="true" />
@@ -14,7 +14,6 @@
     <option name="redirectInputPath" value="" />
     <method v="2">
       <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      <option name="RunConfigurationTask" enabled="true" run_configuration_name="Delete Generated Sources" run_configuration_type="ShConfigurationType" />
     </method>
   </configuration>
 </component>
