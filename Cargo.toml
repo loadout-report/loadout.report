@@ -1,7 +1,6 @@
 [workspace]
 
 members = [
-    "frontend",
     "api",
     "data",
     "d2-client",
@@ -14,6 +13,7 @@ members = [
 
 [patch.crates-io]
 hyper = { git = "https://github.com/loadout-report/hyper-freebind", branch = "0.14.x" }
+
 
 [profile.release]
 # strip = true
