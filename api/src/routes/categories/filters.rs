@@ -10,7 +10,7 @@ pub fn categories(
 fn categories_fetch(
     categories: CategoryCache,
 ) -> impl Filter<Extract = impl warp::Reply, Error = warp::Rejection> + Clone {
-    warp::path!("items")
+    warp::path!("categories")
         .and(warp::get())
         .and(warp::query::<super::model::GetCategoriesOptions>())
         .and(with_categories(categories))
