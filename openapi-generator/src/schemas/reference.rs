@@ -1,3 +1,4 @@
+use convert_case::{Case, Casing};
 
 /// Takes a reference or a name and returns the namespace and name.
 pub fn resolve(name: &str) -> (String, String) {
@@ -6,7 +7,7 @@ pub fn resolve(name: &str) -> (String, String) {
         .map(|s| s.to_string())
         .collect();
     let name = parts.pop().unwrap();
-    (parts.join("/"), name)
+    (parts.join("/").to_case(Case::Snake), name)
 }
 
 #[cfg(test)]

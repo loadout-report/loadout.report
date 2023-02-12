@@ -54,8 +54,8 @@ impl Render for Enum {
 
 fn to_rust_repr(format: &str) -> String {
     match format {
-        "int32" => "u32",
-        "int64" => "u64",
+        "int32" => "i32",
+        "int64" => "i64",
         "byte" => "u8",
         _ => unimplemented!("Unknown format: {}", format),
     }.to_string()

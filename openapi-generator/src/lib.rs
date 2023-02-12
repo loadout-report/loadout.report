@@ -1,8 +1,10 @@
+#![feature(is_some_and)]
 extern crate core;
 
 use std::collections::HashMap;
 use std::fs::{create_dir_all, File};
 use std::io::Write;
+use convert_case::{Case, Casing};
 use genco::lang::{rust::Tokens};
 use genco::{quote};
 use crate::model::{Schema, Spec};
@@ -32,7 +34,7 @@ fn calculate_name(name: &str) -> (Vec<String>, String) {
 pub fn format_description(description: Option<String>) -> String {
     description
         .unwrap_or_else(|| String::from("No documentation provided.")).lines()
-        .map(|l| format!("/// {}", l)).collect::<Vec<_>>().join("\r")
+        .map(|l| format!("/// {}", l)).collect::<Vec<_>>().join("\n")
 }
 
 fn render_schema(
@@ -49,28 +51,75 @@ pub fn generate(spec: Spec, output: &str) {
     }).collect();
     let mut sorted_schemas = HashMap::new();
     for (namespace, name, schema) in schemas {
-        sorted_schemas.entry(namespace)
+        sorted_schemas.entry(namespace.to_case(Case::Snake))
             .or_insert_with(|| Vec::new())
             .push((name, schema));
     }
     let header = generate_header_bytes();
-    for (namespace, schemas) in sorted_schemas {
+    for (namespace, schemas) in &sorted_schemas {
         // dir is all but the last segment of namespace
-        let path = format!("{}/models/{}", output, namespace);
-        let dir = path.split('/').collect::<Vec<_>>();
-        let dir = dir[..dir.len() - 1].join("/").to_lowercase();
+        let namespace = namespace.clone();
+
+        let dir = format!("{}/models/{}", output, namespace);
+        let dir = dir.split('/').collect::<Vec<_>>();
+        let dir = dir[..dir.len() - 1].join("/");
         let name = namespace.split('/').last().unwrap();
+        // "" "" -> models.rs -> find all with empty namespace
+        // "" "destiny" -> models/destiny.rs -> find all with destiny namespace
+        // "destiny" "definitions" -> models/destiny/definitions.rs
+        // top level children
+        let children: Vec<_> = sorted_schemas.iter()
+            .filter(|(ns, _)| ns.starts_with(&namespace))
+            .flat_map(|(ns, _)| ns.strip_prefix(&namespace))
+            .filter(|ns| !ns.is_empty())
+            .map(|ns| {
+                if ns.starts_with('/') {
+                    return ns.strip_prefix('/').unwrap()
+                }
+                ns
+            })
+            .filter(|ns| !ns.contains('/'))
+            .filter(|ns| *ns != "s")
+            .collect();
+        if children.len() > 0 {
+            println!("{} has children: {:?}", namespace, children);
+        }
+        let modules = generate_module_bytes(&children);
         create_dir_all(&dir).unwrap();
-        let file = format!("{}/{}.rs", dir, name).to_lowercase();
+        let mut file = format!("{}/{}.rs", dir, name);
+        if file.ends_with("/.rs") {
+            file = file.replace("/.rs", ".rs");
+        }
         let mut file = File::create(file).unwrap();
         let tokens: Tokens = schemas.into_iter().flat_map(|(name, schema)| {
-            render_schema(name, schema)
+            render_schema(name.clone(), schema.clone())
         }).collect();
+        file.write_all(&modules).unwrap();
         file.write_all(&header).unwrap();
         file.write_all(tokens.to_file_string()
             .unwrap().as_bytes())
             .unwrap();
     }
+}
+
+fn generate_module_bytes(children: &Vec<&str>) -> Vec<u8> {
+    generate_modules(children).to_file_string().unwrap().as_bytes().to_vec()
+}
+
+fn generate_modules(children: &Vec<&str>) -> Tokens {
+    let children = children.into_iter().map(|child| {
+        let child = child.to_case(Case::Snake);
+        quote!{
+            pub mod $child;
+            $['\r']
+            $['\r']
+        }
+    }).collect::<Vec<_>>();
+    quote!(
+        $['\n']
+        $children
+        $['\n']
+    )
 }
 
 fn generate_header_bytes() -> Vec<u8> {
@@ -79,8 +128,11 @@ fn generate_header_bytes() -> Vec<u8> {
 
 fn generate_header() -> Tokens {
     quote!(
+        use std::collections::HashMap;
         use serde::{Serialize, Deserialize};
         use serde_repr::{Serialize_repr, Deserialize_repr};
+        use serde_with::{serde_as, DisplayFromStr};
+
         $['\r']
         $['\r']
     )

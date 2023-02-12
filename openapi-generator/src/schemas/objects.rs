@@ -5,7 +5,9 @@ mod numbers;
 mod booleans;
 mod dictionary;
 
+use genco::prelude::*;
 use std::collections::HashMap;
+use convert_case::{Case, Casing};
 use genco::lang::rust::Tokens;
 use genco::quote;
 use crate::model::Schema;
@@ -19,6 +21,41 @@ pub struct Property {
     // for references, this is currently always true (ugh)
     nullable: bool,
 
+}
+
+impl Render for Property {
+    fn render(&self, name: String) -> Tokens {
+        let name_tokens = if name == "type" {
+            quote!(r#type)
+        } else {
+            quote!($(name.to_case(Case::Snake)))
+        };
+        let signature = if self.nullable {
+            quote!(Option<$(self.type_.render(name.clone()))>)
+        } else {
+            quote!($(self.type_.render(name.clone())))
+        };
+        match &self.type_ {
+            PropertyType::Number(n) => quote! {
+                $(format_description(self.description.clone()))
+                $(if n.is_fucked() {
+                    $(if self.nullable {
+                        #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
+                    } else {
+                        #[serde(with = "crate::unfuck_js::stringified_numbers")]
+                    })
+                    $['\r']
+                })
+                pub $name_tokens: $signature,
+                $['\r']
+            },
+            _ => quote! {
+                $(format_description(self.description.clone()))
+                pub $name_tokens: $signature,
+                $['\r']
+            }
+        }
+    }
 }
 
 impl From<Schema> for Property {
@@ -43,6 +80,21 @@ pub enum PropertyType {
     Boolean(booleans::BooleanType),
     Dictionary(dictionary::Dictionary),
     Any, // fuck
+}
+
+impl Render for PropertyType {
+    fn render(&self, name: String) -> Tokens {
+        match self {
+            PropertyType::Array(_) => quote!(i32),
+            PropertyType::Reference(_) => quote!(i32),
+            PropertyType::String(s) => s.render(name),
+            PropertyType::Number(n) => n.render(name),
+            PropertyType::Enum(_) => quote!(i32),
+            PropertyType::Boolean(_) => quote!(bool),
+            PropertyType::Dictionary(_) => quote!(i32),
+            PropertyType::Any => quote!(serde_json::Value), // ugh
+        }
+    }
 }
 
 impl From<Schema> for PropertyType {
@@ -107,6 +159,7 @@ impl Render for Object {
             #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
             pub struct $name {
                 // todo: properties
+                $(render_properties(&self.properties))
             }
         }
     }
@@ -114,4 +167,10 @@ impl Render for Object {
 
 pub fn is_object(schema: &Schema) -> bool {
     schema.type_.is_some() && schema.type_.as_ref().unwrap() == "object"
+}
+
+pub fn render_properties(properties: &HashMap<String, Property>) -> Tokens {
+    properties.iter()
+        .flat_map(|(name, property)| property.render(name.clone()))
+        .collect()
 }

@@ -20,7 +20,7 @@ impl Render for Array {
     fn render(&self, name: String) -> Tokens {
         quote! {
             // todo: properly resolve items
-            type $name = Vec<()>;
+            // type $name = Vec<()>;
         }
     }
 }
