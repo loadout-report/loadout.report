@@ -1,4 +1,8 @@
+use genco::lang::rust::Tokens;
+use genco::quote;
 use crate::model::Schema;
+use crate::schemas::reference::resolve;
+use crate::schemas::Render;
 
 pub struct Enum {
     is_bitmask: bool,
@@ -14,4 +18,23 @@ impl From<Schema> for Enum {
             reference,
         }
     }
+}
+
+impl Render for Enum {
+    fn render(&self, name: String) -> Tokens {
+        // todo: bitmask
+        quote! {
+            $(enum_reference_to_rust_type(&self.reference))
+        }
+    }
+}
+
+pub fn enum_reference_to_rust_type(reference: &str) -> String {
+    println!("enum reference: {}", reference);
+    let (namespace, reference) = resolve(reference);
+    let namespace = namespace.replace('/', "::");
+    let namespace = namespace.trim_start_matches("::");
+    let reference = format!("crate::generated::models::{}::{}", namespace, reference);
+    println!("  to reference: {}", reference);
+    reference
 }

@@ -13,6 +13,7 @@ use genco::quote;
 use crate::model::Schema;
 use crate::schemas::{Render};
 use crate::format_description;
+use crate::schemas::reference::resolve;
 
 pub struct Property {
     // name: String,
@@ -86,10 +87,10 @@ impl Render for PropertyType {
     fn render(&self, name: String) -> Tokens {
         match self {
             PropertyType::Array(_) => quote!(i32),
-            PropertyType::Reference(_) => quote!(i32),
+            PropertyType::Reference(r) => render_reference(r),
             PropertyType::String(s) => s.render(name),
             PropertyType::Number(n) => n.render(name),
-            PropertyType::Enum(_) => quote!(i32),
+            PropertyType::Enum(e) => e.render(name),
             PropertyType::Boolean(_) => quote!(bool),
             PropertyType::Dictionary(_) => quote!(i32),
             PropertyType::Any => quote!(serde_json::Value), // ugh
@@ -173,4 +174,14 @@ pub fn render_properties(properties: &HashMap<String, Property>) -> Tokens {
     properties.iter()
         .flat_map(|(name, property)| property.render(name.clone()))
         .collect()
+}
+
+pub fn render_reference(reference: &str) -> Tokens {
+    println!("rendering reference: {}", reference);
+    let (namespace, reference) = resolve(reference);
+    let namespace = namespace.replace('/', "::");
+    let reference = format!("{}::{}", namespace, reference);
+    let reference = reference.trim_start_matches("::");
+    println!("resulting reference: {}", reference);
+    quote!(crate::generated::models::$reference)
 }

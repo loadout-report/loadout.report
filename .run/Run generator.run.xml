@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run generator" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run openapi.json generated delete" />
+    <option name="command" value="run openapi.json ../gen/src/generated delete" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$/openapi-generator" />
     <option name="channel" value="DEFAULT" />
     <option name="requiredFeatures" value="true" />
