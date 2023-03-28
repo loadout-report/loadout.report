@@ -8,13 +8,13 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DestinyLoadoutComponent {
 
     /// No documentation provided.
-    pub name_hash: u32,
-    /// No documentation provided.
     pub color_hash: u32,
     /// No documentation provided.
     pub icon_hash: u32,
     /// No documentation provided.
     pub items: i32,
+    /// No documentation provided.
+    pub name_hash: u32,
 }
 
 /// No documentation provided.

@@ -29,10 +29,10 @@ pub struct DestinyCraftableSocketComponent {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyCraftableSocketPlugComponent {
 
-    /// No documentation provided.
-    pub plug_item_hash: u32,
     /// Index into the unlock requirements to display failure descriptions
     pub failed_requirement_indexes: i32,
+    /// No documentation provided.
+    pub plug_item_hash: u32,
 }
 
 /// No documentation provided.

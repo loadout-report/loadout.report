@@ -19,8 +19,8 @@ pub enum ComponentPrivacySetting {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct ComponentResponse {
 
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }

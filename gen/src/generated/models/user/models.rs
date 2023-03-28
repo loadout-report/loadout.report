@@ -10,9 +10,9 @@ pub struct GetCredentialTypesForAccountResponse {
     /// No documentation provided.
     pub credential_as_string: String,
     /// No documentation provided.
-    pub is_public: bool,
+    pub credential_display_name: String,
     /// No documentation provided.
     pub credential_type: crate::generated::models::BungieCredentialType,
     /// No documentation provided.
-    pub credential_display_name: String,
+    pub is_public: bool,
 }

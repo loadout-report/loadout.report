@@ -112,7 +112,7 @@ pub fn generate(spec: Spec, output: &str) {
     return;
 }
 
-fn sorted_by<T, F>(mut v: Vec<T>, mut compare: F) -> Vec<T>
+pub fn sorted_by<T, F>(mut v: Vec<T>, mut compare: F) -> Vec<T>
     where F: FnMut(&T, &T) -> Ordering
 {
     v.sort_by(compare);

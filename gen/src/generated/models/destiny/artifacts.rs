@@ -8,13 +8,13 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DestinyArtifactCharacterScoped {
 
     /// No documentation provided.
-    pub reset_count: i32,
-    /// No documentation provided.
     pub artifact_hash: u32,
     /// No documentation provided.
-    pub tiers: i32,
-    /// No documentation provided.
     pub points_used: i32,
+    /// No documentation provided.
+    pub reset_count: i32,
+    /// No documentation provided.
+    pub tiers: i32,
 }
 
 /// Represents a Seasonal Artifact and all data related to it for the requested Account.
@@ -23,15 +23,15 @@ pub struct DestinyArtifactCharacterScoped {
 pub struct DestinyArtifactProfileScoped {
 
     /// No documentation provided.
-    pub power_bonus_progression: crate::generated::models::destiny::DestinyProgression,
+    pub artifact_hash: u32,
     /// No documentation provided.
     pub point_progression: crate::generated::models::destiny::DestinyProgression,
-    /// No documentation provided.
-    pub artifact_hash: u32,
     /// No documentation provided.
     pub points_acquired: i32,
     /// No documentation provided.
     pub power_bonus: i32,
+    /// No documentation provided.
+    pub power_bonus_progression: crate::generated::models::destiny::DestinyProgression,
 }
 
 /// No documentation provided.
@@ -53,7 +53,7 @@ pub struct DestinyArtifactTier {
 pub struct DestinyArtifactTierItem {
 
     /// No documentation provided.
-    pub item_hash: u32,
-    /// No documentation provided.
     pub is_active: bool,
+    /// No documentation provided.
+    pub item_hash: u32,
 }

@@ -7,14 +7,14 @@ use serde_with::{serde_as, DisplayFromStr};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyKioskItem {
 
-    /// The index of the item in the related DestinyVendorDefintion's itemList property, representing the sale.
-    pub index: i32,
-    /// I may regret naming it this way - but this represents when an item has an objective that doesn't serve a beneficial purpose, but rather is used for "flavor" or additional information. For instance, when Emblems track specific stats, those stats are represented as Objectives on the item.
-    pub flavor_objective: crate::generated::models::destiny::quests::DestinyObjectiveProgress,
-    /// Indexes into failureStrings for the Vendor, indicating the reasons why it failed if any.
-    pub failure_indexes: i32,
     /// If true, the user can not only see the item, but they can acquire it. It is possible that a user can see a kiosk item and not be able to acquire it.
     pub can_acquire: bool,
+    /// Indexes into failureStrings for the Vendor, indicating the reasons why it failed if any.
+    pub failure_indexes: i32,
+    /// I may regret naming it this way - but this represents when an item has an objective that doesn't serve a beneficial purpose, but rather is used for "flavor" or additional information. For instance, when Emblems track specific stats, those stats are represented as Objectives on the item.
+    pub flavor_objective: crate::generated::models::destiny::quests::DestinyObjectiveProgress,
+    /// The index of the item in the related DestinyVendorDefintion's itemList property, representing the sale.
+    pub index: i32,
 }
 
 /// A Kiosk is a Vendor (DestinyVendorDefinition) that sells items based on whether you have already acquired that item before.

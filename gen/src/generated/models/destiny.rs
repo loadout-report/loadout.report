@@ -92,36 +92,36 @@ pub enum DamageType {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyActivity {
 
-    /// No documentation provided.
-    pub challenges: i32,
-    /// If returned, this is the index into the DestinyActivityDefinition's "loadouts" property, indicating the currently active loadout requirements.
-    pub loadout_requirement_index: Option<i32>,
-    /// The difficulty level of the activity, if applicable.
-    pub display_level: Option<i32>,
-    /// If true, we both have the ability to know that the user has completed this activity and they have completed it. Unfortunately, we can't necessarily know this for all activities. As such, this should probably only be used if you already know in advance which specific activities you wish to check.
-    pub is_completed: bool,
-    /// If true, the user is allowed to join with another Fireteam in this activity.
-    pub can_join: bool,
-    /// The recommended light level for the activity, if applicable.
-    pub recommended_light: Option<i32>,
-    /// If true, the user should be able to see this activity.
-    pub is_visible: bool,
+    /// The hash identifier of the Activity. Use this to look up the DestinyActivityDefinition of the activity.
+    pub activity_hash: u32,
     /// The set of activity options for this activity, keyed by an identifier that's unique for this activity (not guaranteed to be unique between or across all activities, though should be unique for every *variant* of a given *conceptual* activity: for instance, the original D2 Raid has many variant DestinyActivityDefinitions. While other activities could potentially have the same option hashes, for any given D2 base Raid variant the hash will be unique).
 /// As a concrete example of this data, the hashes you get for Raids will correspond to the currently active "Challenge Mode".
 /// We don't have any human readable information for these, but saavy 3rd party app users could manually associate the key (a hash identifier for the "option" that is enabled/disabled) and the value (whether it's enabled or disabled presently)
 /// On our side, we don't necessarily even know what these are used for (the game designers know, but we don't), and we have no human readable data for them. In order to use them, you will have to do some experimentation.
     pub boolean_activity_options: i32,
+    /// If true, the user is allowed to join with another Fireteam in this activity.
+    pub can_join: bool,
+    /// If true, the user is allowed to lead a Fireteam into this activity.
+    pub can_lead: bool,
+    /// No documentation provided.
+    pub challenges: i32,
+    /// A DestinyActivityDifficultyTier enum value indicating the difficulty of the activity.
+    pub difficulty_tier: crate::generated::models::destiny::DestinyActivityDifficultyTier,
+    /// The difficulty level of the activity, if applicable.
+    pub display_level: Option<i32>,
+    /// If true, we both have the ability to know that the user has completed this activity and they have completed it. Unfortunately, we can't necessarily know this for all activities. As such, this should probably only be used if you already know in advance which specific activities you wish to check.
+    pub is_completed: bool,
+    /// If true, then the activity should have a "new" indicator in the Director UI.
+    pub is_new: bool,
+    /// If true, the user should be able to see this activity.
+    pub is_visible: bool,
+    /// If returned, this is the index into the DestinyActivityDefinition's "loadouts" property, indicating the currently active loadout requirements.
+    pub loadout_requirement_index: Option<i32>,
     /// If the activity has modifiers, this will be the list of modifiers that all variants have in common. Perform lookups against DestinyActivityModifierDefinition which defines the modifier being applied to get at the modifier data.
 /// Note that, in the DestiyActivityDefinition, you will see many more modifiers than this being referred to: those are all *possible* modifiers for the activity, not the active ones. Use only the active ones to match what's really live.
     pub modifier_hashes: i32,
-    /// If true, then the activity should have a "new" indicator in the Director UI.
-    pub is_new: bool,
-    /// A DestinyActivityDifficultyTier enum value indicating the difficulty of the activity.
-    pub difficulty_tier: crate::generated::models::destiny::DestinyActivityDifficultyTier,
-    /// The hash identifier of the Activity. Use this to look up the DestinyActivityDefinition of the activity.
-    pub activity_hash: u32,
-    /// If true, the user is allowed to lead a Fireteam into this activity.
-    pub can_lead: bool,
+    /// The recommended light level for the activity, if applicable.
+    pub recommended_light: Option<i32>,
 }
 
 /// An enumeration representing the potential difficulty levels of an activity. Their names are... more qualitative than quantitative.
@@ -499,15 +499,15 @@ pub enum DestinyGraphNodeState {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyItemQuantity {
 
+    /// Indicates that this item quantity may be conditionally shown or hidden, based on various sources of state. For example: server flags, account state, or character progress.
+    pub has_conditional_visibility: bool,
+    /// The hash identifier for the item in question. Use it to look up the item's DestinyInventoryItemDefinition.
+    pub item_hash: u32,
     /// If this quantity is referring to a specific instance of an item, this will have the item's instance ID. Normally, this will be null.
     #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
     pub item_instance_id: Option<i64>,
-    /// The hash identifier for the item in question. Use it to look up the item's DestinyInventoryItemDefinition.
-    pub item_hash: u32,
     /// The amount of the item needed/available depending on the context of where DestinyItemQuantity is being used.
     pub quantity: i32,
-    /// Indicates that this item quantity may be conditionally shown or hidden, based on various sources of state. For example: server flags, account state, or character progress.
-    pub has_conditional_visibility: bool,
 }
 
 /// Determines how items are sorted in an inventory bucket.
@@ -799,34 +799,34 @@ pub enum DestinyPresentationScreenStyle {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyProgression {
 
-    /// Information about historical rewards for this progression, if there is any data for it.
-    pub reward_item_states: i32,
+    /// This is the total amount of progress obtained overall for this progression (for instance, the total amount of Character Level experience earned)
+    pub current_progress: i32,
+    /// The number of resets of this progression you've executed this season, if applicable to this progression.
+    pub current_reset_count: Option<i32>,
+    /// If this progression has a daily limit, this is that limit.
+    pub daily_limit: i32,
     /// The amount of progress earned today for this progression.
     pub daily_progress: i32,
+    /// This is the level of the progression (for instance, the Character Level).
+    pub level: i32,
+    /// This is the maximum possible level you can achieve for this progression (for example, the maximum character level obtainable)
+    pub level_cap: i32,
     /// The total amount of progression (i.e. "Experience") needed in order to reach the next level.
     pub next_level_at: i32,
+    /// The amount of progression (i.e. "Experience") needed to reach the next level of this Progression. Jeez, progression is such an overloaded word.
+    pub progress_to_next_level: i32,
+    /// The hash identifier of the Progression in question. Use it to look up the DestinyProgressionDefinition in static data.
+    pub progression_hash: u32,
+    /// Information about historical rewards for this progression, if there is any data for it.
+    pub reward_item_states: i32,
     /// Information about historical resets of this progression, if there is any data for it.
     pub season_resets: i32,
     /// Progressions define their levels in "steps". Since the last step may be repeatable, the user may be at a higher level than the actual Step achieved in the progression. Not necessarily useful, but potentially interesting for those cruising the API. Relate this to the "steps" property of the DestinyProgression to see which step the user is on, if you care about that. (Note that this is Content Version dependent since it refers to indexes.)
     pub step_index: i32,
-    /// The amount of progress earned toward this progression in the current week.
-    pub weekly_progress: i32,
-    /// If this progression has a daily limit, this is that limit.
-    pub daily_limit: i32,
-    /// The hash identifier of the Progression in question. Use it to look up the DestinyProgressionDefinition in static data.
-    pub progression_hash: u32,
-    /// The number of resets of this progression you've executed this season, if applicable to this progression.
-    pub current_reset_count: Option<i32>,
-    /// This is the total amount of progress obtained overall for this progression (for instance, the total amount of Character Level experience earned)
-    pub current_progress: i32,
     /// If this progression has a weekly limit, this is that limit.
     pub weekly_limit: i32,
-    /// This is the maximum possible level you can achieve for this progression (for example, the maximum character level obtainable)
-    pub level_cap: i32,
-    /// The amount of progression (i.e. "Experience") needed to reach the next level of this Progression. Jeez, progression is such an overloaded word.
-    pub progress_to_next_level: i32,
-    /// This is the level of the progression (for instance, the Character Level).
-    pub level: i32,
+    /// The amount of progress earned toward this progression in the current week.
+    pub weekly_progress: i32,
 }
 
 /// Represents a season and the number of resets you had in that season.
@@ -1034,10 +1034,10 @@ pub enum DestinySocketVisibility {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyStat {
 
-    /// The current value of the Stat.
-    pub value: i32,
     /// The hash identifier for the Stat. Use it to look up the DestinyStatDefinition for static data about the stat.
     pub stat_hash: u32,
+    /// The current value of the Stat.
+    pub value: i32,
 }
 
 /// When a Stat (DestinyStatDefinition) is aggregated, this is the rules used for determining the level and formula used for aggregation.
@@ -1071,36 +1071,36 @@ pub enum DestinyStatCategory {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyTalentNode {
 
-    /// The index of the Talent Node being referred to (an index into DestinyTalentGridDefinition.nodes[]). CONTENT VERSION DEPENDENT.
-    pub node_index: i32,
-    /// Whether or not the talent node is actually visible in the game's UI. Whether you want to show it in your own UI is up to you! I'm not gonna tell you who to sock it to.
-    pub hidden: bool,
-    /// If the node has material requirements to be activated, this is the list of those requirements.
-    pub materials_to_upgrade: i32,
     /// The progression level required on the Talent Grid in order to be able to activate this talent node. Talent Grids have their own Progression - similar to Character Level, but in this case it is experience related to the item itself.
     pub activation_grid_level: i32,
+    /// Whether or not the talent node is actually visible in the game's UI. Whether you want to show it in your own UI is up to you! I'm not gonna tell you who to sock it to.
+    pub hidden: bool,
     /// If true, the node is activated: it's current step then provides its benefits.
     pub is_activated: bool,
-    /// The currently relevant Step for the node. It is this step that has rendering data for the node and the benefits that are provided if the node is activated. (the actual rules for benefits provided are extremely complicated in theory, but with how Talent Grids are being used in Destiny 2 you don't have to worry about a lot of those old Destiny 1 rules.) This is an index into: DestinyTalentGridDefinition.nodes[nodeIndex].steps[stepIndex]
-    pub step_index: i32,
-    /// An DestinyTalentNodeState enum value indicating the node's state: whether it can be activated or swapped, and why not if neither can be performed.
-    pub state: crate::generated::models::destiny::DestinyTalentNodeState,
+    /// If the node has material requirements to be activated, this is the list of those requirements.
+    pub materials_to_upgrade: i32,
+    /// The hash of the Talent Node being referred to (in DestinyTalentGridDefinition.nodes). Deceptively CONTENT VERSION DEPENDENT. We have no guarantee of the hash's immutability between content versions.
+    pub node_hash: u32,
+    /// The index of the Talent Node being referred to (an index into DestinyTalentGridDefinition.nodes[]). CONTENT VERSION DEPENDENT.
+    pub node_index: i32,
     /// This property has some history. A talent grid can provide stats on both the item it's related to and the character equipping the item. This returns data about those stat bonuses.
     pub node_stats_block: crate::generated::models::destiny::DestinyTalentNodeStatBlock,
     /// If you want to show a progress bar or circle for how close this talent node is to being activate-able, this is the percentage to show. It follows the node's underlying rules about when the progress bar should first show up, and when it should be filled.
     pub progress_percent: f32,
-    /// The hash of the Talent Node being referred to (in DestinyTalentGridDefinition.nodes). Deceptively CONTENT VERSION DEPENDENT. We have no guarantee of the hash's immutability between content versions.
-    pub node_hash: u32,
+    /// An DestinyTalentNodeState enum value indicating the node's state: whether it can be activated or swapped, and why not if neither can be performed.
+    pub state: crate::generated::models::destiny::DestinyTalentNodeState,
+    /// The currently relevant Step for the node. It is this step that has rendering data for the node and the benefits that are provided if the node is activated. (the actual rules for benefits provided are extremely complicated in theory, but with how Talent Grids are being used in Destiny 2 you don't have to worry about a lot of those old Destiny 1 rules.) This is an index into: DestinyTalentGridDefinition.nodes[nodeIndex].steps[stepIndex]
+    pub step_index: i32,
 }
 
 /// This property has some history. A talent grid can provide stats on both the item it's related to and the character equipping the item. This returns data about those stat bonuses.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyTalentNodeStatBlock {
 
-    /// This is a holdover from the old days of Destiny 1, when a node could be activated multiple times, conferring multiple steps worth of benefits: you would use this property to show what activating the "next" step on the node would provide vs. what the current step is providing. While Nodes are currently not being used this way, the underlying system for this functionality still exists. I hesitate to remove this property while the ability for designers to make such a talent grid still exists. Whether you want to show it is up to you.
-    pub next_step_stats: i32,
     /// The stat benefits conferred when this talent node is activated for the current Step that is active on the node.
     pub current_step_stats: i32,
+    /// This is a holdover from the old days of Destiny 1, when a node could be activated multiple times, conferring multiple steps worth of benefits: you would use this property to show what activating the "next" step on the node would provide vs. what the current step is providing. While Nodes are currently not being used this way, the underlying system for this functionality still exists. I hesitate to remove this property while the ability for designers to make such a talent grid still exists. Whether you want to show it is up to you.
+    pub next_step_stats: i32,
 }
 
 /// No documentation provided.
@@ -1142,10 +1142,10 @@ pub enum DestinyTalentNodeState {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyUnlockStatus {
 
-    /// The hash identifier for the Unlock Flag. Use to lookup DestinyUnlockDefinition for static data. Not all unlocks have human readable data - in fact, most don't. But when they do, it can be very useful to show. Even if they don't have human readable data, you might be able to infer the meaning of an unlock flag with a bit of experimentation...
-    pub unlock_hash: u32,
     /// Whether the unlock flag is set.
     pub is_set: bool,
+    /// The hash identifier for the Unlock Flag. Use to lookup DestinyUnlockDefinition for static data. Not all unlocks have human readable data - in fact, most don't. But when they do, it can be very useful to show. Even if they don't have human readable data, you might be able to infer the meaning of an unlock flag with a bit of experimentation...
+    pub unlock_hash: u32,
 }
 
 /// If you're showing an unlock value in the UI, this is the format in which it should be shown. You'll have to build your own algorithms on the client side to determine how best to render these options.
@@ -1301,9 +1301,9 @@ pub enum DestinyVendorReplyType {
 pub struct DyeReference {
 
     /// No documentation provided.
-    pub dye_hash: u32,
-    /// No documentation provided.
     pub channel_hash: u32,
+    /// No documentation provided.
+    pub dye_hash: u32,
 }
 
 /// The reasons why an item cannot be equipped, if any. Many flags can be set, or "None" if

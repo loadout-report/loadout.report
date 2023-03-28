@@ -181,34 +181,34 @@ pub enum DestinyActivityModeType {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyHistoricalStatsDefinition {
 
-    /// The tier associated with this medal - be it implicitly or explicitly.
-    pub medal_tier_hash: Option<u32>,
-    /// Statistic group
-    pub group: crate::generated::models::destiny::historical_stats::definitions::DestinyStatsGroupType,
-    /// Display name abbreviated
-    pub stat_name_abbr: String,
-    /// Description of a stat if applicable.
-    pub stat_description: String,
-    /// Optional URI to an icon for the statistic
-    pub icon_image: String,
-    /// Game modes where this statistic can be reported.
-    pub modes: i32,
-    /// Weight assigned to this stat indicating its relative impressiveness.
-    pub weight: i32,
     /// Category for the stat.
     pub category: crate::generated::models::destiny::historical_stats::definitions::DestinyStatsCategoryType,
+    /// Statistic group
+    pub group: crate::generated::models::destiny::historical_stats::definitions::DestinyStatsGroupType,
+    /// Optional URI to an icon for the statistic
+    pub icon_image: String,
+    /// The tier associated with this medal - be it implicitly or explicitly.
+    pub medal_tier_hash: Option<u32>,
     /// Optional icon for the statistic
     pub merge_method: Option<i32>,
-    /// Display name
-    pub stat_name: String,
-    /// Localized Unit Name for the stat.
-    pub unit_label: String,
+    /// Game modes where this statistic can be reported.
+    pub modes: i32,
     /// Time periods the statistic covers
     pub period_types: i32,
+    /// Description of a stat if applicable.
+    pub stat_description: String,
     /// Unique programmer friendly ID for this stat
     pub stat_id: String,
+    /// Display name
+    pub stat_name: String,
+    /// Display name abbreviated
+    pub stat_name_abbr: String,
+    /// Localized Unit Name for the stat.
+    pub unit_label: String,
     /// Unit, if any, for the statistic
     pub unit_type: crate::generated::models::destiny::historical_stats::definitions::UnitType,
+    /// Weight assigned to this stat indicating its relative impressiveness.
+    pub weight: i32,
 }
 
 /// No documentation provided.

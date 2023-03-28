@@ -62,27 +62,27 @@ pub enum ForumPostSortEnum {
 pub struct ForumRecruitmentDetail {
 
     /// No documentation provided.
-    pub intensity: crate::generated::models::forum::ForumRecruitmentIntensityLabel,
-    /// No documentation provided.
-    pub player_slots_total: i32,
-    /// No documentation provided.
-    pub kicked_player_ids: i32,
-    /// No documentation provided.
-    pub tone: crate::generated::models::forum::ForumRecruitmentToneLabel,
-    /// No documentation provided.
-    pub microphone_required: bool,
-    /// No documentation provided.
-    #[serde(with = "crate::unfuck_js::stringified_numbers")]
-    pub topic_id: i64,
-    /// No documentation provided.
     pub fireteam: i32,
+    /// No documentation provided.
+    pub approved: bool,
     /// No documentation provided.
     #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
     pub conversation_id: Option<i64>,
     /// No documentation provided.
+    pub intensity: crate::generated::models::forum::ForumRecruitmentIntensityLabel,
+    /// No documentation provided.
+    pub kicked_player_ids: i32,
+    /// No documentation provided.
+    pub microphone_required: bool,
+    /// No documentation provided.
     pub player_slots_remaining: i32,
     /// No documentation provided.
-    pub approved: bool,
+    pub player_slots_total: i32,
+    /// No documentation provided.
+    pub tone: crate::generated::models::forum::ForumRecruitmentToneLabel,
+    /// No documentation provided.
+    #[serde(with = "crate::unfuck_js::stringified_numbers")]
+    pub topic_id: i64,
 }
 
 /// No documentation provided.
@@ -190,11 +190,11 @@ pub struct PollResponse {
 pub struct PollResult {
 
     /// No documentation provided.
-    pub last_vote_date: chrono::DateTime<chrono::Utc>,
-    /// No documentation provided.
     pub answer_slot: i32,
     /// No documentation provided.
     pub answer_text: String,
+    /// No documentation provided.
+    pub last_vote_date: chrono::DateTime<chrono::Utc>,
     /// No documentation provided.
     pub requesting_user_voted: bool,
     /// No documentation provided.
@@ -206,35 +206,35 @@ pub struct PollResult {
 pub struct PostResponse {
 
     /// No documentation provided.
-    #[serde(with = "crate::unfuck_js::stringified_numbers")]
-    pub latest_reply_post_id: i64,
-    /// No documentation provided.
-    pub url_media_type: crate::generated::models::forum::ForumMediaType,
+    pub is_pinned: bool,
     /// No documentation provided.
     pub ignore_status: crate::generated::models::ignores::IgnoreResponse,
     /// No documentation provided.
     pub is_active: bool,
     /// No documentation provided.
-    pub user_rating: i32,
+    pub is_announcement: bool,
     /// No documentation provided.
-    pub thumbnail: String,
+    pub last_reply_timestamp: chrono::DateTime<chrono::Utc>,
+    /// No documentation provided.
+    #[serde(with = "crate::unfuck_js::stringified_numbers")]
+    pub latest_reply_author_id: i64,
+    /// No documentation provided.
+    #[serde(with = "crate::unfuck_js::stringified_numbers")]
+    pub latest_reply_post_id: i64,
     /// No documentation provided.
     pub locale: String,
     /// No documentation provided.
     pub popularity: crate::generated::models::forum::ForumPostPopularity,
     /// No documentation provided.
-    pub user_has_rated: bool,
+    pub thumbnail: String,
     /// No documentation provided.
-    pub is_pinned: bool,
+    pub url_media_type: crate::generated::models::forum::ForumMediaType,
     /// No documentation provided.
     pub user_has_muted_post: bool,
     /// No documentation provided.
-    pub last_reply_timestamp: chrono::DateTime<chrono::Utc>,
+    pub user_has_rated: bool,
     /// No documentation provided.
-    pub is_announcement: bool,
-    /// No documentation provided.
-    #[serde(with = "crate::unfuck_js::stringified_numbers")]
-    pub latest_reply_author_id: i64,
+    pub user_rating: i32,
 }
 
 /// No documentation provided.
@@ -242,32 +242,32 @@ pub struct PostResponse {
 pub struct PostSearchResponse {
 
     /// No documentation provided.
+    pub authors: i32,
+    /// No documentation provided.
+    pub available_pages: Option<i32>,
+    /// No documentation provided.
+    pub groups: i32,
+    /// No documentation provided.
+    pub has_more: bool,
+    /// No documentation provided.
+    pub polls: i32,
+    /// No documentation provided.
+    pub query: crate::generated::models::queries::PagedQuery,
+    /// No documentation provided.
+    pub recruitment_details: i32,
+    /// No documentation provided.
+    pub related_posts: i32,
+    /// No documentation provided.
     pub replacement_continuation_token: String,
+    /// No documentation provided.
+    pub results: i32,
+    /// No documentation provided.
+    pub searched_tags: i32,
+    /// No documentation provided.
+    pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
 /// If False, it does not, and may be estimated/only the size of the current page.
 /// Either way, you should probably always only trust hasMore.
 /// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
     pub use_total_results: bool,
-    /// No documentation provided.
-    pub related_posts: i32,
-    /// No documentation provided.
-    pub polls: i32,
-    /// No documentation provided.
-    pub recruitment_details: i32,
-    /// No documentation provided.
-    pub has_more: bool,
-    /// No documentation provided.
-    pub total_results: i32,
-    /// No documentation provided.
-    pub searched_tags: i32,
-    /// No documentation provided.
-    pub query: crate::generated::models::queries::PagedQuery,
-    /// No documentation provided.
-    pub groups: i32,
-    /// No documentation provided.
-    pub available_pages: Option<i32>,
-    /// No documentation provided.
-    pub authors: i32,
-    /// No documentation provided.
-    pub results: i32,
 }

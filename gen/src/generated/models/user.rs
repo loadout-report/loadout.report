@@ -7,13 +7,6 @@ pub mod models;
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct CrossSaveUserMembership {
 
-    /// If True, this is a public user membership.
-    pub is_public: bool,
-    /// Membership ID as they user is known in the Accounts service
-    #[serde(with = "crate::unfuck_js::stringified_numbers")]
-    pub membership_id: i64,
-    /// If there is a cross save override in effect, this value will tell you the type that is overridding this one.
-    pub cross_save_override: crate::generated::models::BungieMembershipType,
     /// The list of Membership Types indicating the platforms on which this Membership can be used.
 ///  Not in Cross Save = its original membership type. Cross Save Primary = Any membership types it is overridding, and its original membership type Cross Save Overridden = Empty list
     pub applicable_membership_types: i32,
@@ -21,8 +14,15 @@ pub struct CrossSaveUserMembership {
     pub bungie_global_display_name: String,
     /// The bungie global display name code, if set.
     pub bungie_global_display_name_code: Option<i16>,
+    /// If there is a cross save override in effect, this value will tell you the type that is overridding this one.
+    pub cross_save_override: crate::generated::models::BungieMembershipType,
     /// Display Name the player has chosen for themselves. The display name is optional when the data type is used as input to a platform API.
     pub display_name: String,
+    /// If True, this is a public user membership.
+    pub is_public: bool,
+    /// Membership ID as they user is known in the Accounts service
+    #[serde(with = "crate::unfuck_js::stringified_numbers")]
+    pub membership_id: i64,
     /// Type of the membership. Not necessarily the native type.
     pub membership_type: crate::generated::models::BungieMembershipType,
 }
@@ -42,33 +42,33 @@ pub struct EMailSettingLocalization {
 pub struct EMailSettingSubscriptionLocalization {
 
     /// No documentation provided.
-    pub registered_user_description: String,
-    /// No documentation provided.
     pub description: String,
-    /// No documentation provided.
-    pub unknown_user_description: String,
-    /// No documentation provided.
-    pub title: String,
     /// No documentation provided.
     pub known_user_action_text: String,
     /// No documentation provided.
-    pub unregistered_user_description: String,
+    pub registered_user_description: String,
+    /// No documentation provided.
+    pub title: String,
     /// No documentation provided.
     pub unknown_user_action_text: String,
+    /// No documentation provided.
+    pub unknown_user_description: String,
+    /// No documentation provided.
+    pub unregistered_user_description: String,
 }
 
 /// Defines a single opt-in category: a wide-scoped permission to send emails for the subject related to the opt-in.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EmailOptInDefinition {
 
+    /// Information about the dependent subscriptions for this opt-in.
+    pub dependent_subscriptions: i32,
     /// The unique identifier for this opt-in category.
     pub name: String,
     /// If true, this opt-in setting should be set by default in situations where accounts are created without explicit choices about what they're opting into.
     pub set_by_default: bool,
     /// The flag value for this opt-in category. For historical reasons, this is defined as a flags enum.
     pub value: crate::generated::models::user::OptInFlags,
-    /// Information about the dependent subscriptions for this opt-in.
-    pub dependent_subscriptions: i32,
 }
 
 /// The set of all email subscription/opt-in settings and definitions.
@@ -89,21 +89,21 @@ pub struct EmailSubscriptionDefinition {
 
     /// A dictionary of localized text for the EMail Opt-in setting, keyed by the locale.
     pub localization: i32,
+    /// The unique identifier for this subscription.
+    pub name: String,
     /// The bitflag value for this subscription. Should be a unique power of two value.
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
     pub value: i64,
-    /// The unique identifier for this subscription.
-    pub name: String,
 }
 
 /// Represents a data-driven view for Email settings. Web/Mobile UI can use this data to show new EMail settings consistently without further manual work.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct EmailViewDefinition {
 
-    /// The ordered list of settings to show in this view.
-    pub view_settings: i32,
     /// The identifier for this view.
     pub name: String,
+    /// The ordered list of settings to show in this view.
+    pub view_settings: i32,
 }
 
 /// No documentation provided.
@@ -112,14 +112,14 @@ pub struct EmailViewDefinitionSetting {
 
     /// A dictionary of localized text for the EMail setting, keyed by the locale.
     pub localization: i32,
-    /// The subscriptions to show as children of this setting, if any.
-    pub subscriptions: i32,
-    /// If true, this setting should be set by default if the user hasn't chosen whether it's set or cleared yet.
-    pub set_by_default: bool,
-    /// The OptInFlags value to set or clear if this setting is set or cleared in the UI. It is the aggregate of all underlying opt-in flags related to this setting.
-    pub opt_in_aggregate_value: crate::generated::models::user::OptInFlags,
     /// The identifier for this UI Setting, which can be used to relate it to custom strings or other data as desired.
     pub name: String,
+    /// The OptInFlags value to set or clear if this setting is set or cleared in the UI. It is the aggregate of all underlying opt-in flags related to this setting.
+    pub opt_in_aggregate_value: crate::generated::models::user::OptInFlags,
+    /// If true, this setting should be set by default if the user hasn't chosen whether it's set or cleared yet.
+    pub set_by_default: bool,
+    /// The subscriptions to show as children of this setting, if any.
+    pub subscriptions: i32,
 }
 
 /// No documentation provided.
@@ -127,9 +127,9 @@ pub struct EmailViewDefinitionSetting {
 pub struct ExactSearchRequest {
 
     /// No documentation provided.
-    pub display_name_code: i16,
-    /// No documentation provided.
     pub display_name: String,
+    /// No documentation provided.
+    pub display_name_code: i16,
 }
 
 /// No documentation provided.
@@ -137,81 +137,81 @@ pub struct ExactSearchRequest {
 pub struct GeneralUser {
 
     /// No documentation provided.
-    pub user_title: i32,
+    pub about: String,
+    /// No documentation provided.
+    pub blizzard_display_name: String,
     /// No documentation provided.
     pub cached_bungie_global_display_name: String,
     /// No documentation provided.
     pub cached_bungie_global_display_name_code: Option<i16>,
     /// No documentation provided.
+    pub context: crate::generated::models::user::UserToUserContext,
+    /// No documentation provided.
+    pub display_name: String,
+    /// No documentation provided.
+    pub egs_display_name: String,
+    /// No documentation provided.
+    pub fb_display_name: String,
+    /// No documentation provided.
     pub first_access: Option<chrono::DateTime<chrono::Utc>>,
     /// No documentation provided.
-    #[serde(with = "crate::unfuck_js::stringified_numbers")]
-    pub membership_id: i64,
+    pub is_deleted: bool,
     /// No documentation provided.
     #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
     pub last_ban_report_id: Option<i64>,
     /// No documentation provided.
-    pub blizzard_display_name: String,
-    /// No documentation provided.
     pub last_update: Option<chrono::DateTime<chrono::Utc>>,
-    /// No documentation provided.
-    pub psn_display_name: String,
     /// No documentation provided.
     #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
     pub legacy_portal_uid: Option<i64>,
     /// No documentation provided.
-    pub profile_theme: i32,
-    /// No documentation provided.
     pub locale: String,
-    /// No documentation provided.
-    pub is_deleted: bool,
-    /// No documentation provided.
-    pub twitch_display_name: String,
-    /// No documentation provided.
-    pub profile_picture_wide_path: String,
-    /// No documentation provided.
-    pub profile_picture_path: String,
-    /// No documentation provided.
-    pub normalized_name: String,
-    /// No documentation provided.
-    pub profile_picture: i32,
-    /// No documentation provided.
-    pub xbox_display_name: String,
-    /// No documentation provided.
-    pub steam_display_name: String,
-    /// No documentation provided.
-    pub stadia_display_name: String,
-    /// No documentation provided.
-    pub about: String,
-    /// No documentation provided.
-    pub show_group_messaging: bool,
-    /// No documentation provided.
-    pub display_name: String,
     /// No documentation provided.
     pub locale_inherit_default: bool,
     /// No documentation provided.
-    pub fb_display_name: String,
+    #[serde(with = "crate::unfuck_js::stringified_numbers")]
+    pub membership_id: i64,
+    /// No documentation provided.
+    pub normalized_name: String,
     /// No documentation provided.
     pub profile_ban_expire: Option<chrono::DateTime<chrono::Utc>>,
     /// No documentation provided.
-    pub show_activity: Option<bool>,
+    pub profile_picture: i32,
+    /// No documentation provided.
+    pub profile_picture_path: String,
+    /// No documentation provided.
+    pub profile_picture_wide_path: String,
+    /// No documentation provided.
+    pub profile_theme: i32,
     /// No documentation provided.
     pub profile_theme_name: String,
     /// No documentation provided.
-    pub egs_display_name: String,
+    pub psn_display_name: String,
     /// No documentation provided.
-    pub user_title_display: String,
+    pub show_activity: Option<bool>,
+    /// No documentation provided.
+    pub show_group_messaging: bool,
+    /// No documentation provided.
+    pub stadia_display_name: String,
+    /// No documentation provided.
+    pub status_date: chrono::DateTime<chrono::Utc>,
+    /// No documentation provided.
+    pub status_text: String,
+    /// No documentation provided.
+    pub steam_display_name: String,
     /// No documentation provided.
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
     pub success_message_flags: i64,
     /// No documentation provided.
-    pub status_text: String,
+    pub twitch_display_name: String,
     /// No documentation provided.
     pub unique_name: String,
     /// No documentation provided.
-    pub status_date: chrono::DateTime<chrono::Utc>,
+    pub user_title: i32,
     /// No documentation provided.
-    pub context: crate::generated::models::user::UserToUserContext,
+    pub user_title_display: String,
+    /// No documentation provided.
+    pub xbox_display_name: String,
 }
 
 /// No documentation provided.
@@ -219,15 +219,15 @@ pub struct GeneralUser {
 pub struct HardLinkedUserMembership {
 
     /// No documentation provided.
-    #[serde(with = "crate::unfuck_js::stringified_numbers")]
-    pub membership_id: i64,
+    #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
+    pub cross_save_overridden_membership_id: Option<i64>,
     /// No documentation provided.
     pub cross_save_overridden_type: crate::generated::models::BungieMembershipType,
     /// No documentation provided.
-    pub membership_type: crate::generated::models::BungieMembershipType,
+    #[serde(with = "crate::unfuck_js::stringified_numbers")]
+    pub membership_id: i64,
     /// No documentation provided.
-    #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
-    pub cross_save_overridden_membership_id: Option<i64>,
+    pub membership_type: crate::generated::models::BungieMembershipType,
 }
 
 /// No documentation provided.
@@ -261,59 +261,59 @@ pub enum OptInFlags {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UserInfoCard {
 
-    /// Display Name the player has chosen for themselves. The display name is optional when the data type is used as input to a platform API.
-    pub display_name: String,
     /// The list of Membership Types indicating the platforms on which this Membership can be used.
 ///  Not in Cross Save = its original membership type. Cross Save Primary = Any membership types it is overridding, and its original membership type Cross Save Overridden = Empty list
     pub applicable_membership_types: i32,
+    /// The bungie global display name, if set.
+    pub bungie_global_display_name: String,
+    /// The bungie global display name code, if set.
+    pub bungie_global_display_name_code: Option<i16>,
+    /// If there is a cross save override in effect, this value will tell you the type that is overridding this one.
+    pub cross_save_override: crate::generated::models::BungieMembershipType,
+    /// Display Name the player has chosen for themselves. The display name is optional when the data type is used as input to a platform API.
+    pub display_name: String,
     /// URL the Icon if available.
     pub icon_path: String,
+    /// If True, this is a public user membership.
+    pub is_public: bool,
+    /// Membership ID as they user is known in the Accounts service
+    #[serde(with = "crate::unfuck_js::stringified_numbers")]
+    pub membership_id: i64,
     /// Type of the membership. Not necessarily the native type.
     pub membership_type: crate::generated::models::BungieMembershipType,
     /// A platform specific additional display name - ex: psn Real Name, bnet Unique Name, etc.
     pub supplemental_display_name: String,
-    /// The bungie global display name code, if set.
-    pub bungie_global_display_name_code: Option<i16>,
-    /// The bungie global display name, if set.
-    pub bungie_global_display_name: String,
-    /// If True, this is a public user membership.
-    pub is_public: bool,
-    /// If there is a cross save override in effect, this value will tell you the type that is overridding this one.
-    pub cross_save_override: crate::generated::models::BungieMembershipType,
-    /// Membership ID as they user is known in the Accounts service
-    #[serde(with = "crate::unfuck_js::stringified_numbers")]
-    pub membership_id: i64,
 }
 
 /// Very basic info about a user as returned by the Account server.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UserMembership {
 
-    /// Display Name the player has chosen for themselves. The display name is optional when the data type is used as input to a platform API.
-    pub display_name: String,
-    /// The bungie global display name code, if set.
-    pub bungie_global_display_name_code: Option<i16>,
-    /// Type of the membership. Not necessarily the native type.
-    pub membership_type: crate::generated::models::BungieMembershipType,
     /// The bungie global display name, if set.
     pub bungie_global_display_name: String,
+    /// The bungie global display name code, if set.
+    pub bungie_global_display_name_code: Option<i16>,
+    /// Display Name the player has chosen for themselves. The display name is optional when the data type is used as input to a platform API.
+    pub display_name: String,
     /// Membership ID as they user is known in the Accounts service
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
     pub membership_id: i64,
+    /// Type of the membership. Not necessarily the native type.
+    pub membership_type: crate::generated::models::BungieMembershipType,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct UserMembershipData {
 
+    /// No documentation provided.
+    pub bungie_net_user: crate::generated::models::user::GeneralUser,
     /// this allows you to see destiny memberships that are visible and linked to this account (regardless of whether or not they have characters on the world server)
     pub destiny_memberships: i32,
     /// If this property is populated, it will have the membership ID of the account considered to be "primary" in this user's cross save relationship.
 ///  If null, this user has no cross save relationship, nor primary account.
     #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
     pub primary_membership_id: Option<i64>,
-    /// No documentation provided.
-    pub bungie_net_user: crate::generated::models::user::GeneralUser,
 }
 
 /// No documentation provided.
@@ -329,9 +329,9 @@ pub struct UserSearchPrefixRequest {
 pub struct UserSearchResponse {
 
     /// No documentation provided.
-    pub page: i32,
-    /// No documentation provided.
     pub has_more: bool,
+    /// No documentation provided.
+    pub page: i32,
     /// No documentation provided.
     pub search_results: i32,
 }
@@ -341,14 +341,14 @@ pub struct UserSearchResponse {
 pub struct UserSearchResponseDetail {
 
     /// No documentation provided.
-    pub destiny_memberships: i32,
-    /// No documentation provided.
     pub bungie_global_display_name: String,
     /// No documentation provided.
     pub bungie_global_display_name_code: Option<i16>,
     /// No documentation provided.
     #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
     pub bungie_net_membership_id: Option<i64>,
+    /// No documentation provided.
+    pub destiny_memberships: i32,
 }
 
 /// No documentation provided.
@@ -356,9 +356,9 @@ pub struct UserSearchResponseDetail {
 pub struct UserToUserContext {
 
     /// No documentation provided.
-    pub is_following: bool,
+    pub global_ignore_end_date: Option<chrono::DateTime<chrono::Utc>>,
     /// No documentation provided.
     pub ignore_status: crate::generated::models::ignores::IgnoreResponse,
     /// No documentation provided.
-    pub global_ignore_end_date: Option<chrono::DateTime<chrono::Utc>>,
+    pub is_following: bool,
 }

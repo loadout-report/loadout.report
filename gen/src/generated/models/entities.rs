@@ -8,8 +8,8 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct EntityActionResult {
 
     /// No documentation provided.
-    pub result: crate::generated::models::exceptions::PlatformErrorCodes,
-    /// No documentation provided.
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
     pub entity_id: i64,
+    /// No documentation provided.
+    pub result: crate::generated::models::exceptions::PlatformErrorCodes,
 }

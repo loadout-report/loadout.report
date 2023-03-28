@@ -10,9 +10,9 @@ pub struct ClanBannerDecal {
     /// No documentation provided.
     pub background_path: String,
     /// No documentation provided.
-    pub identifier: String,
-    /// No documentation provided.
     pub foreground_path: String,
+    /// No documentation provided.
+    pub identifier: String,
 }
 
 pub type ClanBannerSource = serde_json::Value;

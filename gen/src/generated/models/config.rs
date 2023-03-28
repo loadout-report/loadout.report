@@ -10,9 +10,9 @@ pub struct GroupTheme {
     /// No documentation provided.
     pub description: String,
     /// No documentation provided.
-    pub name: String,
-    /// No documentation provided.
     pub folder: String,
+    /// No documentation provided.
+    pub name: String,
 }
 
 /// No documentation provided.
@@ -20,9 +20,9 @@ pub struct GroupTheme {
 pub struct UserTheme {
 
     /// No documentation provided.
-    pub user_theme_name: String,
+    pub user_theme_description: String,
     /// No documentation provided.
     pub user_theme_id: i32,
     /// No documentation provided.
-    pub user_theme_description: String,
+    pub user_theme_name: String,
 }

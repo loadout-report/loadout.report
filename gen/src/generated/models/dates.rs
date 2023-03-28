@@ -8,7 +8,7 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DateRange {
 
     /// No documentation provided.
-    pub start: chrono::DateTime<chrono::Utc>,
-    /// No documentation provided.
     pub end: chrono::DateTime<chrono::Utc>,
+    /// No documentation provided.
+    pub start: chrono::DateTime<chrono::Utc>,
 }

@@ -7,43 +7,43 @@ use serde_with::{serde_as, DisplayFromStr};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyItemComponent {
 
+    /// If the item is bound to a location, it will be specified in this enum.
+    pub bind_status: crate::generated::models::destiny::ItemBindStatus,
+    /// The hash identifier for the specific inventory bucket in which the item is located.
+    pub bucket_hash: u32,
+    /// If the item can expire, this is the date at which it will/did expire.
+    pub expiration_date: Option<chrono::DateTime<chrono::Utc>>,
     /// If this is true, the object is actually a "wrapper" of the object it's representing. This means that it's not the actual item itself, but rather an item that must be "opened" in game before you have and can use the item.
 ///  Wrappers are an evolution of "bundles", which give an easy way to let you preview the contents of what you purchased while still letting you get a refund before you "open" it.
     pub is_wrapper: bool,
-    /// The hash identifier for the specific inventory bucket in which the item is located.
-    pub bucket_hash: u32,
-    /// If there is a known error state that would cause this item to not be transferable, this Flags enum will indicate all of those error states. Otherwise, it will be 0 (CanTransfer).
-    pub transfer_status: crate::generated::models::destiny::TransferStatuses,
-    /// If available, a list that describes which item values (rewards) should be shown (true) or hidden (false).
-    pub item_value_visibility: i32,
-    /// If the item can expire, this is the date at which it will/did expire.
-    pub expiration_date: Option<chrono::DateTime<chrono::Utc>>,
-    /// The quantity of the item in this stack. Note that Instanced items cannot stack. If an instanced item, this value will always be 1 (as the stack has exactly one item in it)
-    pub quantity: i32,
-    /// If populated, this is the hash of the item whose icon (and other secondary styles, but *not* the human readable strings) should override whatever icons/styles are on the item being sold.
-/// If you don't do this, certain items whose styles are being overridden by socketed items - such as the "Recycle Shader" item - would show whatever their default icon/style is, and it wouldn't be pretty or look accurate.
-    pub override_style_item_hash: Option<u32>,
-    /// An easy reference for where the item is located. Redundant if you got the item from an Inventory, but useful when making detail calls on specific items.
-    pub location: crate::generated::models::destiny::ItemLocation,
-    /// If the item is bound to a location, it will be specified in this enum.
-    pub bind_status: crate::generated::models::destiny::ItemBindStatus,
-    /// If this is populated, it is a list of indexes into DestinyInventoryItemDefinition.tooltipNotifications for any special tooltip messages that need to be shown for this item.
-    pub tooltip_notification_indexes: i32,
-    /// The objective progress for the currently-selected metric definition, to be displayed on the emblem nameplate.
-    pub metric_objective: crate::generated::models::destiny::quests::DestinyObjectiveProgress,
-    /// If the item can be locked, this will indicate that state.
-    pub lockable: bool,
-    /// A flags enumeration indicating the transient/custom states of the item that affect how it is rendered: whether it's tracked or locked for example, or whether it has a masterwork plug inserted.
-    pub state: crate::generated::models::destiny::ItemState,
-    /// The identifier for the currently-selected metric definition, to be displayed on the emblem nameplate.
-    pub metric_hash: Option<u32>,
-    /// The version of this item, used to index into the versions list in the item definition quality block.
-    pub version_number: Option<i32>,
     /// The identifier for the item's definition, which is where most of the useful static information for the item can be found.
     pub item_hash: u32,
     /// If the item is instanced, it will have an instance ID. Lack of an instance ID implies that the item has no distinct local qualities aside from stack size.
     #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
     pub item_instance_id: Option<i64>,
+    /// If available, a list that describes which item values (rewards) should be shown (true) or hidden (false).
+    pub item_value_visibility: i32,
+    /// An easy reference for where the item is located. Redundant if you got the item from an Inventory, but useful when making detail calls on specific items.
+    pub location: crate::generated::models::destiny::ItemLocation,
+    /// If the item can be locked, this will indicate that state.
+    pub lockable: bool,
+    /// The identifier for the currently-selected metric definition, to be displayed on the emblem nameplate.
+    pub metric_hash: Option<u32>,
+    /// The objective progress for the currently-selected metric definition, to be displayed on the emblem nameplate.
+    pub metric_objective: crate::generated::models::destiny::quests::DestinyObjectiveProgress,
+    /// If populated, this is the hash of the item whose icon (and other secondary styles, but *not* the human readable strings) should override whatever icons/styles are on the item being sold.
+/// If you don't do this, certain items whose styles are being overridden by socketed items - such as the "Recycle Shader" item - would show whatever their default icon/style is, and it wouldn't be pretty or look accurate.
+    pub override_style_item_hash: Option<u32>,
+    /// The quantity of the item in this stack. Note that Instanced items cannot stack. If an instanced item, this value will always be 1 (as the stack has exactly one item in it)
+    pub quantity: i32,
+    /// A flags enumeration indicating the transient/custom states of the item that affect how it is rendered: whether it's tracked or locked for example, or whether it has a masterwork plug inserted.
+    pub state: crate::generated::models::destiny::ItemState,
+    /// If this is populated, it is a list of indexes into DestinyInventoryItemDefinition.tooltipNotifications for any special tooltip messages that need to be shown for this item.
+    pub tooltip_notification_indexes: i32,
+    /// If there is a known error state that would cause this item to not be transferable, this Flags enum will indicate all of those error states. Otherwise, it will be 0 (CanTransfer).
+    pub transfer_status: crate::generated::models::destiny::TransferStatuses,
+    /// The version of this item, used to index into the versions list in the item definition quality block.
+    pub version_number: Option<i32>,
 }
 
 /// If an item is "instanced", this will contain information about the item's instance that doesn't fit easily into other components. One might say this is the "essential" instance data for the item.
@@ -54,31 +54,31 @@ pub struct DestinyItemInstanceComponent {
 
     /// If populated, this item has a breaker type corresponding to the given value. See DestinyBreakerTypeDefinition for more details.
     pub breaker_type: Option<i32>,
+    /// If populated, this is the hash identifier for the item's breaker type. See DestinyBreakerTypeDefinition for more details.
+    pub breaker_type_hash: Option<u32>,
+    /// If this is an equippable item, you can check it here. There are permanent as well as transitory reasons why an item might not be able to be equipped: check cannotEquipReason for details.
+    pub can_equip: bool,
+    /// If you cannot equip the item, this is a flags enum that enumerates all of the reasons why you couldn't equip the item. You may need to refine your UI further by using unlockHashesRequiredToEquip and equipRequiredLevel.
+    pub cannot_equip_reason: crate::generated::models::destiny::EquipFailureReason,
     /// If the item has a damage type, this is the item's current damage type.
     pub damage_type: crate::generated::models::destiny::DamageType,
+    /// The current damage type's hash, so you can look up localized info and icons for it.
+    pub damage_type_hash: Option<u32>,
     /// IF populated, this item supports Energy mechanics (i.e. Armor 2.0), and these are the current details of its energy type and available capacity to spend energy points.
     pub energy: crate::generated::models::destiny::entities::items::DestinyItemInstanceEnergy,
-    /// The Item's "Level" has the most significant bearing on its stats, such as Light and Power.
-    pub item_level: i32,
     /// If the item cannot be equipped until you reach a certain level, that level will be reflected here.
     pub equip_required_level: i32,
+    /// Is the item currently equipped on the given character?
+    pub is_equipped: bool,
+    /// The Item's "Level" has the most significant bearing on its stats, such as Light and Power.
+    pub item_level: i32,
+    /// The item stat that we consider to be "primary" for the item. For instance, this would be "Attack" for Weapons or "Defense" for armor.
+    pub primary_stat: crate::generated::models::destiny::DestinyStat,
+    /// The "Quality" of the item has a lesser - but still impactful - bearing on stats like Light and Power.
+    pub quality: i32,
     /// Sometimes, there are limitations to equipping that are represented by character-level flags called "unlocks".
 /// This is a list of flags that they need in order to equip the item that the character has not met. Use these to look up the descriptions to show in your UI by looking up the relevant DestinyUnlockDefinitions for the hashes.
     pub unlock_hashes_required_to_equip: i32,
-    /// The current damage type's hash, so you can look up localized info and icons for it.
-    pub damage_type_hash: Option<u32>,
-    /// Is the item currently equipped on the given character?
-    pub is_equipped: bool,
-    /// The item stat that we consider to be "primary" for the item. For instance, this would be "Attack" for Weapons or "Defense" for armor.
-    pub primary_stat: crate::generated::models::destiny::DestinyStat,
-    /// If populated, this is the hash identifier for the item's breaker type. See DestinyBreakerTypeDefinition for more details.
-    pub breaker_type_hash: Option<u32>,
-    /// If you cannot equip the item, this is a flags enum that enumerates all of the reasons why you couldn't equip the item. You may need to refine your UI further by using unlockHashesRequiredToEquip and equipRequiredLevel.
-    pub cannot_equip_reason: crate::generated::models::destiny::EquipFailureReason,
-    /// If this is an equippable item, you can check it here. There are permanent as well as transitory reasons why an item might not be able to be equipped: check cannotEquipReason for details.
-    pub can_equip: bool,
-    /// The "Quality" of the item has a lesser - but still impactful - bearing on stats like Light and Power.
-    pub quality: i32,
 }
 
 /// No documentation provided.
@@ -87,12 +87,12 @@ pub struct DestinyItemInstanceEnergy {
 
     /// The total capacity of Energy that the item currently has, regardless of if it is currently being used.
     pub energy_capacity: i32,
+    /// This is the enum version of the Energy Type value, for convenience.
+    pub energy_type: crate::generated::models::destiny::DestinyEnergyType,
     /// The type of energy for this item. Plugs that require Energy can only be inserted if they have the "Any" Energy Type or the matching energy type of this item. This is a reference to the DestinyEnergyTypeDefinition for the energy type, where you can find extended info about it.
     pub energy_type_hash: u32,
     /// The amount of energy still available for inserting new plugs.
     pub energy_unused: i32,
-    /// This is the enum version of the Energy Type value, for convenience.
-    pub energy_type: crate::generated::models::destiny::DestinyEnergyType,
     /// The amount of Energy currently in use by inserted plugs.
     pub energy_used: i32,
 }
@@ -101,13 +101,13 @@ pub struct DestinyItemInstanceEnergy {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyItemObjectivesComponent {
 
+    /// If we have any information on when these objectives were completed, this will be the date of that completion. This won't be on many items, but could be interesting for some items that do store this information.
+    pub date_completed: Option<chrono::DateTime<chrono::Utc>>,
     /// I may regret naming it this way - but this represents when an item has an objective that doesn't serve a beneficial purpose, but rather is used for "flavor" or additional information. For instance, when Emblems track specific stats, those stats are represented as Objectives on the item.
     pub flavor_objective: crate::generated::models::destiny::quests::DestinyObjectiveProgress,
     /// If the item has a hard association with objectives, your progress on them will be defined here. 
 /// Objectives are our standard way to describe a series of tasks that have to be completed for a reward.
     pub objectives: i32,
-    /// If we have any information on when these objectives were completed, this will be the date of that completion. This won't be on many items, but could be interesting for some items that do store this information.
-    pub date_completed: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 /// Instanced items can have perks: benefits that the item bestows.
@@ -137,14 +137,14 @@ pub struct DestinyItemRenderComponent {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyItemSocketState {
 
+    /// If a plug is inserted but not enabled, this will be populated with indexes into the plug item definition's plug.enabledRules property, so that you can show the reasons why it is not enabled.
+    pub enable_fail_indexes: i32,
     /// Even if a plug is inserted, it doesn't mean it's enabled.
 /// This flag indicates whether the plug is active and providing its benefits.
     pub is_enabled: bool,
     /// A plug may theoretically provide benefits but not be visible - for instance, some older items use a plug's damage type perk to modify their own damage type. These, though they are not visible, still affect the item. This field indicates that state.
 /// An invisible plug, while it provides benefits if it is Enabled, cannot be directly modified by the user.
     pub is_visible: bool,
-    /// If a plug is inserted but not enabled, this will be populated with indexes into the plug item definition's plug.enabledRules property, so that you can show the reasons why it is not enabled.
-    pub enable_fail_indexes: i32,
     /// The currently active plug, if any.
 /// Note that, because all plugs are statically defined, its effect on stats and perks can be statically determined using the plug item's definition. The stats and perks can be taken at face value on the plug item as the stats and perks it will provide to the user/item.
     pub plug_hash: Option<u32>,

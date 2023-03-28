@@ -18,7 +18,7 @@ pub struct DestinyMetricComponent {
 pub struct DestinyMetricsComponent {
 
     /// No documentation provided.
-    pub metrics_root_node_hash: u32,
-    /// No documentation provided.
     pub metrics: i32,
+    /// No documentation provided.
+    pub metrics_root_node_hash: u32,
 }

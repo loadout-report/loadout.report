@@ -12,7 +12,7 @@ use genco::lang::rust::Tokens;
 use genco::quote;
 use crate::model::Schema;
 use crate::schemas::{Render};
-use crate::format_description;
+use crate::{format_description, sorted_by};
 use crate::schemas::reference::resolve;
 
 pub struct Property {
@@ -171,7 +171,8 @@ pub fn is_object(schema: &Schema) -> bool {
 }
 
 pub fn render_properties(properties: &HashMap<String, Property>) -> Tokens {
-    properties.iter()
+    sorted_by(properties.into_iter().collect(), |(a, _), (b, _)| a.cmp(b))
+        .into_iter()
         .flat_map(|(name, property)| property.render(name.clone()))
         .collect()
 }

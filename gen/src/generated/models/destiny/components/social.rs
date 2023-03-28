@@ -8,11 +8,11 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DestinySocialCommendationsComponent {
 
     /// No documentation provided.
-    pub score_detail_values: i32,
-    /// No documentation provided.
-    pub total_score: i32,
+    pub commendation_node_scores_by_hash: i32,
     /// No documentation provided.
     pub commendation_scores_by_hash: i32,
     /// No documentation provided.
-    pub commendation_node_scores_by_hash: i32,
+    pub score_detail_values: i32,
+    /// No documentation provided.
+    pub total_score: i32,
 }

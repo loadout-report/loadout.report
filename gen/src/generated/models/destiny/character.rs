@@ -11,27 +11,27 @@ pub struct DestinyCharacterCustomization {
     /// No documentation provided.
     pub decal_color: u32,
     /// No documentation provided.
-    pub wear_helmet: bool,
-    /// No documentation provided.
-    pub feature_index: i32,
-    /// No documentation provided.
-    pub personality: u32,
-    /// No documentation provided.
-    pub feature_colors: i32,
-    /// No documentation provided.
-    pub face: u32,
-    /// No documentation provided.
-    pub hair_index: i32,
-    /// No documentation provided.
     pub decal_index: i32,
-    /// No documentation provided.
-    pub skin_color: u32,
     /// No documentation provided.
     pub eye_color: u32,
     /// No documentation provided.
-    pub lip_color: u32,
+    pub face: u32,
+    /// No documentation provided.
+    pub feature_colors: i32,
+    /// No documentation provided.
+    pub feature_index: i32,
     /// No documentation provided.
     pub hair_colors: i32,
+    /// No documentation provided.
+    pub hair_index: i32,
+    /// No documentation provided.
+    pub lip_color: u32,
+    /// No documentation provided.
+    pub personality: u32,
+    /// No documentation provided.
+    pub skin_color: u32,
+    /// No documentation provided.
+    pub wear_helmet: bool,
 }
 
 /// A minimal view of a character's equipped items, for the purpose of rendering a summary screen or showing the character in 3D.

@@ -8,7 +8,7 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct HyperlinkReference {
 
     /// No documentation provided.
-    pub url: String,
-    /// No documentation provided.
     pub title: String,
+    /// No documentation provided.
+    pub url: String,
 }

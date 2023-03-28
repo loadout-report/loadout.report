@@ -12,7 +12,7 @@ pub struct DestinyColor {
     /// No documentation provided.
     pub blue: String,
     /// No documentation provided.
-    pub red: String,
-    /// No documentation provided.
     pub green: String,
+    /// No documentation provided.
+    pub red: String,
 }

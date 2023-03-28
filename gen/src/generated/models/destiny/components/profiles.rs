@@ -8,11 +8,11 @@ use serde_with::{serde_as, DisplayFromStr};
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyProfileProgressionComponent {
 
-    /// Data related to your progress on the current season's artifact that is the same across characters.
-    pub seasonal_artifact: crate::generated::models::destiny::artifacts::DestinyArtifactProfileScoped,
     /// The set of checklists that can be examined on a profile-wide basis, keyed by the hash identifier of the Checklist (DestinyChecklistDefinition)
 /// For each checklist returned, its value is itself a Dictionary keyed by the checklist's hash identifier with the value being a boolean indicating if it's been discovered yet.
     pub checklists: i32,
+    /// Data related to your progress on the current season's artifact that is the same across characters.
+    pub seasonal_artifact: crate::generated::models::destiny::artifacts::DestinyArtifactProfileScoped,
 }
 
 /// This is an experimental set of data that Bungie considers to be "transitory" - information that may be useful for API users, but that is coming from a non-authoritative data source about information that could potentially change at a more frequent pace than Bungie.net will receive updates about it.
@@ -20,16 +20,16 @@ pub struct DestinyProfileProgressionComponent {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyProfileTransitoryComponent {
 
-    /// Information about tracked entities.
-    pub tracking: i32,
     /// If you are in an activity, this is some transitory info about the activity currently being played.
     pub current_activity: crate::generated::models::destiny::components::profiles::DestinyProfileTransitoryCurrentActivity,
     /// Information about whether and what might prevent you from joining this person on a fireteam.
     pub joinability: crate::generated::models::destiny::components::profiles::DestinyProfileTransitoryJoinability,
-    /// If you have any members currently in your party, this is some (very) bare-bones information about those members.
-    pub party_members: i32,
     /// The hash identifier for the DestinyDestinationDefinition of the last location you were orbiting when in orbit.
     pub last_orbited_destination_hash: Option<u32>,
+    /// If you have any members currently in your party, this is some (very) bare-bones information about those members.
+    pub party_members: i32,
+    /// Information about tracked entities.
+    pub tracking: i32,
 }
 
 /// If you are playing in an activity, this is some information about it.
@@ -37,28 +37,28 @@ pub struct DestinyProfileTransitoryComponent {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyProfileTransitoryCurrentActivity {
 
+    /// If you're still in it but it "ended" (like when folks are dancing around the loot after they beat a boss), this is when the activity ended.
+    pub end_time: Option<chrono::DateTime<chrono::Utc>>,
     /// If you have human opponents, this is the highest opposing team's score.
     pub highest_opposing_faction_score: f32,
     /// This is how many human or poorly crafted aimbot opponents you have.
     pub number_of_opponents: i32,
     /// This is how many human or poorly crafted aimbots are on your team.
     pub number_of_players: i32,
-    /// When the activity started.
-    pub start_time: Option<chrono::DateTime<chrono::Utc>>,
-    /// If you're still in it but it "ended" (like when folks are dancing around the loot after they beat a boss), this is when the activity ended.
-    pub end_time: Option<chrono::DateTime<chrono::Utc>>,
     /// This is what our non-authoritative source thought the score was.
     pub score: f32,
+    /// When the activity started.
+    pub start_time: Option<chrono::DateTime<chrono::Utc>>,
 }
 
 /// Some basic information about whether you can be joined, how many slots are left etc. Note that this can change quickly, so it may not actually be useful. But perhaps it will be in some use cases?
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyProfileTransitoryJoinability {
 
-    /// The number of slots still available on this person's fireteam.
-    pub open_slots: i32,
     /// Reasons why a person can't join this person's fireteam.
     pub closed_reasons: crate::generated::models::destiny::DestinyJoinClosedReasons,
+    /// The number of slots still available on this person's fireteam.
+    pub open_slots: i32,
     /// Who the person is currently allowing invites from.
     pub privacy_setting: crate::generated::models::destiny::DestinyGamePrivacySetting,
 }
@@ -70,13 +70,13 @@ pub struct DestinyProfileTransitoryPartyMember {
 
     /// The player's last known display name.
     pub display_name: String,
+    /// The identifier for the DestinyInventoryItemDefinition of the player's emblem.
+    pub emblem_hash: u32,
     /// The Membership ID that matches the party member.
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
     pub membership_id: i64,
     /// A Flags Enumeration value indicating the states that the player is in relevant to being on a fireteam.
     pub status: crate::generated::models::destiny::DestinyPartyMemberStates,
-    /// The identifier for the DestinyInventoryItemDefinition of the player's emblem.
-    pub emblem_hash: u32,
 }
 
 /// This represents a single "thing" being tracked by the player.
@@ -85,17 +85,17 @@ pub struct DestinyProfileTransitoryPartyMember {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DestinyProfileTransitoryTrackingEntry {
 
-    /// OPTIONAL - I've got to level with you, I don't really know what this is. Is it when you started tracking it? Is it only populated for tracked items that have time limits?
-/// I don't know, but we can get at it - when I get time to actually test what it is, I'll update this. In the meantime, bask in the mysterious data.
-    pub tracked_date: Option<chrono::DateTime<chrono::Utc>>,
-    /// OPTIONAL - If this is tracking the status of a quest, this is the identifier for the DestinyInventoryItemDefinition that containst that questline data.
-    pub questline_item_hash: Option<u32>,
+    /// OPTIONAL - If this is tracking the status of a DestinyActivityDefinition, this is the identifier for that activity.
+    pub activity_hash: Option<u32>,
     /// OPTIONAL - If this is tracking the status of a DestinyInventoryItemDefinition, this is the identifier for that item.
     pub item_hash: Option<u32>,
     /// OPTIONAL - If this is tracking a DestinyLocationDefinition, this is the identifier for that location.
     pub location_hash: Option<u32>,
-    /// OPTIONAL - If this is tracking the status of a DestinyActivityDefinition, this is the identifier for that activity.
-    pub activity_hash: Option<u32>,
     /// OPTIONAL - If this is tracking the status of a DestinyObjectiveDefinition, this is the identifier for that objective.
     pub objective_hash: Option<u32>,
+    /// OPTIONAL - If this is tracking the status of a quest, this is the identifier for the DestinyInventoryItemDefinition that containst that questline data.
+    pub questline_item_hash: Option<u32>,
+    /// OPTIONAL - I've got to level with you, I don't really know what this is. Is it when you started tracking it? Is it only populated for tracked items that have time limits?
+/// I don't know, but we can get at it - when I get time to actually test what it is, I'll update this. In the meantime, bask in the mysterious data.
+    pub tracked_date: Option<chrono::DateTime<chrono::Utc>>,
 }

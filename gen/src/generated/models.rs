@@ -90,9 +90,9 @@ pub enum BungieMembershipType {
 pub struct DestinyBaseItemComponentSetOfint32 {
 
     /// No documentation provided.
-    pub perks: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemPerksComponent,
-    /// No documentation provided.
     pub objectives: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemObjectivesComponent,
+    /// No documentation provided.
+    pub perks: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemPerksComponent,
 }
 
 /// No documentation provided.
@@ -100,9 +100,9 @@ pub struct DestinyBaseItemComponentSetOfint32 {
 pub struct DestinyBaseItemComponentSetOfint64 {
 
     /// No documentation provided.
-    pub perks: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemPerksComponent,
-    /// No documentation provided.
     pub objectives: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemObjectivesComponent,
+    /// No documentation provided.
+    pub perks: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemPerksComponent,
 }
 
 /// No documentation provided.
@@ -110,9 +110,9 @@ pub struct DestinyBaseItemComponentSetOfint64 {
 pub struct DestinyBaseItemComponentSetOfuint32 {
 
     /// No documentation provided.
-    pub perks: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemPerksComponent,
-    /// No documentation provided.
     pub objectives: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemObjectivesComponent,
+    /// No documentation provided.
+    pub perks: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemPerksComponent,
 }
 
 /// No documentation provided.
@@ -122,23 +122,23 @@ pub struct DestinyItemComponentSetOfint32 {
     /// No documentation provided.
     pub instances: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemInstanceComponent,
     /// No documentation provided.
-    pub reusable_plugs: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemReusablePlugsComponent,
-    /// No documentation provided.
-    pub plug_states: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemPlugComponent,
+    pub objectives: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemObjectivesComponent,
     /// No documentation provided.
     pub perks: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemPerksComponent,
     /// No documentation provided.
-    pub objectives: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemObjectivesComponent,
-    /// No documentation provided.
-    pub talent_grids: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemTalentGridComponent,
-    /// No documentation provided.
     pub plug_objectives: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemPlugObjectivesComponent,
     /// No documentation provided.
-    pub sockets: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemSocketsComponent,
+    pub plug_states: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemPlugComponent,
     /// No documentation provided.
     pub render_data: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemRenderComponent,
     /// No documentation provided.
+    pub reusable_plugs: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemReusablePlugsComponent,
+    /// No documentation provided.
+    pub sockets: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemSocketsComponent,
+    /// No documentation provided.
     pub stats: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemStatsComponent,
+    /// No documentation provided.
+    pub talent_grids: crate::generated::models::DictionaryComponentResponseOfint32AndDestinyItemTalentGridComponent,
 }
 
 /// No documentation provided.
@@ -146,25 +146,25 @@ pub struct DestinyItemComponentSetOfint32 {
 pub struct DestinyItemComponentSetOfint64 {
 
     /// No documentation provided.
+    pub instances: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemInstanceComponent,
+    /// No documentation provided.
     pub objectives: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemObjectivesComponent,
-    /// No documentation provided.
-    pub sockets: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemSocketsComponent,
-    /// No documentation provided.
-    pub stats: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemStatsComponent,
     /// No documentation provided.
     pub perks: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemPerksComponent,
     /// No documentation provided.
-    pub reusable_plugs: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemReusablePlugsComponent,
+    pub plug_objectives: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemPlugObjectivesComponent,
     /// No documentation provided.
     pub plug_states: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemPlugComponent,
     /// No documentation provided.
     pub render_data: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemRenderComponent,
     /// No documentation provided.
-    pub plug_objectives: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemPlugObjectivesComponent,
+    pub reusable_plugs: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemReusablePlugsComponent,
+    /// No documentation provided.
+    pub sockets: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemSocketsComponent,
+    /// No documentation provided.
+    pub stats: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemStatsComponent,
     /// No documentation provided.
     pub talent_grids: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemTalentGridComponent,
-    /// No documentation provided.
-    pub instances: crate::generated::models::DictionaryComponentResponseOfint64AndDestinyItemInstanceComponent,
 }
 
 /// No documentation provided.
@@ -172,25 +172,25 @@ pub struct DestinyItemComponentSetOfint64 {
 pub struct DestinyItemComponentSetOfuint32 {
 
     /// No documentation provided.
-    pub talent_grids: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemTalentGridComponent,
+    pub instances: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemInstanceComponent,
     /// No documentation provided.
-    pub stats: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemStatsComponent,
+    pub objectives: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemObjectivesComponent,
     /// No documentation provided.
     pub perks: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemPerksComponent,
     /// No documentation provided.
     pub plug_objectives: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemPlugObjectivesComponent,
     /// No documentation provided.
-    pub instances: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemInstanceComponent,
-    /// No documentation provided.
     pub plug_states: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemPlugComponent,
     /// No documentation provided.
-    pub sockets: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemSocketsComponent,
-    /// No documentation provided.
-    pub objectives: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemObjectivesComponent,
+    pub render_data: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemRenderComponent,
     /// No documentation provided.
     pub reusable_plugs: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemReusablePlugsComponent,
     /// No documentation provided.
-    pub render_data: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemRenderComponent,
+    pub sockets: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemSocketsComponent,
+    /// No documentation provided.
+    pub stats: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemStatsComponent,
+    /// No documentation provided.
+    pub talent_grids: crate::generated::models::DictionaryComponentResponseOfuint32AndDestinyItemTalentGridComponent,
 }
 
 /// No documentation provided.
@@ -215,10 +215,10 @@ pub struct DictionaryComponentResponseOfint32AndDestinyItemInstanceComponent {
 
     /// No documentation provided.
     pub data: i32,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -239,20 +239,20 @@ pub struct DictionaryComponentResponseOfint32AndDestinyItemPerksComponent {
 
     /// No documentation provided.
     pub data: i32,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfint32AndDestinyItemPlugObjectivesComponent {
 
-    /// If true, this component is disabled.
-    pub disabled: Option<bool>,
     /// No documentation provided.
     pub data: i32,
+    /// If true, this component is disabled.
+    pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
@@ -263,22 +263,22 @@ pub struct DictionaryComponentResponseOfint32AndDestinyItemRenderComponent {
 
     /// No documentation provided.
     pub data: i32,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfint32AndDestinyItemReusablePlugsComponent {
 
+    /// No documentation provided.
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
-    pub data: i32,
 }
 
 /// No documentation provided.
@@ -286,35 +286,35 @@ pub struct DictionaryComponentResponseOfint32AndDestinyItemReusablePlugsComponen
 pub struct DictionaryComponentResponseOfint32AndDestinyItemSocketsComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
-    pub data: i32,
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfint32AndDestinyItemStatsComponent {
 
+    /// No documentation provided.
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
-    pub data: i32,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfint32AndDestinyItemTalentGridComponent {
 
+    /// No documentation provided.
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
-    pub data: i32,
 }
 
 /// No documentation provided.
@@ -323,10 +323,10 @@ pub struct DictionaryComponentResponseOfint32AndDestinyVendorSaleItemComponent {
 
     /// No documentation provided.
     pub data: i32,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -345,10 +345,10 @@ pub struct DictionaryComponentResponseOfint64AndDestinyCharacterActivitiesCompon
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfint64AndDestinyCharacterComponent {
 
-    /// If true, this component is disabled.
-    pub disabled: Option<bool>,
     /// No documentation provided.
     pub data: i32,
+    /// If true, this component is disabled.
+    pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
@@ -357,10 +357,10 @@ pub struct DictionaryComponentResponseOfint64AndDestinyCharacterComponent {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfint64AndDestinyCharacterProgressionComponent {
 
-    /// If true, this component is disabled.
-    pub disabled: Option<bool>,
     /// No documentation provided.
     pub data: i32,
+    /// If true, this component is disabled.
+    pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
@@ -370,23 +370,23 @@ pub struct DictionaryComponentResponseOfint64AndDestinyCharacterProgressionCompo
 pub struct DictionaryComponentResponseOfint64AndDestinyCharacterRecordsComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfint64AndDestinyCharacterRenderComponent {
 
+    /// No documentation provided.
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
-    pub data: i32,
 }
 
 /// No documentation provided.
@@ -394,11 +394,11 @@ pub struct DictionaryComponentResponseOfint64AndDestinyCharacterRenderComponent 
 pub struct DictionaryComponentResponseOfint64AndDestinyCollectiblesComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
-    pub data: i32,
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -407,10 +407,10 @@ pub struct DictionaryComponentResponseOfint64AndDestinyCraftablesComponent {
 
     /// No documentation provided.
     pub data: i32,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -418,11 +418,11 @@ pub struct DictionaryComponentResponseOfint64AndDestinyCraftablesComponent {
 pub struct DictionaryComponentResponseOfint64AndDestinyCurrenciesComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -441,12 +441,12 @@ pub struct DictionaryComponentResponseOfint64AndDestinyInventoryComponent {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfint64AndDestinyItemInstanceComponent {
 
+    /// No documentation provided.
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
-    pub data: i32,
 }
 
 /// No documentation provided.
@@ -455,10 +455,10 @@ pub struct DictionaryComponentResponseOfint64AndDestinyItemObjectivesComponent {
 
     /// No documentation provided.
     pub data: i32,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -467,10 +467,10 @@ pub struct DictionaryComponentResponseOfint64AndDestinyItemPerksComponent {
 
     /// No documentation provided.
     pub data: i32,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -489,10 +489,10 @@ pub struct DictionaryComponentResponseOfint64AndDestinyItemPlugObjectivesCompone
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfint64AndDestinyItemRenderComponent {
 
-    /// If true, this component is disabled.
-    pub disabled: Option<bool>,
     /// No documentation provided.
     pub data: i32,
+    /// If true, this component is disabled.
+    pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
@@ -502,11 +502,11 @@ pub struct DictionaryComponentResponseOfint64AndDestinyItemRenderComponent {
 pub struct DictionaryComponentResponseOfint64AndDestinyItemReusablePlugsComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -538,11 +538,11 @@ pub struct DictionaryComponentResponseOfint64AndDestinyItemStatsComponent {
 pub struct DictionaryComponentResponseOfint64AndDestinyItemTalentGridComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -550,21 +550,21 @@ pub struct DictionaryComponentResponseOfint64AndDestinyItemTalentGridComponent {
 pub struct DictionaryComponentResponseOfint64AndDestinyKiosksComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
-    pub data: i32,
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfint64AndDestinyLoadoutsComponent {
 
-    /// If true, this component is disabled.
-    pub disabled: Option<bool>,
     /// No documentation provided.
     pub data: i32,
+    /// If true, this component is disabled.
+    pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
@@ -574,11 +574,11 @@ pub struct DictionaryComponentResponseOfint64AndDestinyLoadoutsComponent {
 pub struct DictionaryComponentResponseOfint64AndDestinyPlugSetsComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
-    pub data: i32,
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -587,10 +587,10 @@ pub struct DictionaryComponentResponseOfint64AndDestinyPresentationNodesComponen
 
     /// No documentation provided.
     pub data: i32,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -611,10 +611,10 @@ pub struct DictionaryComponentResponseOfuint32AndDestinyItemInstanceComponent {
 
     /// No documentation provided.
     pub data: i32,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -622,11 +622,11 @@ pub struct DictionaryComponentResponseOfuint32AndDestinyItemInstanceComponent {
 pub struct DictionaryComponentResponseOfuint32AndDestinyItemObjectivesComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
-    pub data: i32,
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -634,23 +634,23 @@ pub struct DictionaryComponentResponseOfuint32AndDestinyItemObjectivesComponent 
 pub struct DictionaryComponentResponseOfuint32AndDestinyItemPerksComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfuint32AndDestinyItemPlugComponent {
 
+    /// No documentation provided.
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
-    pub data: i32,
 }
 
 /// No documentation provided.
@@ -658,11 +658,11 @@ pub struct DictionaryComponentResponseOfuint32AndDestinyItemPlugComponent {
 pub struct DictionaryComponentResponseOfuint32AndDestinyItemPlugObjectivesComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -681,12 +681,12 @@ pub struct DictionaryComponentResponseOfuint32AndDestinyItemRenderComponent {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfuint32AndDestinyItemReusablePlugsComponent {
 
+    /// No documentation provided.
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
-    pub data: i32,
 }
 
 /// No documentation provided.
@@ -694,11 +694,11 @@ pub struct DictionaryComponentResponseOfuint32AndDestinyItemReusablePlugsCompone
 pub struct DictionaryComponentResponseOfuint32AndDestinyItemSocketsComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -717,10 +717,10 @@ pub struct DictionaryComponentResponseOfuint32AndDestinyItemStatsComponent {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfuint32AndDestinyItemTalentGridComponent {
 
-    /// If true, this component is disabled.
-    pub disabled: Option<bool>,
     /// No documentation provided.
     pub data: i32,
+    /// If true, this component is disabled.
+    pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
@@ -729,10 +729,10 @@ pub struct DictionaryComponentResponseOfuint32AndDestinyItemTalentGridComponent 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfuint32AndDestinyPublicVendorComponent {
 
-    /// If true, this component is disabled.
-    pub disabled: Option<bool>,
     /// No documentation provided.
     pub data: i32,
+    /// If true, this component is disabled.
+    pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
@@ -743,10 +743,10 @@ pub struct DictionaryComponentResponseOfuint32AndDestinyVendorCategoriesComponen
 
     /// No documentation provided.
     pub data: i32,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -754,21 +754,21 @@ pub struct DictionaryComponentResponseOfuint32AndDestinyVendorCategoriesComponen
 pub struct DictionaryComponentResponseOfuint32AndDestinyVendorComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
-    pub data: i32,
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct DictionaryComponentResponseOfuint32AndPersonalDestinyVendorSaleItemSetComponent {
 
-    /// If true, this component is disabled.
-    pub disabled: Option<bool>,
     /// No documentation provided.
     pub data: i32,
+    /// If true, this component is disabled.
+    pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
@@ -778,11 +778,11 @@ pub struct DictionaryComponentResponseOfuint32AndPersonalDestinyVendorSaleItemSe
 pub struct DictionaryComponentResponseOfuint32AndPublicDestinyVendorSaleItemSetComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
+    pub data: i32,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
-    pub data: i32,
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -790,11 +790,9 @@ pub struct DictionaryComponentResponseOfuint32AndPublicDestinyVendorSaleItemSetC
 pub struct GlobalAlert {
 
     /// No documentation provided.
+    pub alert_html: String,
+    /// No documentation provided.
     pub alert_key: String,
-    /// No documentation provided.
-    pub stream_info: crate::generated::models::StreamInfo,
-    /// No documentation provided.
-    pub alert_type: crate::generated::models::GlobalAlertType,
     /// No documentation provided.
     pub alert_level: crate::generated::models::GlobalAlertLevel,
     /// No documentation provided.
@@ -802,7 +800,9 @@ pub struct GlobalAlert {
     /// No documentation provided.
     pub alert_timestamp: chrono::DateTime<chrono::Utc>,
     /// No documentation provided.
-    pub alert_html: String,
+    pub alert_type: crate::generated::models::GlobalAlertType,
+    /// No documentation provided.
+    pub stream_info: crate::generated::models::StreamInfo,
 }
 
 /// No documentation provided.
@@ -836,13 +836,13 @@ pub struct SearchResultOfContentItemPublicContract {
     /// No documentation provided.
     pub has_more: bool,
     /// No documentation provided.
-    pub results: i32,
-    /// No documentation provided.
     pub query: crate::generated::models::queries::PagedQuery,
     /// No documentation provided.
-    pub total_results: i32,
-    /// No documentation provided.
     pub replacement_continuation_token: String,
+    /// No documentation provided.
+    pub results: i32,
+    /// No documentation provided.
+    pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
 /// If False, it does not, and may be estimated/only the size of the current page.
 /// Either way, you should probably always only trust hasMore.
@@ -855,11 +855,13 @@ pub struct SearchResultOfContentItemPublicContract {
 pub struct SearchResultOfDestinyEntitySearchResultItem {
 
     /// No documentation provided.
-    pub results: i32,
+    pub has_more: bool,
     /// No documentation provided.
     pub query: crate::generated::models::queries::PagedQuery,
     /// No documentation provided.
     pub replacement_continuation_token: String,
+    /// No documentation provided.
+    pub results: i32,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -867,8 +869,6 @@ pub struct SearchResultOfDestinyEntitySearchResultItem {
 /// Either way, you should probably always only trust hasMore.
 /// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
     pub use_total_results: bool,
-    /// No documentation provided.
-    pub has_more: bool,
 }
 
 /// No documentation provided.
@@ -876,20 +876,20 @@ pub struct SearchResultOfDestinyEntitySearchResultItem {
 pub struct SearchResultOfFireteamResponse {
 
     /// No documentation provided.
+    pub has_more: bool,
+    /// No documentation provided.
+    pub query: crate::generated::models::queries::PagedQuery,
+    /// No documentation provided.
+    pub replacement_continuation_token: String,
+    /// No documentation provided.
+    pub results: i32,
+    /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
 /// If False, it does not, and may be estimated/only the size of the current page.
 /// Either way, you should probably always only trust hasMore.
 /// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
     pub use_total_results: bool,
-    /// No documentation provided.
-    pub replacement_continuation_token: String,
-    /// No documentation provided.
-    pub results: i32,
-    /// No documentation provided.
-    pub has_more: bool,
-    /// No documentation provided.
-    pub query: crate::generated::models::queries::PagedQuery,
 }
 
 /// No documentation provided.
@@ -897,20 +897,20 @@ pub struct SearchResultOfFireteamResponse {
 pub struct SearchResultOfFireteamSummary {
 
     /// No documentation provided.
-    pub results: i32,
-    /// No documentation provided.
     pub has_more: bool,
-    /// If useTotalResults is true, then totalResults represents an accurate count.
-/// If False, it does not, and may be estimated/only the size of the current page.
-/// Either way, you should probably always only trust hasMore.
-/// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
-    pub use_total_results: bool,
     /// No documentation provided.
     pub query: crate::generated::models::queries::PagedQuery,
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
+    pub results: i32,
+    /// No documentation provided.
     pub total_results: i32,
+    /// If useTotalResults is true, then totalResults represents an accurate count.
+/// If False, it does not, and may be estimated/only the size of the current page.
+/// Either way, you should probably always only trust hasMore.
+/// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
+    pub use_total_results: bool,
 }
 
 /// No documentation provided.
@@ -918,20 +918,20 @@ pub struct SearchResultOfFireteamSummary {
 pub struct SearchResultOfGroupBan {
 
     /// No documentation provided.
+    pub has_more: bool,
+    /// No documentation provided.
     pub query: crate::generated::models::queries::PagedQuery,
+    /// No documentation provided.
+    pub replacement_continuation_token: String,
+    /// No documentation provided.
+    pub results: i32,
+    /// No documentation provided.
+    pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
 /// If False, it does not, and may be estimated/only the size of the current page.
 /// Either way, you should probably always only trust hasMore.
 /// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
     pub use_total_results: bool,
-    /// No documentation provided.
-    pub has_more: bool,
-    /// No documentation provided.
-    pub total_results: i32,
-    /// No documentation provided.
-    pub replacement_continuation_token: String,
-    /// No documentation provided.
-    pub results: i32,
 }
 
 /// No documentation provided.
@@ -939,62 +939,62 @@ pub struct SearchResultOfGroupBan {
 pub struct SearchResultOfGroupMember {
 
     /// No documentation provided.
+    pub has_more: bool,
+    /// No documentation provided.
+    pub query: crate::generated::models::queries::PagedQuery,
+    /// No documentation provided.
     pub replacement_continuation_token: String,
+    /// No documentation provided.
+    pub results: i32,
+    /// No documentation provided.
+    pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
 /// If False, it does not, and may be estimated/only the size of the current page.
 /// Either way, you should probably always only trust hasMore.
 /// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
     pub use_total_results: bool,
-    /// No documentation provided.
-    pub query: crate::generated::models::queries::PagedQuery,
-    /// No documentation provided.
-    pub total_results: i32,
-    /// No documentation provided.
-    pub has_more: bool,
-    /// No documentation provided.
-    pub results: i32,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SearchResultOfGroupMemberApplication {
 
+    /// No documentation provided.
+    pub has_more: bool,
+    /// No documentation provided.
+    pub query: crate::generated::models::queries::PagedQuery,
+    /// No documentation provided.
+    pub replacement_continuation_token: String,
+    /// No documentation provided.
+    pub results: i32,
+    /// No documentation provided.
+    pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
 /// If False, it does not, and may be estimated/only the size of the current page.
 /// Either way, you should probably always only trust hasMore.
 /// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
     pub use_total_results: bool,
-    /// No documentation provided.
-    pub total_results: i32,
-    /// No documentation provided.
-    pub results: i32,
-    /// No documentation provided.
-    pub query: crate::generated::models::queries::PagedQuery,
-    /// No documentation provided.
-    pub has_more: bool,
-    /// No documentation provided.
-    pub replacement_continuation_token: String,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SearchResultOfGroupMembership {
 
-    /// If useTotalResults is true, then totalResults represents an accurate count.
-/// If False, it does not, and may be estimated/only the size of the current page.
-/// Either way, you should probably always only trust hasMore.
-/// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
-    pub use_total_results: bool,
-    /// No documentation provided.
-    pub query: crate::generated::models::queries::PagedQuery,
     /// No documentation provided.
     pub has_more: bool,
+    /// No documentation provided.
+    pub query: crate::generated::models::queries::PagedQuery,
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
     pub results: i32,
     /// No documentation provided.
     pub total_results: i32,
+    /// If useTotalResults is true, then totalResults represents an accurate count.
+/// If False, it does not, and may be estimated/only the size of the current page.
+/// Either way, you should probably always only trust hasMore.
+/// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
+    pub use_total_results: bool,
 }
 
 /// No documentation provided.
@@ -1002,20 +1002,20 @@ pub struct SearchResultOfGroupMembership {
 pub struct SearchResultOfGroupPotentialMembership {
 
     /// No documentation provided.
+    pub has_more: bool,
+    /// No documentation provided.
+    pub query: crate::generated::models::queries::PagedQuery,
+    /// No documentation provided.
     pub replacement_continuation_token: String,
+    /// No documentation provided.
+    pub results: i32,
+    /// No documentation provided.
+    pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
 /// If False, it does not, and may be estimated/only the size of the current page.
 /// Either way, you should probably always only trust hasMore.
 /// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
     pub use_total_results: bool,
-    /// No documentation provided.
-    pub results: i32,
-    /// No documentation provided.
-    pub total_results: i32,
-    /// No documentation provided.
-    pub query: crate::generated::models::queries::PagedQuery,
-    /// No documentation provided.
-    pub has_more: bool,
 }
 
 /// No documentation provided.
@@ -1023,20 +1023,20 @@ pub struct SearchResultOfGroupPotentialMembership {
 pub struct SearchResultOfGroupV2Card {
 
     /// No documentation provided.
+    pub has_more: bool,
+    /// No documentation provided.
+    pub query: crate::generated::models::queries::PagedQuery,
+    /// No documentation provided.
+    pub replacement_continuation_token: String,
+    /// No documentation provided.
     pub results: i32,
     /// No documentation provided.
     pub total_results: i32,
-    /// No documentation provided.
-    pub query: crate::generated::models::queries::PagedQuery,
     /// If useTotalResults is true, then totalResults represents an accurate count.
 /// If False, it does not, and may be estimated/only the size of the current page.
 /// Either way, you should probably always only trust hasMore.
 /// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
     pub use_total_results: bool,
-    /// No documentation provided.
-    pub replacement_continuation_token: String,
-    /// No documentation provided.
-    pub has_more: bool,
 }
 
 /// No documentation provided.
@@ -1044,41 +1044,41 @@ pub struct SearchResultOfGroupV2Card {
 pub struct SearchResultOfPostResponse {
 
     /// No documentation provided.
+    pub has_more: bool,
+    /// No documentation provided.
+    pub query: crate::generated::models::queries::PagedQuery,
+    /// No documentation provided.
+    pub replacement_continuation_token: String,
+    /// No documentation provided.
     pub results: i32,
     /// No documentation provided.
-    pub has_more: bool,
+    pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
 /// If False, it does not, and may be estimated/only the size of the current page.
 /// Either way, you should probably always only trust hasMore.
 /// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
     pub use_total_results: bool,
-    /// No documentation provided.
-    pub total_results: i32,
-    /// No documentation provided.
-    pub replacement_continuation_token: String,
-    /// No documentation provided.
-    pub query: crate::generated::models::queries::PagedQuery,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SearchResultOfTrendingEntry {
 
+    /// No documentation provided.
+    pub has_more: bool,
+    /// No documentation provided.
+    pub query: crate::generated::models::queries::PagedQuery,
+    /// No documentation provided.
+    pub replacement_continuation_token: String,
+    /// No documentation provided.
+    pub results: i32,
+    /// No documentation provided.
+    pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
 /// If False, it does not, and may be estimated/only the size of the current page.
 /// Either way, you should probably always only trust hasMore.
 /// This is a long-held historical throwback to when we used to do paging with known total results. Those queries toasted our database, and we were left to hastily alter our endpoints and create backward- compatible shims, of which useTotalResults is one.
     pub use_total_results: bool,
-    /// No documentation provided.
-    pub query: crate::generated::models::queries::PagedQuery,
-    /// No documentation provided.
-    pub total_results: i32,
-    /// No documentation provided.
-    pub replacement_continuation_token: String,
-    /// No documentation provided.
-    pub has_more: bool,
-    /// No documentation provided.
-    pub results: i32,
 }
 
 /// No documentation provided.
@@ -1087,10 +1087,10 @@ pub struct SingleComponentResponseOfDestinyCharacterActivitiesComponent {
 
     /// No documentation provided.
     pub data: crate::generated::models::destiny::entities::characters::DestinyCharacterActivitiesComponent,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1099,10 +1099,10 @@ pub struct SingleComponentResponseOfDestinyCharacterComponent {
 
     /// No documentation provided.
     pub data: crate::generated::models::destiny::entities::characters::DestinyCharacterComponent,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1111,10 +1111,10 @@ pub struct SingleComponentResponseOfDestinyCharacterProgressionComponent {
 
     /// No documentation provided.
     pub data: crate::generated::models::destiny::entities::characters::DestinyCharacterProgressionComponent,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1122,21 +1122,21 @@ pub struct SingleComponentResponseOfDestinyCharacterProgressionComponent {
 pub struct SingleComponentResponseOfDestinyCharacterRecordsComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: crate::generated::models::destiny::components::records::DestinyCharacterRecordsComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SingleComponentResponseOfDestinyCharacterRenderComponent {
 
-    /// If true, this component is disabled.
-    pub disabled: Option<bool>,
     /// No documentation provided.
     pub data: crate::generated::models::destiny::entities::characters::DestinyCharacterRenderComponent,
+    /// If true, this component is disabled.
+    pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
@@ -1146,35 +1146,35 @@ pub struct SingleComponentResponseOfDestinyCharacterRenderComponent {
 pub struct SingleComponentResponseOfDestinyCollectiblesComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: crate::generated::models::destiny::components::collectibles::DestinyCollectiblesComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SingleComponentResponseOfDestinyCurrenciesComponent {
 
+    /// No documentation provided.
+    pub data: crate::generated::models::destiny::components::inventory::DestinyCurrenciesComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
-    pub data: crate::generated::models::destiny::components::inventory::DestinyCurrenciesComponent,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SingleComponentResponseOfDestinyInventoryComponent {
 
+    /// No documentation provided.
+    pub data: crate::generated::models::destiny::entities::inventory::DestinyInventoryComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
-    pub data: crate::generated::models::destiny::entities::inventory::DestinyInventoryComponent,
 }
 
 /// No documentation provided.
@@ -1182,11 +1182,11 @@ pub struct SingleComponentResponseOfDestinyInventoryComponent {
 pub struct SingleComponentResponseOfDestinyItemComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: crate::generated::models::destiny::entities::items::DestinyItemComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1194,11 +1194,11 @@ pub struct SingleComponentResponseOfDestinyItemComponent {
 pub struct SingleComponentResponseOfDestinyItemInstanceComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
+    pub data: crate::generated::models::destiny::entities::items::DestinyItemInstanceComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
-    pub data: crate::generated::models::destiny::entities::items::DestinyItemInstanceComponent,
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1206,11 +1206,11 @@ pub struct SingleComponentResponseOfDestinyItemInstanceComponent {
 pub struct SingleComponentResponseOfDestinyItemObjectivesComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: crate::generated::models::destiny::entities::items::DestinyItemObjectivesComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1231,10 +1231,10 @@ pub struct SingleComponentResponseOfDestinyItemPlugObjectivesComponent {
 
     /// No documentation provided.
     pub data: crate::generated::models::destiny::components::items::DestinyItemPlugObjectivesComponent,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1242,11 +1242,11 @@ pub struct SingleComponentResponseOfDestinyItemPlugObjectivesComponent {
 pub struct SingleComponentResponseOfDestinyItemRenderComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: crate::generated::models::destiny::entities::items::DestinyItemRenderComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1266,11 +1266,11 @@ pub struct SingleComponentResponseOfDestinyItemReusablePlugsComponent {
 pub struct SingleComponentResponseOfDestinyItemSocketsComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
+    pub data: crate::generated::models::destiny::entities::items::DestinyItemSocketsComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
-    pub data: crate::generated::models::destiny::entities::items::DestinyItemSocketsComponent,
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1289,10 +1289,10 @@ pub struct SingleComponentResponseOfDestinyItemStatsComponent {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SingleComponentResponseOfDestinyItemTalentGridComponent {
 
-    /// If true, this component is disabled.
-    pub disabled: Option<bool>,
     /// No documentation provided.
     pub data: crate::generated::models::destiny::entities::items::DestinyItemTalentGridComponent,
+    /// If true, this component is disabled.
+    pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
@@ -1314,21 +1314,21 @@ pub struct SingleComponentResponseOfDestinyKiosksComponent {
 pub struct SingleComponentResponseOfDestinyLoadoutsComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
+    pub data: crate::generated::models::destiny::components::loadouts::DestinyLoadoutsComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
-    pub data: crate::generated::models::destiny::components::loadouts::DestinyLoadoutsComponent,
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SingleComponentResponseOfDestinyMetricsComponent {
 
-    /// If true, this component is disabled.
-    pub disabled: Option<bool>,
     /// No documentation provided.
     pub data: crate::generated::models::destiny::components::metrics::DestinyMetricsComponent,
+    /// If true, this component is disabled.
+    pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
@@ -1337,12 +1337,12 @@ pub struct SingleComponentResponseOfDestinyMetricsComponent {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SingleComponentResponseOfDestinyPlatformSilverComponent {
 
+    /// No documentation provided.
+    pub data: crate::generated::models::destiny::components::inventory::DestinyPlatformSilverComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
-    pub data: crate::generated::models::destiny::components::inventory::DestinyPlatformSilverComponent,
 }
 
 /// No documentation provided.
@@ -1350,21 +1350,21 @@ pub struct SingleComponentResponseOfDestinyPlatformSilverComponent {
 pub struct SingleComponentResponseOfDestinyPlugSetsComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: crate::generated::models::destiny::components::plug_sets::DestinyPlugSetsComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SingleComponentResponseOfDestinyPresentationNodesComponent {
 
-    /// If true, this component is disabled.
-    pub disabled: Option<bool>,
     /// No documentation provided.
     pub data: crate::generated::models::destiny::components::presentation::DestinyPresentationNodesComponent,
+    /// If true, this component is disabled.
+    pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
@@ -1373,10 +1373,10 @@ pub struct SingleComponentResponseOfDestinyPresentationNodesComponent {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SingleComponentResponseOfDestinyProfileCollectiblesComponent {
 
-    /// If true, this component is disabled.
-    pub disabled: Option<bool>,
     /// No documentation provided.
     pub data: crate::generated::models::destiny::components::collectibles::DestinyProfileCollectiblesComponent,
+    /// If true, this component is disabled.
+    pub disabled: Option<bool>,
     /// No documentation provided.
     pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
@@ -1398,11 +1398,11 @@ pub struct SingleComponentResponseOfDestinyProfileComponent {
 pub struct SingleComponentResponseOfDestinyProfileProgressionComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: crate::generated::models::destiny::components::profiles::DestinyProfileProgressionComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1411,10 +1411,10 @@ pub struct SingleComponentResponseOfDestinyProfileRecordsComponent {
 
     /// No documentation provided.
     pub data: crate::generated::models::destiny::components::records::DestinyProfileRecordsComponent,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1423,10 +1423,10 @@ pub struct SingleComponentResponseOfDestinyProfileTransitoryComponent {
 
     /// No documentation provided.
     pub data: crate::generated::models::destiny::components::profiles::DestinyProfileTransitoryComponent,
-    /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1434,11 +1434,11 @@ pub struct SingleComponentResponseOfDestinyProfileTransitoryComponent {
 pub struct SingleComponentResponseOfDestinySocialCommendationsComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
+    pub data: crate::generated::models::destiny::components::social::DestinySocialCommendationsComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
-    pub data: crate::generated::models::destiny::components::social::DestinySocialCommendationsComponent,
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1446,11 +1446,11 @@ pub struct SingleComponentResponseOfDestinySocialCommendationsComponent {
 pub struct SingleComponentResponseOfDestinyStringVariablesComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
+    pub data: crate::generated::models::destiny::components::string_variables::DestinyStringVariablesComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
-    pub data: crate::generated::models::destiny::components::string_variables::DestinyStringVariablesComponent,
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1470,11 +1470,11 @@ pub struct SingleComponentResponseOfDestinyVendorCategoriesComponent {
 pub struct SingleComponentResponseOfDestinyVendorComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: crate::generated::models::destiny::entities::vendors::DestinyVendorComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1482,11 +1482,11 @@ pub struct SingleComponentResponseOfDestinyVendorComponent {
 pub struct SingleComponentResponseOfDestinyVendorGroupComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
-    /// No documentation provided.
     pub data: crate::generated::models::destiny::components::vendors::DestinyVendorGroupComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
+    /// No documentation provided.
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
@@ -1494,11 +1494,11 @@ pub struct SingleComponentResponseOfDestinyVendorGroupComponent {
 pub struct SingleComponentResponseOfDestinyVendorReceiptsComponent {
 
     /// No documentation provided.
-    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
+    pub data: crate::generated::models::destiny::entities::profiles::DestinyVendorReceiptsComponent,
     /// If true, this component is disabled.
     pub disabled: Option<bool>,
     /// No documentation provided.
-    pub data: crate::generated::models::destiny::entities::profiles::DestinyVendorReceiptsComponent,
+    pub privacy: crate::generated::models::components::ComponentPrivacySetting,
 }
 
 /// No documentation provided.
