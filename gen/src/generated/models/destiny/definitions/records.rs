@@ -37,7 +37,7 @@ pub struct DestinyRecordDefinition {
     /// Some records have multiple 'interval' objectives, and the record may be claimed at each completed interval
     pub interval_info: crate::generated::models::destiny::definitions::records::DestinyRecordIntervalBlock,
     /// No documentation provided.
-    pub lore_hash: Option<u32>,
+    pub lore_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::lore::DestinyLoreDefinition>>,
     /// No documentation provided.
     pub objective_hashes: i32,
     /// A quick reference to presentation nodes that have this node as a child. Presentation nodes can be parented under multiple parents.
@@ -98,7 +98,7 @@ pub struct DestinyRecordIntervalBlock {
 pub struct DestinyRecordIntervalObjective {
 
     /// No documentation provided.
-    pub interval_objective_hash: u32,
+    pub interval_objective_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
     /// No documentation provided.
     pub interval_score_value: i32,
 }
@@ -116,7 +116,7 @@ pub struct DestinyRecordIntervalRewards {
 pub struct DestinyRecordTitleBlock {
 
     /// No documentation provided.
-    pub gilding_tracking_record_hash: Option<u32>,
+    pub gilding_tracking_record_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::records::DestinyRecordDefinition>>,
     /// No documentation provided.
     pub has_title: bool,
     /// No documentation provided.

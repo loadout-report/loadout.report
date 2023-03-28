@@ -14,7 +14,7 @@ pub struct DestinyItemTransferRequest {
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
     pub item_id: i64,
     /// No documentation provided.
-    pub item_reference_hash: u32,
+    pub item_reference_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// No documentation provided.
     pub membership_type: crate::generated::models::BungieMembershipType,
     /// No documentation provided.

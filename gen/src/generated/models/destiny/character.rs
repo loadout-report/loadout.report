@@ -49,5 +49,5 @@ pub struct DestinyItemPeerView {
     /// The list of dyes that have been applied to this item.
     pub dyes: i32,
     /// The hash identifier of the item in question. Use it to look up the DestinyInventoryItemDefinition of the item for static rendering data.
-    pub item_hash: u32,
+    pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
 }

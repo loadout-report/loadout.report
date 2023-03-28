@@ -20,5 +20,5 @@ pub struct DestinyMetricsComponent {
     /// No documentation provided.
     pub metrics: i32,
     /// No documentation provided.
-    pub metrics_root_node_hash: u32,
+    pub metrics_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
 }

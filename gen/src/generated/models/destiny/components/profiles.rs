@@ -25,7 +25,7 @@ pub struct DestinyProfileTransitoryComponent {
     /// Information about whether and what might prevent you from joining this person on a fireteam.
     pub joinability: crate::generated::models::destiny::components::profiles::DestinyProfileTransitoryJoinability,
     /// The hash identifier for the DestinyDestinationDefinition of the last location you were orbiting when in orbit.
-    pub last_orbited_destination_hash: Option<u32>,
+    pub last_orbited_destination_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyDestinationDefinition>>,
     /// If you have any members currently in your party, this is some (very) bare-bones information about those members.
     pub party_members: i32,
     /// Information about tracked entities.
@@ -71,7 +71,7 @@ pub struct DestinyProfileTransitoryPartyMember {
     /// The player's last known display name.
     pub display_name: String,
     /// The identifier for the DestinyInventoryItemDefinition of the player's emblem.
-    pub emblem_hash: u32,
+    pub emblem_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// The Membership ID that matches the party member.
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
     pub membership_id: i64,
@@ -86,15 +86,15 @@ pub struct DestinyProfileTransitoryPartyMember {
 pub struct DestinyProfileTransitoryTrackingEntry {
 
     /// OPTIONAL - If this is tracking the status of a DestinyActivityDefinition, this is the identifier for that activity.
-    pub activity_hash: Option<u32>,
+    pub activity_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>>,
     /// OPTIONAL - If this is tracking the status of a DestinyInventoryItemDefinition, this is the identifier for that item.
-    pub item_hash: Option<u32>,
+    pub item_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// OPTIONAL - If this is tracking a DestinyLocationDefinition, this is the identifier for that location.
-    pub location_hash: Option<u32>,
+    pub location_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyLocationDefinition>>,
     /// OPTIONAL - If this is tracking the status of a DestinyObjectiveDefinition, this is the identifier for that objective.
-    pub objective_hash: Option<u32>,
+    pub objective_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>>,
     /// OPTIONAL - If this is tracking the status of a quest, this is the identifier for the DestinyInventoryItemDefinition that containst that questline data.
-    pub questline_item_hash: Option<u32>,
+    pub questline_item_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// OPTIONAL - I've got to level with you, I don't really know what this is. Is it when you started tracking it? Is it only populated for tracked items that have time limits?
 /// I don't know, but we can get at it - when I get time to actually test what it is, I'll update this. In the meantime, bask in the mysterious data.
     pub tracked_date: Option<chrono::DateTime<chrono::Utc>>,

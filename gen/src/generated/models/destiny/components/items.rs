@@ -19,7 +19,7 @@ pub struct DestinyItemPlugComponent {
 /// This list will be empty if the plug can be inserted.
     pub insert_fail_indexes: i32,
     /// The hash identifier of the DestinyInventoryItemDefinition that represents this plug.
-    pub plug_item_hash: u32,
+    pub plug_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// Sometimes, Plugs may have objectives: these are often used for flavor and display purposes, but they can be used for any arbitrary purpose (both fortunately and unfortunately). Recently (with Season 2) they were expanded in use to be used as the "gating" for whether the plug can be inserted at all. For instance, a Plug might be tracking the number of PVP kills you have made. It will use the parent item's data about that tracking status to determine what to show, and will generally show it using the DestinyObjectiveDefinition's progressDescription property. Refer to the plug's itemHash and objective property for more information if you would like to display even more data.
     pub plug_objectives: i32,
 }

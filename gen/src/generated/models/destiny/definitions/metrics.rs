@@ -23,7 +23,7 @@ pub struct DestinyMetricDefinition {
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// No documentation provided.
-    pub tracking_objective_hash: u32,
+    pub tracking_objective_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
     /// No documentation provided.
     pub trait_hashes: i32,
     /// No documentation provided.

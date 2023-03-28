@@ -15,7 +15,7 @@ pub struct DestinyPublicVendorComponent {
 /// Issue https://github.com/Bungie-net/api/issues/353 is tracking a fix to start providing visibility date ranges where possible in addition to this refresh date, so that all important dates for vendors are available for use.
     pub next_refresh_date: chrono::DateTime<chrono::Utc>,
     /// The unique identifier for the vendor. Use it to look up their DestinyVendorDefinition.
-    pub vendor_hash: u32,
+    pub vendor_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>,
 }
 
 /// Has character-agnostic information about an item being sold by a vendor.
@@ -28,13 +28,13 @@ pub struct DestinyPublicVendorSaleItemComponent {
     /// A summary of the current costs of the item.
     pub costs: i32,
     /// The hash of the item being sold, as a quick shortcut for looking up the DestinyInventoryItemDefinition of the sale item.
-    pub item_hash: u32,
+    pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// If this item has its own custom date where it may be removed from the Vendor's rotation, this is that date.
 /// Note that there's not actually any guarantee that it will go away: it could be chosen again and end up still being in the Vendor's sale items! But this is the next date where that test will occur, and is also the date that the game shows for availability on things like Bounties being sold. So it's the best we can give.
     pub override_next_refresh_date: Option<chrono::DateTime<chrono::Utc>>,
     /// If populated, this is the hash of the item whose icon (and other secondary styles, but *not* the human readable strings) should override whatever icons/styles are on the item being sold.
 /// If you don't do this, certain items whose styles are being overridden by socketed items - such as the "Recycle Shader" item - would show whatever their default icon/style is, and it wouldn't be pretty or look accurate.
-    pub override_style_item_hash: Option<u32>,
+    pub override_style_item_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// How much of the item you'll be getting.
     pub quantity: i32,
     /// The index into the DestinyVendorDefinition.itemList property. Note that this means Vendor data *is* Content Version dependent: make sure you have the latest content before you use Vendor data, or these indexes may mismatch. 
@@ -54,7 +54,7 @@ pub struct DestinyVendorBaseComponent {
 /// Issue https://github.com/Bungie-net/api/issues/353 is tracking a fix to start providing visibility date ranges where possible in addition to this refresh date, so that all important dates for vendors are available for use.
     pub next_refresh_date: chrono::DateTime<chrono::Utc>,
     /// The unique identifier for the vendor. Use it to look up their DestinyVendorDefinition.
-    pub vendor_hash: u32,
+    pub vendor_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>,
 }
 
 /// Represents a specific group of vendors that can be rendered in the recommended order.
@@ -63,7 +63,7 @@ pub struct DestinyVendorBaseComponent {
 pub struct DestinyVendorGroup {
 
     /// No documentation provided.
-    pub vendor_group_hash: u32,
+    pub vendor_group_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorGroupDefinition>,
     /// The ordered list of vendors within a particular group.
     pub vendor_hashes: i32,
 }
@@ -86,13 +86,13 @@ pub struct DestinyVendorSaleItemBaseComponent {
     /// A summary of the current costs of the item.
     pub costs: i32,
     /// The hash of the item being sold, as a quick shortcut for looking up the DestinyInventoryItemDefinition of the sale item.
-    pub item_hash: u32,
+    pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// If this item has its own custom date where it may be removed from the Vendor's rotation, this is that date.
 /// Note that there's not actually any guarantee that it will go away: it could be chosen again and end up still being in the Vendor's sale items! But this is the next date where that test will occur, and is also the date that the game shows for availability on things like Bounties being sold. So it's the best we can give.
     pub override_next_refresh_date: Option<chrono::DateTime<chrono::Utc>>,
     /// If populated, this is the hash of the item whose icon (and other secondary styles, but *not* the human readable strings) should override whatever icons/styles are on the item being sold.
 /// If you don't do this, certain items whose styles are being overridden by socketed items - such as the "Recycle Shader" item - would show whatever their default icon/style is, and it wouldn't be pretty or look accurate.
-    pub override_style_item_hash: Option<u32>,
+    pub override_style_item_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// How much of the item you'll be getting.
     pub quantity: i32,
     /// The index into the DestinyVendorDefinition.itemList property. Note that this means Vendor data *is* Content Version dependent: make sure you have the latest content before you use Vendor data, or these indexes may mismatch. 

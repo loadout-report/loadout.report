@@ -26,15 +26,15 @@ pub struct DestinyEventCardDefinition {
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// No documentation provided.
-    pub seal_presentation_node_hash: u32,
+    pub seal_presentation_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
-    pub ticket_currency_item_hash: u32,
+    pub ticket_currency_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// No documentation provided.
     pub ticket_vendor_category_hash: u32,
     /// No documentation provided.
-    pub ticket_vendor_hash: u32,
+    pub ticket_vendor_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>,
     /// No documentation provided.
-    pub triumphs_presentation_node_hash: u32,
+    pub triumphs_presentation_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
 }
 
 /// No documentation provided.
@@ -62,7 +62,7 @@ pub struct DestinyEventCardImages {
 pub struct DestinySeasonDefinition {
 
     /// No documentation provided.
-    pub artifact_item_hash: Option<u32>,
+    pub artifact_item_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// No documentation provided.
     pub background_image_path: String,
     /// No documentation provided.
@@ -79,15 +79,15 @@ pub struct DestinySeasonDefinition {
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// No documentation provided.
-    pub seal_presentation_node_hash: Option<u32>,
+    pub seal_presentation_node_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
     /// No documentation provided.
     pub season_number: i32,
     /// No documentation provided.
-    pub season_pass_hash: Option<u32>,
+    pub season_pass_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::seasons::DestinySeasonPassDefinition>>,
     /// No documentation provided.
-    pub season_pass_progression_hash: Option<u32>,
+    pub season_pass_progression_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyProgressionDefinition>>,
     /// No documentation provided.
-    pub seasonal_challenges_presentation_node_hash: Option<u32>,
+    pub seasonal_challenges_presentation_node_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
     /// No documentation provided.
     pub start_date: Option<chrono::DateTime<chrono::Utc>>,
 }
@@ -105,11 +105,11 @@ pub struct DestinySeasonPassDefinition {
     pub index: i32,
     /// I know what you're thinking, but I promise we're not going to duplicate and drown you. Instead, we're giving you sweet, sweet power bonuses.
 ///  Prestige progression is further progression that you can make on the Season pass after you gain max ranks, that will ultimately increase your power/light level over the theoretical limit.
-    pub prestige_progression_hash: u32,
+    pub prestige_progression_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyProgressionDefinition>,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// This is the progression definition related to the progression for the initial levels 1-100 that provide item rewards for the Season pass. Further experience after you reach the limit is provided in the "Prestige" progression referred to by prestigeProgressionHash.
-    pub reward_progression_hash: u32,
+    pub reward_progression_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyProgressionDefinition>,
 }
 
 /// Defines the promotional text, images, and links to preview this season.

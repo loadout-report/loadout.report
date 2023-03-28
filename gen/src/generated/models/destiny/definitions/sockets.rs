@@ -112,7 +112,7 @@ pub struct DestinySocketTypeDefinition {
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// No documentation provided.
-    pub socket_category_hash: u32,
+    pub socket_category_hash: crate::id::Id<crate::generated::models::destiny::definitions::sockets::DestinySocketCategoryDefinition>,
     /// Sometimes a socket isn't visible. These are some of the conditions under which sockets of this type are not visible. Unfortunately, the truth of visibility is much, much more complex. Best to rely on the live data for whether the socket is visible and enabled.
     pub visibility: crate::generated::models::destiny::DestinySocketVisibility,
 }
@@ -122,7 +122,7 @@ pub struct DestinySocketTypeDefinition {
 pub struct DestinySocketTypeScalarMaterialRequirementEntry {
 
     /// No documentation provided.
-    pub currency_item_hash: u32,
+    pub currency_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// No documentation provided.
     pub scalar_value: i32,
 }

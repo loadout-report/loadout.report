@@ -57,7 +57,7 @@ pub struct DestinyActivityGraphDisplayObjectiveDefinition {
     /// $NOTE $amola 2017-01-19 This field is apparently something that CUI uses to manually wire up objectives to display info. I am unsure how it works.
     pub id: u32,
     /// The objective being shown on the map.
-    pub objective_hash: u32,
+    pub objective_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
 }
 
 /// When a Graph needs to show active Progressions, this defines those objectives as well as an identifier.
@@ -75,7 +75,7 @@ pub struct DestinyActivityGraphDisplayProgressionDefinition {
 pub struct DestinyActivityGraphNodeActivityDefinition {
 
     /// The activity that will be activated if the user clicks on this node. Controls all activity-related information displayed on the node if it is active (the text shown in the tooltip etc)
-    pub activity_hash: u32,
+    pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// An identifier for this node activity. It is only guaranteed to be unique within the Activity Graph.
     pub node_activity_id: u32,
 }

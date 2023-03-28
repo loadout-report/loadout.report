@@ -8,13 +8,13 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DestinyLoadoutComponent {
 
     /// No documentation provided.
-    pub color_hash: u32,
+    pub color_hash: crate::id::Id<crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutColorDefinition>,
     /// No documentation provided.
-    pub icon_hash: u32,
+    pub icon_hash: crate::id::Id<crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutIconDefinition>,
     /// No documentation provided.
     pub items: i32,
     /// No documentation provided.
-    pub name_hash: u32,
+    pub name_hash: crate::id::Id<crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutNameDefinition>,
 }
 
 /// No documentation provided.

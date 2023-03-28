@@ -25,7 +25,7 @@ pub struct DestinySocialCommendationDefinition {
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// No documentation provided.
-    pub parent_commendation_node_hash: u32,
+    pub parent_commendation_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::social::DestinySocialCommendationNodeDefinition>,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
 }
@@ -48,7 +48,7 @@ pub struct DestinySocialCommendationNodeDefinition {
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// No documentation provided.
-    pub parent_commendation_node_hash: u32,
+    pub parent_commendation_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::social::DestinySocialCommendationNodeDefinition>,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
 }

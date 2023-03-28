@@ -43,7 +43,7 @@ pub struct DestinyPresentationNodeChildEntry {
     /// Use this value to sort the presentation node children in ascending order.
     pub node_display_priority: u32,
     /// No documentation provided.
-    pub presentation_node_hash: u32,
+    pub presentation_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
 }
 
 /// No documentation provided.
@@ -75,7 +75,7 @@ pub struct DestinyPresentationNodeChildrenBlock {
 pub struct DestinyPresentationNodeCollectibleChildEntry {
 
     /// No documentation provided.
-    pub collectible_hash: u32,
+    pub collectible_hash: crate::id::Id<crate::generated::models::destiny::definitions::collectibles::DestinyCollectibleDefinition>,
     /// Use this value to sort the presentation node children in ascending order.
     pub node_display_priority: u32,
 }
@@ -85,7 +85,7 @@ pub struct DestinyPresentationNodeCollectibleChildEntry {
 pub struct DestinyPresentationNodeCraftableChildEntry {
 
     /// No documentation provided.
-    pub craftable_item_hash: u32,
+    pub craftable_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// Use this value to sort the presentation node children in ascending order.
     pub node_display_priority: u32,
 }
@@ -101,7 +101,7 @@ pub struct DestinyPresentationNodeDefinition {
     /// The child entities contained by this presentation node.
     pub children: crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeChildrenBlock,
     /// If this presentation node has an associated "Record" that you can accomplish for completing its children, this is the identifier of that Record.
-    pub completion_record_hash: Option<u32>,
+    pub completion_record_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::records::DestinyRecordDefinition>>,
     /// If this presentation node has children, but the game doesn't let you inspect the details of those children, that is indicated here.
     pub disable_child_subscreen_navigation: bool,
     /// No documentation provided.
@@ -118,7 +118,7 @@ pub struct DestinyPresentationNodeDefinition {
     /// No documentation provided.
     pub node_type: crate::generated::models::destiny::DestinyPresentationNodeType,
     /// If this presentation node shows a related objective (for instance, if it tracks the progress of its children), the objective being tracked is indicated here.
-    pub objective_hash: Option<u32>,
+    pub objective_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>>,
     /// The original icon for this presentation node, before we futzed with it.
     pub original_icon: String,
     /// A quick reference to presentation nodes that have this node as a child. Presentation nodes can be parented under multiple parents.
@@ -146,7 +146,7 @@ pub struct DestinyPresentationNodeDefinition {
 pub struct DestinyPresentationNodeMetricChildEntry {
 
     /// No documentation provided.
-    pub metric_hash: u32,
+    pub metric_hash: crate::id::Id<crate::generated::models::destiny::definitions::metrics::DestinyMetricDefinition>,
     /// Use this value to sort the presentation node children in ascending order.
     pub node_display_priority: u32,
 }
@@ -158,7 +158,7 @@ pub struct DestinyPresentationNodeRecordChildEntry {
     /// Use this value to sort the presentation node children in ascending order.
     pub node_display_priority: u32,
     /// No documentation provided.
-    pub record_hash: u32,
+    pub record_hash: crate::id::Id<crate::generated::models::destiny::definitions::records::DestinyRecordDefinition>,
 }
 
 /// Presentation nodes can be restricted by various requirements. This defines the rules of those requirements, and the message(s) to be shown if these requirements aren't met.

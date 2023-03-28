@@ -80,19 +80,21 @@ pub enum PropertyType {
     Enum(enums::Enum),
     Boolean(booleans::BooleanType),
     Dictionary(dictionary::Dictionary),
+    IdReference(String),
     Any, // fuck
 }
 
 impl Render for PropertyType {
     fn render(&self, name: String) -> Tokens {
         match self {
-            PropertyType::Array(_) => quote!(i32),
+            PropertyType::Array(_) => quote!(i32), // todo: array support
             PropertyType::Reference(r) => render_reference(r),
             PropertyType::String(s) => s.render(name),
             PropertyType::Number(n) => n.render(name),
             PropertyType::Enum(e) => e.render(name),
             PropertyType::Boolean(_) => quote!(bool),
-            PropertyType::Dictionary(_) => quote!(i32),
+            PropertyType::Dictionary(_) => quote!(i32), // todo: dictionary support
+            PropertyType::IdReference(r) => render_id_reference(r), // todo: id reference support
             PropertyType::Any => quote!(serde_json::Value), // ugh
         }
     }
@@ -107,7 +109,10 @@ impl From<Schema> for PropertyType {
                 "number" => PropertyType::Number(From::from(value)),
                 "integer" => match value.enum_reference {
                     Some(_) => PropertyType::Enum(From::from(value)),
-                    None => PropertyType::Number(From::from(value)),
+                    None => match value.mapped_definition {
+                        Some(d) => PropertyType::IdReference(d.ref_.clone().unwrap()),
+                        None => PropertyType::Number(From::from(value)),
+                    },
                 },
                 "boolean" => PropertyType::Boolean(From::from(value)),
                 "object" => match value.dictionary_key {
@@ -186,4 +191,15 @@ pub fn render_reference(reference: &str) -> Tokens {
     let reference = reference.trim_start_matches("::");
     println!("resulting reference: {}", reference);
     quote!(crate::generated::models::$reference)
+}
+
+pub fn render_id_reference(reference: &str) -> Tokens {
+    println!("rendering id reference: {}", reference);
+    let (namespace, reference) = resolve(reference);
+    let namespace = namespace.replace('/', "::");
+    let reference = format!("{}::{}", namespace, reference);
+    let reference = reference.replace("::::", "::");
+    let reference = reference.trim_start_matches("::");
+    println!("resulting id reference: {}", reference);
+    quote!(crate::id::Id<crate::generated::models::$reference>)
 }

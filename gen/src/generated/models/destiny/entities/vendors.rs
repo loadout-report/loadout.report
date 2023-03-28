@@ -41,7 +41,7 @@ pub struct DestinyVendorComponent {
     /// If this vendor has a seasonal rank, this will be the calculated value of that rank. How nice is that? I mean, that's pretty sweeet. It's a whole 32 bit integer.
     pub seasonal_rank: Option<i32>,
     /// The unique identifier for the vendor. Use it to look up their DestinyVendorDefinition.
-    pub vendor_hash: u32,
+    pub vendor_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>,
     /// An index into the vendor definition's "locations" property array, indicating which location they are at currently. If -1, then the vendor has no known location (and you may choose not to show them in your UI as a result. I mean, it's your bag honey)
     pub vendor_location_index: i32,
 }
@@ -62,7 +62,7 @@ pub struct DestinyVendorSaleItemComponent {
 /// It is preferred to use these over requiredUnlocks and unlockStatuses: the latter are provided mostly in case someone can do something interesting with it that I didn't anticipate.
     pub failure_indexes: i32,
     /// The hash of the item being sold, as a quick shortcut for looking up the DestinyInventoryItemDefinition of the sale item.
-    pub item_hash: u32,
+    pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// If available, a list that describes which item values (rewards) should be shown (true) or hidden (false).
     pub item_value_visibility: i32,
     /// If this item has its own custom date where it may be removed from the Vendor's rotation, this is that date.
@@ -70,7 +70,7 @@ pub struct DestinyVendorSaleItemComponent {
     pub override_next_refresh_date: Option<chrono::DateTime<chrono::Utc>>,
     /// If populated, this is the hash of the item whose icon (and other secondary styles, but *not* the human readable strings) should override whatever icons/styles are on the item being sold.
 /// If you don't do this, certain items whose styles are being overridden by socketed items - such as the "Recycle Shader" item - would show whatever their default icon/style is, and it wouldn't be pretty or look accurate.
-    pub override_style_item_hash: Option<u32>,
+    pub override_style_item_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// How much of the item you'll be getting.
     pub quantity: i32,
     /// If you can't buy the item due to a complex character state, these will be hashes for DestinyUnlockDefinitions that you can check to see messages regarding the failure (if the unlocks have human readable information: it is not guaranteed that Unlocks will have human readable strings, and your application will have to handle that)

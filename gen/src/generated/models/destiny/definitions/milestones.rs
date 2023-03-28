@@ -10,7 +10,7 @@ pub struct DestinyMilestoneActivityDefinition {
 
     /// The "Conceptual" activity hash. Basically, we picked the lowest level activity and are treating it as the canonical definition of the activity for rendering purposes.
 /// If you care about the specific difficulty modes and variations, use the activities under "Variants".
-    pub conceptual_activity_hash: u32,
+    pub conceptual_activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// A milestone-referenced activity can have many variants, such as Tiers or alternative modes of play.
 /// Even if there is only a single variant, the details for these are represented within as a variant definition.
 /// It is assumed that, if this DestinyMilestoneActivityDefinition is active, then all variants should be active.
@@ -25,7 +25,7 @@ pub struct DestinyMilestoneActivityVariantDefinition {
 
     /// The hash to use for looking up the variant Activity's definition (DestinyActivityDefinition), where you can find its distinguishing characteristics such as difficulty level and recommended light level. 
 /// Frequently, that will be the only distinguishing characteristics in practice, which is somewhat of a bummer.
-    pub activity_hash: u32,
+    pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// If you care to do so, render the variants in the order prescribed by this value.
 /// When you combine live Milestone data with the definition, the order becomes more useful because you'll be cross-referencing between the definition and live data.
     pub order: i32,
@@ -38,7 +38,7 @@ pub struct DestinyMilestoneChallengeActivityDefinition {
     /// If the activity and its challenge is visible on any of these nodes, it will be returned.
     pub activity_graph_nodes: i32,
     /// The activity for which this challenge is active.
-    pub activity_hash: u32,
+    pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// No documentation provided.
     pub challenges: i32,
     /// Phases related to this activity, if there are any.
@@ -69,7 +69,7 @@ pub struct DestinyMilestoneChallengeActivityPhase {
 pub struct DestinyMilestoneChallengeDefinition {
 
     /// The challenge related to this milestone.
-    pub challenge_objective_hash: u32,
+    pub challenge_objective_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
 }
 
 /// Milestones are an in-game concept where they're attempting to tell you what you can do next in-game.
@@ -154,13 +154,13 @@ pub struct DestinyMilestoneQuestDefinition {
     /// The full set of all possible "conceptual activities" that are related to this Milestone. Tiers or alternative modes of play within these conceptual activities will be defined as sub-entities. Keyed by the Conceptual Activity Hash. Use the key to look up DestinyActivityDefinition.
     pub activities: i32,
     /// Sometimes, a Milestone's quest is related to an entire Destination rather than a specific activity. In that situation, this will be the hash of that Destination. Hotspots are currently the only Milestones that expose this data, but that does not preclude this data from being returned for other Milestones in the future.
-    pub destination_hash: Option<u32>,
+    pub destination_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyDestinationDefinition>>,
     /// The individual quests may have different definitions from the overall milestone: if there's a specific active quest, use these displayProperties instead of that of the overall DestinyMilestoneDefinition.
     pub display_properties: crate::generated::models::destiny::definitions::common::DestinyDisplayPropertiesDefinition,
     /// If populated, this image can be shown instead of the generic milestone's image when this quest is live, or it can be used to show a background image for the quest itself that differs from that of the Activity or the Milestone.
     pub override_image: String,
     /// The item representing this Milestone quest. Use this hash to look up the DestinyInventoryItemDefinition for the quest to find its steps and human readable data.
-    pub quest_item_hash: u32,
+    pub quest_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// The rewards you will get for completing this quest, as best as we could extract them from our data. Sometimes, it'll be a decent amount of data. Sometimes, it's going to be sucky. Sorry.
     pub quest_rewards: crate::generated::models::destiny::definitions::milestones::DestinyMilestoneQuestRewardsDefinition,
 }
@@ -173,14 +173,14 @@ pub struct DestinyMilestoneQuestRewardItem {
     /// Indicates that this item quantity may be conditionally shown or hidden, based on various sources of state. For example: server flags, account state, or character progress.
     pub has_conditional_visibility: bool,
     /// The hash identifier for the item in question. Use it to look up the item's DestinyInventoryItemDefinition.
-    pub item_hash: u32,
+    pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// If this quantity is referring to a specific instance of an item, this will have the item's instance ID. Normally, this will be null.
     #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
     pub item_instance_id: Option<i64>,
     /// The amount of the item needed/available depending on the context of where DestinyItemQuantity is being used.
     pub quantity: i32,
     /// The quest reward item *may* be associated with a vendor. If so, this is that vendor. Use this hash to look up the DestinyVendorDefinition.
-    pub vendor_hash: Option<u32>,
+    pub vendor_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>>,
     /// The quest reward item *may* be associated with a vendor. If so, this is the index of the item being sold, which we can use at runtime to find instanced item information for the reward item.
     pub vendor_item_index: Option<i32>,
 }
@@ -226,7 +226,7 @@ pub struct DestinyMilestoneRewardEntryDefinition {
     /// The string identifier, if you care about it. Only guaranteed unique within the specific Milestone.
     pub reward_entry_identifier: String,
     /// If this reward is redeemed at a Vendor, this is the hash of the Vendor to go to in order to redeem the reward. Use this hash to look up the DestinyVendorDefinition.
-    pub vendor_hash: Option<u32>,
+    pub vendor_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>>,
 }
 
 /// The type of milestone. Milestones can be Tutorials, one-time/triggered/non-repeating but not necessarily tutorials, or Repeating Milestones.
@@ -264,5 +264,5 @@ pub struct DestinyMilestoneValueDefinition {
 pub struct DestinyMilestoneVendorDefinition {
 
     /// The hash of the vendor whose wares should be shown as associated with the Milestone.
-    pub vendor_hash: u32,
+    pub vendor_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>,
 }

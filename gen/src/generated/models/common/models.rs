@@ -86,9 +86,9 @@ pub struct CoreSystem {
 pub struct Destiny2CoreSettings {
 
     /// No documentation provided.
-    pub active_seals_root_node_hash: u32,
+    pub active_seals_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
-    pub active_triumphs_root_node_hash: u32,
+    pub active_triumphs_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
     pub ammo_type_heavy_icon: String,
     /// No documentation provided.
@@ -96,49 +96,49 @@ pub struct Destiny2CoreSettings {
     /// No documentation provided.
     pub ammo_type_special_icon: String,
     /// No documentation provided.
-    pub badges_root_node: u32,
+    pub badges_root_node: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
-    pub collection_root_node: u32,
+    pub collection_root_node: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
-    pub crafting_root_node_hash: u32,
+    pub crafting_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
     pub current_rank_progression_hashes: i32,
     /// No documentation provided.
-    pub current_season_hash: Option<u32>,
+    pub current_season_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::seasons::DestinySeasonDefinition>>,
     /// No documentation provided.
-    pub current_seasonal_artifact_hash: u32,
+    pub current_seasonal_artifact_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>,
     /// No documentation provided.
-    pub exotic_catalysts_root_node_hash: u32,
+    pub exotic_catalysts_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
     pub future_season_hashes: i32,
     /// No documentation provided.
-    pub guardian_rank_constants_hash: u32,
+    pub guardian_rank_constants_hash: crate::id::Id<crate::generated::models::destiny::definitions::guardian_ranks::DestinyGuardianRankConstantsDefinition>,
     /// No documentation provided.
-    pub guardian_ranks_root_node_hash: u32,
+    pub guardian_ranks_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
     pub insert_plug_free_blocked_socket_type_hashes: i32,
     /// No documentation provided.
     pub insert_plug_free_protected_plug_item_hashes: i32,
     /// No documentation provided.
-    pub legacy_seals_root_node_hash: u32,
+    pub legacy_seals_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
-    pub legacy_triumphs_root_node_hash: u32,
+    pub legacy_triumphs_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
-    pub loadout_constants_hash: u32,
+    pub loadout_constants_hash: crate::id::Id<crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutConstantsDefinition>,
     /// No documentation provided.
-    pub lore_root_node_hash: u32,
+    pub lore_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
-    pub medals_root_node: u32,
+    pub medals_root_node: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
-    pub medals_root_node_hash: u32,
+    pub medals_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
-    pub metrics_root_node: u32,
+    pub metrics_root_node: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
     pub past_season_hashes: i32,
     /// No documentation provided.
-    pub records_root_node: u32,
+    pub records_root_node: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
-    pub seasonal_challenges_presentation_node_hash: Option<u32>,
+    pub seasonal_challenges_presentation_node_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
     /// No documentation provided.
     pub undiscovered_collectible_image: String,
 }

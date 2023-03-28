@@ -33,24 +33,24 @@ pub struct DestinyChecklistDefinition {
 pub struct DestinyChecklistEntryDefinition {
 
     /// No documentation provided.
-    pub activity_hash: Option<u32>,
+    pub activity_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>>,
     /// Note that a Bubble's hash doesn't uniquely identify a "top level" entity in Destiny. Only the combination of location and bubble can uniquely identify a place in the world of Destiny: so if bubbleHash is populated, locationHash must too be populated for it to have any meaning.
 /// You can use this property if it is populated to look up the DestinyLocationDefinition's associated .locationReleases[].activityBubbleName property.
     pub bubble_hash: Option<u32>,
     /// No documentation provided.
-    pub destination_hash: Option<u32>,
+    pub destination_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyDestinationDefinition>>,
     /// Even if no other associations exist, we will give you *something* for display properties. In cases where we have no associated entities, it may be as simple as a numerical identifier.
     pub display_properties: crate::generated::models::destiny::definitions::common::DestinyDisplayPropertiesDefinition,
     /// The identifier for this Checklist entry. Guaranteed unique only within this Checklist Definition, and not globally/for all checklists.
     pub hash: u32,
     /// No documentation provided.
-    pub item_hash: Option<u32>,
+    pub item_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// No documentation provided.
-    pub location_hash: Option<u32>,
+    pub location_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyLocationDefinition>>,
     /// The scope at which this specific entry can be computed.
     pub scope: crate::generated::models::destiny::DestinyScope,
     /// No documentation provided.
-    pub vendor_hash: Option<u32>,
+    pub vendor_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>>,
     /// No documentation provided.
     pub vendor_interaction_index: Option<i32>,
 }

@@ -44,5 +44,5 @@ pub struct DestinyArtifactTierDefinition {
 pub struct DestinyArtifactTierItemDefinition {
 
     /// The identifier of the Plug Item unlocked by activating this item in the Artifact.
-    pub item_hash: u32,
+    pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
 }

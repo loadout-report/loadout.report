@@ -10,9 +10,9 @@ pub struct DestinyCharacterRecordsComponent {
     /// No documentation provided.
     pub featured_record_hashes: i32,
     /// The hash for the root presentation node definition of Triumph categories.
-    pub record_categories_root_node_hash: u32,
+    pub record_categories_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// The hash for the root presentation node definition of Triumph Seals.
-    pub record_seals_root_node_hash: u32,
+    pub record_seals_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
     pub records: i32,
 }
@@ -28,15 +28,15 @@ pub struct DestinyProfileRecordsComponent {
     /// Your 'lifetime' Triumphs score.
     pub lifetime_score: i32,
     /// The hash for the root presentation node definition of Triumph categories.
-    pub record_categories_root_node_hash: u32,
+    pub record_categories_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// The hash for the root presentation node definition of Triumph Seals.
-    pub record_seals_root_node_hash: u32,
+    pub record_seals_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
     pub records: i32,
     /// Your 'active' Triumphs score, maintained for backwards compatibility.
     pub score: i32,
     /// If this profile is tracking a record, this is the hash identifier of the record it is tracking.
-    pub tracked_record_hash: Option<u32>,
+    pub tracked_record_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::records::DestinyRecordDefinition>>,
 }
 
 /// No documentation provided.
@@ -62,9 +62,9 @@ pub struct DestinyRecordComponent {
 pub struct DestinyRecordsComponent {
 
     /// The hash for the root presentation node definition of Triumph categories.
-    pub record_categories_root_node_hash: u32,
+    pub record_categories_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// The hash for the root presentation node definition of Triumph Seals.
-    pub record_seals_root_node_hash: u32,
+    pub record_seals_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
     pub records: i32,
 }

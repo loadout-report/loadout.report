@@ -21,7 +21,7 @@ pub struct DestinyGuardianRankConstantsDefinition {
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// No documentation provided.
-    pub root_node_hash: u32,
+    pub root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
 }
 
 /// No documentation provided.
@@ -42,7 +42,7 @@ pub struct DestinyGuardianRankDefinition {
     /// No documentation provided.
     pub overlay_mask_image_path: String,
     /// No documentation provided.
-    pub presentation_node_hash: u32,
+    pub presentation_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
     pub rank_number: i32,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!

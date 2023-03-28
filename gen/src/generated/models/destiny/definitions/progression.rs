@@ -15,7 +15,7 @@ pub struct DestinyProgressionLevelRequirementDefinition {
     pub index: i32,
     /// The progression whose level should be used to determine the level requirement.
 /// Look up the DestinyProgressionDefinition with this hash for more information about the progression in question.
-    pub progression_hash: u32,
+    pub progression_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyProgressionDefinition>,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// A curve of level requirements, weighted by the related progressions' level.

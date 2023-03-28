@@ -8,9 +8,9 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DestinyCollectibleAcquisitionBlock {
 
     /// No documentation provided.
-    pub acquire_material_requirement_hash: Option<u32>,
+    pub acquire_material_requirement_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyMaterialRequirementSetDefinition>>,
     /// No documentation provided.
-    pub acquire_timestamp_unlock_value_hash: Option<u32>,
+    pub acquire_timestamp_unlock_value_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyUnlockValueDefinition>>,
 }
 
 /// Defines a
@@ -27,7 +27,7 @@ pub struct DestinyCollectibleDefinition {
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// No documentation provided.
-    pub item_hash: u32,
+    pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// A quick reference to presentation nodes that have this node as a child. Presentation nodes can be parented under multiple parents.
     pub parent_node_hashes: i32,
     /// No documentation provided.
@@ -57,7 +57,7 @@ pub struct DestinyCollectibleDefinition {
 pub struct DestinyCollectibleStateBlock {
 
     /// No documentation provided.
-    pub obscured_override_item_hash: Option<u32>,
+    pub obscured_override_item_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// No documentation provided.
     pub requirements: crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeRequirementsBlock,
 }
