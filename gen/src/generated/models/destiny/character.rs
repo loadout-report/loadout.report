@@ -17,11 +17,11 @@ pub struct DestinyCharacterCustomization {
     /// No documentation provided.
     pub face: u32,
     /// No documentation provided.
-    pub feature_colors: i32,
+    pub feature_colors: Vec<u32>,
     /// No documentation provided.
     pub feature_index: i32,
     /// No documentation provided.
-    pub hair_colors: i32,
+    pub hair_colors: Vec<u32>,
     /// No documentation provided.
     pub hair_index: i32,
     /// No documentation provided.
@@ -39,7 +39,7 @@ pub struct DestinyCharacterCustomization {
 pub struct DestinyCharacterPeerView {
 
     /// No documentation provided.
-    pub equipment: i32,
+    pub equipment: Vec<crate::generated::models::destiny::character::DestinyItemPeerView>,
 }
 
 /// Bare minimum summary information for an item, for the sake of 3D rendering the item.
@@ -47,7 +47,7 @@ pub struct DestinyCharacterPeerView {
 pub struct DestinyItemPeerView {
 
     /// The list of dyes that have been applied to this item.
-    pub dyes: i32,
+    pub dyes: Vec<crate::generated::models::destiny::DyeReference>,
     /// The hash identifier of the item in question. Use it to look up the DestinyInventoryItemDefinition of the item for static rendering data.
     pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
 }

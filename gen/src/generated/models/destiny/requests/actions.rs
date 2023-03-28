@@ -92,7 +92,7 @@ pub struct DestinyItemSetActionRequest {
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
     pub character_id: i64,
     /// No documentation provided.
-    pub item_ids: i32,
+    pub item_ids: Vec<i64>,
     /// No documentation provided.
     pub membership_type: crate::generated::models::BungieMembershipType,
 }

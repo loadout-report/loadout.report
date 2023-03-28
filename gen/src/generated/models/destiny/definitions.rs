@@ -34,7 +34,7 @@ pub struct DestinyActivityChallengeDefinition {
 
     /// The rewards as they're represented in the UI. Note that they generally link to "dummy" items that give a summary of rewards rather than direct, real items themselves.
 /// If the quantity is 0, don't show the quantity.
-    pub dummy_rewards: i32,
+    pub dummy_rewards: Vec<crate::generated::models::destiny::DestinyItemQuantity>,
     /// The hash for the Objective that matches this challenge. Use it to look up the DestinyObjectiveDefinition.
     pub objective_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
 }
@@ -49,19 +49,19 @@ pub struct DestinyActivityChallengeDefinition {
 pub struct DestinyActivityDefinition {
 
     /// Unfortunately, in practice this is almost never populated. In theory, this is supposed to tell which Activity Graph to show if you bring up the director while in this activity.
-    pub activity_graph_list: i32,
+    pub activity_graph_list: Vec<crate::generated::models::destiny::definitions::DestinyActivityGraphListEntryDefinition>,
     /// The recommended light level for this activity.
     pub activity_light_level: i32,
     /// A list of location mappings that are affected by this activity. Pulled out of DestinyLocationDefinitions for our/your lookup convenience.
-    pub activity_location_mappings: i32,
+    pub activity_location_mappings: Vec<crate::generated::models::destiny::constants::DestinyEnvironmentLocationMapping>,
     /// The hash identifiers for Activity Modes relevant to this activity.  Note that if this is a playlist, the specific playlist entry chosen will determine the actual activity modes that end up being relevant.
-    pub activity_mode_hashes: i32,
+    pub activity_mode_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityModeDefinition>>,
     /// The activity modes - if any - in enum form. Because we can't seem to escape the enums.
-    pub activity_mode_types: i32,
+    pub activity_mode_types: Vec<crate::generated::models::destiny::historical_stats::definitions::DestinyActivityModeType>,
     /// The hash identifier for the Activity Type of this Activity. You may use it to look up the DestinyActivityTypeDefinition for human readable info, but be forewarned: Playlists and many PVP Map Activities will map to generic Activity Types. You'll have to use your knowledge of the Activity Mode being played to get more specific information about what the user is playing.
     pub activity_type_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityTypeDefinition>,
     /// An activity can have many Challenges, of which any subset of them may be active for play at any given period of time. This gives the information about the challenges and data that we use to understand when they're active and what rewards they provide. Sadly, at the moment there's no central definition for challenges: much like "Skulls" were in Destiny 1, these are defined on individual activities and there can be many duplicates/near duplicates across the Destiny 2 ecosystem. I have it in mind to centralize these in a future revision of the API, but we are out of time.
-    pub challenges: i32,
+    pub challenges: Vec<crate::generated::models::destiny::definitions::DestinyActivityChallengeDefinition>,
     /// The hash identifier for the Destination on which this Activity is played. Use it to look up the DestinyDestinationDefinition for human readable info about the destination. A Destination can be thought of as a more specific location than a "Place". For instance, if the "Place" is Earth, the "Destination" would be a specific city or region on Earth.
     pub destination_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyDestinationDefinition>,
     /// If this activity had an activity mode directly defined on it, this will be the hash of that mode.
@@ -78,19 +78,19 @@ pub struct DestinyActivityDefinition {
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// The list of phases or points of entry into an activity, along with information we can use to determine their gating and availability.
-    pub insertion_points: i32,
+    pub insertion_points: Vec<crate::generated::models::destiny::definitions::DestinyActivityInsertionPointDefinition>,
     /// If True, this Activity is actually a Playlist that refers to multiple possible specific Activities and Activity Modes. For instance, a Crucible Playlist may have references to multiple Activities (Maps) with multiple Activity Modes (specific PvP gameplay modes). If this is true, refer to the playlistItems property for the specific entries in the playlist.
     pub is_playlist: bool,
     /// If true, this activity is a PVP activity or playlist.
     pub is_pv_p: bool,
     /// The set of all possible loadout requirements that could be active for this activity. Only one will be active at any given time, and you can discover which one through activity-associated data such as Milestones that have activity info on them.
-    pub loadouts: i32,
+    pub loadouts: Vec<crate::generated::models::destiny::definitions::DestinyActivityLoadoutRequirementSet>,
     /// This block of data provides information about the Activity's matchmaking attributes: how many people can join and such.
     pub matchmaking: crate::generated::models::destiny::definitions::DestinyActivityMatchmakingBlockDefinition,
     /// Activities can have Modifiers, as defined in DestinyActivityModifierDefinition. These are references to the modifiers that *can* be applied to that activity, along with data that we use to determine if that modifier is actually active at any given point in time.
-    pub modifiers: i32,
+    pub modifiers: Vec<crate::generated::models::destiny::definitions::DestinyActivityModifierReferenceDefinition>,
     /// If there are status strings related to the activity and based on internal state of the game, account, or character, then this will be the definition of those strings and the states needed in order for the strings to be shown.
-    pub optional_unlock_strings: i32,
+    pub optional_unlock_strings: Vec<crate::generated::models::destiny::definitions::DestinyActivityUnlockStringDefinition>,
     /// The unadulterated form of the display properties, as they ought to be shown in the Director (if the activity appears in the director).
     pub original_display_properties: crate::generated::models::destiny::definitions::common::DestinyDisplayPropertiesDefinition,
     /// When Activities are completed, we generate a "Post-Game Carnage Report", or PGCR, with details about what happened in that activity (how many kills someone got, which team won, etc...) We use this image as the background when displaying PGCR information, and often use it when we refer to the Activity in general.
@@ -98,7 +98,7 @@ pub struct DestinyActivityDefinition {
     /// The hash identifier for the "Place" on which this Activity is played. Use it to look up the DestinyPlaceDefinition for human readable info about the Place. A Place is the largest-scoped concept for location information. For instance, if the "Place" is Earth, the "Destination" would be a specific city or region on Earth.
     pub place_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyPlaceDefinition>,
     /// Represents all of the possible activities that could be played in the Playlist, along with information that we can use to determine if they are active at the present time.
-    pub playlist_items: i32,
+    pub playlist_items: Vec<crate::generated::models::destiny::definitions::DestinyActivityPlaylistItemDefinition>,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// If the activity has an icon associated with a specific release (such as a DLC), this is the path to that release's icon.
@@ -106,7 +106,7 @@ pub struct DestinyActivityDefinition {
     /// If the activity will not be visible until a specific and known time, this will be the seconds since the Epoch when it will become visible.
     pub release_time: i32,
     /// The expected possible rewards for the activity. These rewards may or may not be accessible for an individual player based on their character state, the account state, and even the game's state overall. But it is a useful reference for possible rewards you can earn in the activity. These match up to rewards displayed when you hover over the Activity in the in-game Director, and often refer to Placeholder or "Dummy" items: items that tell you what you can earn in vague terms rather than what you'll specifically be earning (partly because the game doesn't even know what you'll earn specifically until you roll for it at the end)
-    pub rewards: i32,
+    pub rewards: Vec<crate::generated::models::destiny::definitions::DestinyActivityRewardDefinition>,
     /// The title, subtitle, and icon for the activity as determined by Selection Screen data, if there is any for this activity. There won't be data in this field if the activity is never shown in a selection/options screen.
     pub selection_screen_display_properties: crate::generated::models::destiny::definitions::common::DestinyDisplayPropertiesDefinition,
     /// The difficulty tier of the activity.
@@ -148,9 +148,9 @@ pub struct DestinyActivityInsertionPointDefinition {
 pub struct DestinyActivityLoadoutRequirement {
 
     /// No documentation provided.
-    pub allowed_equipped_item_hashes: i32,
+    pub allowed_equipped_item_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// No documentation provided.
-    pub allowed_weapon_sub_types: i32,
+    pub allowed_weapon_sub_types: Vec<crate::generated::models::destiny::DestinyItemSubType>,
     /// No documentation provided.
     pub equipment_slot_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyEquipmentSlotDefinition>,
 }
@@ -160,7 +160,7 @@ pub struct DestinyActivityLoadoutRequirement {
 pub struct DestinyActivityLoadoutRequirementSet {
 
     /// The set of requirements that will be applied on the activity if this requirement set is active.
-    pub requirements: i32,
+    pub requirements: Vec<crate::generated::models::destiny::definitions::DestinyActivityLoadoutRequirement>,
 }
 
 /// Information about matchmaking and party size for the activity.
@@ -209,7 +209,7 @@ pub struct DestinyActivityModeDefinition {
     /// The relative ordering of activity modes.
     pub order: i32,
     /// The hash identifiers of the DestinyActivityModeDefinitions that represent all of the "parent" modes for this mode. For instance, the Nightfall Mode is also a member of AllStrikes and AllPvE.
-    pub parent_hashes: i32,
+    pub parent_hashes: Vec<u32>,
     /// If this activity mode has a related PGCR image, this will be the path to said image.
     pub pgcr_image: String,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
@@ -232,9 +232,9 @@ pub struct DestinyActivityPlaylistItemDefinition {
     /// The hash identifier of the Activity that can be played. Use it to look up the DestinyActivityDefinition.
     pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// The hash identifiers for Activity Modes relevant to this entry.
-    pub activity_mode_hashes: i32,
+    pub activity_mode_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityModeDefinition>>,
     /// The activity modes - if any - in enum form. Because we can't seem to escape the enums.
-    pub activity_mode_types: i32,
+    pub activity_mode_types: Vec<crate::generated::models::destiny::historical_stats::definitions::DestinyActivityModeType>,
     /// If this playlist entry had an activity mode directly defined on it, this will be the hash of that mode.
     pub direct_activity_mode_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityModeDefinition>>,
     /// If the playlist entry had an activity mode directly defined on it, this will be the enum value of that mode.
@@ -247,7 +247,7 @@ pub struct DestinyActivityRewardDefinition {
 
     /// The "Items provided" in the reward. This is almost always a pointer to a DestinyInventoryItemDefintion for an item that you can't actually earn in-game, but that has name/description/icon information for the vague concept of the rewards you will receive. This is because the actual reward generation is non-deterministic and extremely complicated, so the best the game can do is tell you what you'll get in vague terms. And so too shall we.
 /// Interesting trivia: you actually *do* earn these items when you complete the activity. They go into a single-slot bucket on your profile, which is how you see the pop-ups of these rewards when you complete an activity that match these "dummy" items. You can even see them if you look at the last one you earned in your profile-level inventory through the BNet API! Who said reading documentation is a waste of time?
-    pub reward_items: i32,
+    pub reward_items: Vec<crate::generated::models::destiny::DestinyItemQuantity>,
     /// The header for the reward set, if any.
     pub reward_text: String,
 }
@@ -385,14 +385,14 @@ pub struct DestinyDestinationBubbleSettingDefinition {
 pub struct DestinyDestinationDefinition {
 
     /// If the Destination has default Activity Graphs (i.e. "Map") that should be shown in the director, this is the list of those Graphs. At most, only one should be active at any given time for a Destination: these would represent, for example, different variants on a Map if the Destination is changing on a macro level based on game state.
-    pub activity_graph_entries: i32,
+    pub activity_graph_entries: Vec<crate::generated::models::destiny::definitions::DestinyActivityGraphListEntryDefinition>,
     /// A Destination may have many "Bubbles" zones with human readable properties.
 /// We don't get as much info as I'd like about them - I'd love to return info like where on the map they are located - but at least this gives you the name of those bubbles. bubbleSettings and bubbles both have the identical number of entries, and you should match up their indexes to provide matching bubble and bubbleSettings data.
 /// DEPRECATED - Just use bubbles, it now has this data.
-    pub bubble_settings: i32,
+    pub bubble_settings: Vec<crate::generated::models::destiny::definitions::DestinyDestinationBubbleSettingDefinition>,
     /// This provides the unique identifiers for every bubble in the destination (only guaranteed unique within the destination), and any intrinsic properties of the bubble.
 /// bubbleSettings and bubbles both have the identical number of entries, and you should match up their indexes to provide matching bubble and bubbleSettings data.
-    pub bubbles: i32,
+    pub bubbles: Vec<crate::generated::models::destiny::definitions::DestinyBubbleDefinition>,
     /// If this Destination has a default Free-Roam activity, this is the hash for that Activity. Use it to look up the DestinyActivityDefintion.
     pub default_freeroam_activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// No documentation provided.
@@ -440,7 +440,7 @@ pub struct DestinyEntitySearchResult {
     /// The items found that are matches/near matches for the searched-for term, sorted by something vaguely resembling "relevance". Hopefully this will get better in the future.
     pub results: crate::generated::models::SearchResultOfDestinyEntitySearchResultItem,
     /// A list of suggested words that might make for better search results, based on the text searched for.
-    pub suggested_words: i32,
+    pub suggested_words: Vec<String>,
 }
 
 /// An individual Destiny Entity returned from the entity search.
@@ -466,7 +466,7 @@ pub struct DestinyEquipmentSlotDefinition {
     /// If True, equipped items should have their custom art dyes applied when rendering the item. Otherwise, custom art dyes on an item should be ignored if the item is equipped in this slot.
     pub apply_custom_art_dyes: bool,
     /// The Art Dye Channels that apply to this equipment slot.
-    pub art_dye_channels: i32,
+    pub art_dye_channels: Vec<crate::generated::models::destiny::definitions::DestinyArtDyeReference>,
     /// The inventory bucket that owns this equipment slot.
     pub bucket_type_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryBucketDefinition>,
     /// No documentation provided.
@@ -492,7 +492,7 @@ pub struct DestinyEquippingBlockDefinition {
 /// For now, this can only be "equip on acquire", which would mean that the item will be automatically equipped as soon as you pick it up.
     pub attributes: crate::generated::models::destiny::EquippingItemBlockAttributes,
     /// These are strings that represent the possible Game/Account/Character state failure conditions that can occur when trying to equip the item. They match up one-to-one with requiredUnlockExpressions.
-    pub display_strings: i32,
+    pub display_strings: Vec<String>,
     /// An equipped item *must* be equipped in an Equipment Slot. This is the hash identifier of the DestinyEquipmentSlotDefinition into which it must be equipped.
     pub equipment_slot_type_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyEquipmentSlotDefinition>,
     /// If the item is part of a gearset, this is a reference to that gearset item.
@@ -527,7 +527,7 @@ pub struct DestinyFactionDefinition {
     /// The faction token item hashes, and their respective progression values.
     pub token_values: i32,
     /// List of vendors that are associated with this faction. The last vendor that passes the unlock flag checks is the one that should be shown.
-    pub vendors: i32,
+    pub vendors: Vec<crate::generated::models::destiny::definitions::DestinyFactionVendorDefinition>,
 }
 
 /// These definitions represent faction vendors at different points in the game.
@@ -616,7 +616,7 @@ pub struct DestinyInventoryItemDefinition {
     /// BNet may forbid the execution of actions on this item via the API. If that is occurring, allowActions will be set to false.
     pub allow_actions: bool,
     /// If any animations were extracted from game content for this item, these will be the definitions of those animations.
-    pub animations: i32,
+    pub animations: Vec<crate::generated::models::destiny::definitions::animations::DestinyAnimationReference>,
     /// Sometimes, an item will have a background color. Most notably this occurs with Emblems, who use the Background Color for small character nameplates such as the "friends" view you see in-game. There are almost certainly other items that have background color as well, though I have not bothered to investigate what items have it nor what purposes they serve: use it as you will.
     pub background_color: crate::generated::models::destiny::misc::DestinyColor,
     /// Some weapons and plugs can have a "Breaker Type": a special ability that works sort of like damage type vulnerabilities. This is (almost?) always set on items by plugs.
@@ -631,13 +631,13 @@ pub struct DestinyInventoryItemDefinition {
     /// Recipe items will have relevant crafting information available here.
     pub crafting: crate::generated::models::destiny::definitions::DestinyItemCraftingBlockDefinition,
     /// Theoretically, an item can have many possible damage types. In *practice*, this is not true, but just in case weapons start being made that have multiple (for instance, an item where a socket has reusable plugs for every possible damage type that you can choose from freely), this field will return all of the possible damage types that are available to the weapon by default.
-    pub damage_type_hashes: i32,
+    pub damage_type_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyDamageTypeDefinition>>,
     /// This is the list of all damage types that we know ahead of time the item can take on. Unfortunately, this does not preclude the possibility of something funky happening to give the item a damage type that cannot be predicted beforehand: for example, if some designer decides to create arbitrary non-reusable plugs that cause damage type to change.
 /// This damage type prediction will only use the following to determine potential damage types:
 /// - Intrinsic perks
 /// - Talent Node perks
 /// - Known, reusable plugs for sockets
-    pub damage_types: i32,
+    pub damage_types: Vec<crate::generated::models::destiny::DamageType>,
     /// If the item has a damage type that could be considered to be default, it will be populated here.
 /// For various upsetting reasons, it's surprisingly cumbersome to figure this out. I hope you're happy.
     pub default_damage_type: crate::generated::models::destiny::DamageType,
@@ -674,12 +674,12 @@ pub struct DestinyInventoryItemDefinition {
     /// If this item can exist in an inventory, this block will be non-null. In practice, every item that currently exists has one of these blocks. But note that it is not necessarily guaranteed.
     pub inventory: crate::generated::models::destiny::definitions::DestinyItemInventoryBlockDefinition,
     /// If the item has stats, this block will be defined. It has the "raw" investment stats for the item. These investment stats don't take into account the ways that the items can spawn, nor do they take into account any Stat Group transformations. I have retained them for debugging purposes, but I do not know how useful people will find them.
-    pub investment_stats: i32,
+    pub investment_stats: Vec<crate::generated::models::destiny::definitions::DestinyItemInvestmentStatDefinition>,
     /// If true, this is a dummy vendor-wrapped item template. Items purchased from Eververse will be "wrapped" by one of these items so that we can safely provide refund capabilities before the item is "unwrapped".
     pub is_wrapper: bool,
     /// BNet attempts to make a more formal definition of item "Categories", as defined by DestinyItemCategoryDefinition. This is a list of all Categories that we were able to algorithmically determine that this item is a member of. (for instance, that it's a "Weapon", that it's an "Auto Rifle", etc...)
 /// The algorithm for these is, unfortunately, volatile. If you believe you see a miscategorized item, please let us know on the Bungie API forums.
-    pub item_category_hashes: i32,
+    pub item_category_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyItemCategoryDefinition>>,
     /// A value indicating the "sub-type" of the item. For instance, where an item might have an itemType value "Weapon", this will be something more specific like "Auto Rifle".
 /// itemCategoryHashes are the preferred way of identifying types, we have retained this enum for its convenience.
     pub item_sub_type: crate::generated::models::destiny::DestinyItemSubType,
@@ -691,7 +691,7 @@ pub struct DestinyInventoryItemDefinition {
     /// The localized title/name of the item's type. This can be whatever the designers want, and has no guarantee of consistency between items.
     pub item_type_display_name: String,
     /// If we added any help or informational URLs about this item, these will be those links.
-    pub links: i32,
+    pub links: Vec<crate::generated::models::links::HyperlinkReference>,
     /// If the item has any related Lore (DestinyLoreDefinition), this will be the hash identifier you can use to look up the lore definition.
     pub lore_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::lore::DestinyLoreDefinition>>,
     /// If this item has available metrics to be shown, this block will be non-null have the appropriate hashes defined.
@@ -703,7 +703,7 @@ pub struct DestinyInventoryItemDefinition {
     /// If this item has Objectives (extra tasks that can be accomplished related to the item... most frequently when the item is a Quest Step and the Objectives need to be completed to move on to the next Quest Step), this block will be non-null and the objectives defined herein.
     pub objectives: crate::generated::models::destiny::definitions::DestinyItemObjectiveBlockDefinition,
     /// If the item has any *intrinsic* Perks (Perks that it will provide regardless of Sockets, Talent Grid, and other transitory state), they will be defined here.
-    pub perks: i32,
+    pub perks: Vec<crate::generated::models::destiny::definitions::DestinyItemPerkEntryDefinition>,
     /// If this item *is* a Plug, this will be non-null and the info defined herein. See DestinyItemPlugDefinition for more information.
     pub plug: crate::generated::models::destiny::definitions::items::DestinyItemPlugDefinition,
     /// If this item can be Used or Acquired to gain other items (for instance, how Eververse Boxes can be consumed to get items from the box), this block will be non-null and will give summary information for the items that can be acquired.
@@ -742,13 +742,13 @@ pub struct DestinyInventoryItemDefinition {
     /// If the item has a Talent Grid, this will be non-null and the properties of the grid defined herein. Note that, while many items still have talent grids, the only ones with meaningful Nodes still on them will be Subclass/"Build" items.
     pub talent_grid: crate::generated::models::destiny::definitions::DestinyItemTalentGridBlockDefinition,
     /// Tooltips that only come up conditionally for the item. Check the live data DestinyItemComponent.tooltipNotificationIndexes property for which of these should be shown at runtime.
-    pub tooltip_notifications: i32,
+    pub tooltip_notifications: Vec<crate::generated::models::destiny::definitions::DestinyItemTooltipNotification>,
     /// An identifier that the game UI uses to determine what type of tooltip to show for the item. These have no corresponding definitions that BNet can link to: so it'll be up to you to interpret and display your UI differently according to these styles (or ignore it).
     pub tooltip_style: String,
     /// These are the corresponding trait definition hashes for the entries in traitIds.
-    pub trait_hashes: i32,
+    pub trait_hashes: Vec<u32>,
     /// Traits are metadata tags applied to this item. For example: armor slot, weapon type, foundry, faction, etc. These IDs come from the game and don't map to any content, but should still be useful.
-    pub trait_ids: i32,
+    pub trait_ids: Vec<String>,
     /// If this item can be rendered, this block will be non-null and will be populated with rendering information.
     pub translation_block: crate::generated::models::destiny::definitions::DestinyItemTranslationBlockDefinition,
     /// A string identifier that the game's UI uses to determine how the item should be rendered in inventory screens and the like. This could really be anything - at the moment, we don't have the time to really breakdown and maintain all the possible strings this could be, partly because new ones could be added ad hoc. But if you want to use it to dictate your own UI, or look for items with a certain display style, go for it!
@@ -796,13 +796,13 @@ pub struct DestinyItemActionBlockDefinition {
     /// If the action has an overlay screen associated with it, this is the name of that screen. Unfortunately, we cannot return the screen's data itself.
     pub overlay_screen_name: String,
     /// If performing this action earns you Progression, this is the list of progressions and values granted for those progressions by performing this action.
-    pub progression_rewards: i32,
+    pub progression_rewards: Vec<crate::generated::models::destiny::definitions::DestinyProgressionRewardDefinition>,
     /// The identifier hash for the Cooldown associated with this action. We have not pulled this data yet for you to have more data to use for cooldowns.
     pub required_cooldown_hash: u32,
     /// The number of seconds to delay before allowing this action to be performed again.
     pub required_cooldown_seconds: i32,
     /// If the action requires other items to exist or be destroyed, this is the list of those items and requirements.
-    pub required_items: i32,
+    pub required_items: Vec<crate::generated::models::destiny::definitions::DestinyItemActionRequiredItemDefinition>,
     /// Theoretically, an item could have a localized string for a hint about the location in which the action should be performed. In practice, no items yet have this property.
     pub required_location: String,
     /// If true, this action will be performed as soon as you earn this item. Some rewards work this way, providing you a single item to pick up from a reward-granting vendor in-game and then immediately consuming itself to provide you multiple items.
@@ -851,7 +851,7 @@ pub struct DestinyItemCategoryDefinition {
     /// If this category is a "parent" category of other categories, those children will have their hashes listed in rendering order here, and can be looked up using these hashes against DestinyItemCategoryDefinition.
 /// In this way, you can build up a visual hierarchy of item categories. That's what we did, and you can do it too. I believe in you. Yes, you, Carl.
 /// (I hope someone named Carl reads this someday)
-    pub grouped_category_hashes: i32,
+    pub grouped_category_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyItemCategoryDefinition>>,
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity, but not globally.
 /// When entities refer to each other in Destiny content, it is this hash that they are referring to.
     pub hash: u32,
@@ -864,7 +864,7 @@ pub struct DestinyItemCategoryDefinition {
     /// If the item belongs to this bucket, it does belong to this category.
     pub origin_bucket_identifier: String,
     /// All item category hashes of "parent" categories: categories that contain this as a child through the hierarchy of groupedCategoryHashes. It's a bit redundant, but having this child-centric list speeds up some calculations.
-    pub parent_category_hashes: i32,
+    pub parent_category_hashes: Vec<u32>,
     /// If the item is a plug, this is the identifier we expect to find associated with it if it is in this category.
     pub plug_category_identifier: String,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
@@ -894,13 +894,13 @@ pub struct DestinyItemCraftingBlockDefinition {
     /// A reference to the base material requirements for crafting with this recipe.
     pub base_material_requirements: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyMaterialRequirementSetDefinition>>,
     /// A list of 'bonus' socket plugs that may be available if certain requirements are met.
-    pub bonus_plugs: i32,
+    pub bonus_plugs: Vec<crate::generated::models::destiny::definitions::DestinyItemCraftingBlockBonusPlugDefinition>,
     /// No documentation provided.
-    pub failed_requirement_strings: i32,
+    pub failed_requirement_strings: Vec<String>,
     /// A reference to the item definition that is created when crafting with this 'recipe' item.
     pub output_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// A list of socket type hashes that describes which sockets are required for crafting with this recipe.
-    pub required_socket_type_hashes: i32,
+    pub required_socket_type_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::sockets::DestinySocketTypeDefinition>>,
 }
 
 /// An overly complicated wrapper for the item level at which the item should spawn.
@@ -916,7 +916,7 @@ pub struct DestinyItemCreationEntryLevelDefinition {
 pub struct DestinyItemGearsetBlockDefinition {
 
     /// The list of hashes for items in the gearset. Use them to look up DestinyInventoryItemDefinition entries for the items in the set.
-    pub item_list: i32,
+    pub item_list: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// The maximum possible number of items that can be collected.
     pub tracking_value_max: i32,
 }
@@ -983,7 +983,7 @@ pub struct DestinyItemInvestmentStatDefinition {
 pub struct DestinyItemMetricBlockDefinition {
 
     /// Hash identifiers for any DestinyPresentationNodeDefinition entry that can be used to list available metrics. Any metric listed directly below these nodes, or in any of these nodes' children will be made available for selection.
-    pub available_metric_category_node_hashes: i32,
+    pub available_metric_category_node_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
 }
 
 /// An item can have objectives on it. In practice, these are the exclusive purview of "Quest Step" items: DestinyInventoryItemDefinitions that represent a specific step in a Quest.
@@ -993,17 +993,17 @@ pub struct DestinyItemObjectiveBlockDefinition {
 
     /// For every entry in objectiveHashes, there is a corresponding entry in this array at the same index. If the objective is meant to be associated with a specific DestinyActivityDefinition, there will be a valid hash at that index. Otherwise, it will be invalid (0).
 /// Rendered somewhat obsolete by perObjectiveDisplayProperties, which currently has much the same information but may end up with more info in the future.
-    pub display_activity_hashes: i32,
+    pub display_activity_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>>,
     /// No documentation provided.
     pub display_as_stat_tracker: bool,
     /// The localized string for narrative text related to this quest step, if any.
     pub narrative: String,
     /// The hashes to Objectives (DestinyObjectiveDefinition) that are part of this Quest Step, in the order that they should be rendered.
-    pub objective_hashes: i32,
+    pub objective_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>>,
     /// The localized string describing an action to be performed associated with the objectives, if any.
     pub objective_verb_name: String,
     /// One entry per Objective on the item, it will have related display information.
-    pub per_objective_display_properties: i32,
+    pub per_objective_display_properties: Vec<crate::generated::models::destiny::definitions::DestinyObjectiveDisplayProperties>,
     /// A hashed value for the questTypeIdentifier, because apparently I like to be redundant.
     pub quest_type_hash: u32,
     /// The identifier for the type of quest being performed, if any. Not associated with any fixed definition, yet.
@@ -1034,7 +1034,7 @@ pub struct DestinyItemPreviewBlockDefinition {
     /// If this item should show you Artifact information when you preview it, this is the hash identifier of the DestinyArtifactDefinition for the artifact whose data should be shown.
     pub artifact_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::artifacts::DestinyArtifactDefinition>>,
     /// This is a list of the items being previewed, categorized in the same way as they are in the preview UI.
-    pub derived_item_categories: i32,
+    pub derived_item_categories: Vec<crate::generated::models::destiny::definitions::items::DestinyDerivedItemCategoryDefinition>,
     /// If the preview has an associated action (like "Open"), this will be the localized string for that action.
     pub preview_action_string: String,
     /// If the preview data is derived from a fake "Preview" Vendor, this will be the hash identifier for the DestinyVendorDefinition of that fake vendor.
@@ -1051,25 +1051,25 @@ pub struct DestinyItemQualityBlockDefinition {
     /// The latest version available for this item.
     pub current_version: u32,
     /// Icon overlays to denote the item version and power cap status.
-    pub display_version_watermark_icons: i32,
+    pub display_version_watermark_icons: Vec<String>,
     /// The hash identifier for the infusion. It does not map to a Definition entity.
 /// DEPRECATED: Items can now have multiple infusion categories. Please use infusionCategoryHashes instead.
     pub infusion_category_hash: u32,
     /// If any one of these hashes matches any value in another item's infusionCategoryHashes, the two can infuse with each other.
-    pub infusion_category_hashes: i32,
+    pub infusion_category_hashes: Vec<u32>,
     /// The string identifier for this item's "infusability", if any. 
 /// Items that match the same infusionCategoryName are allowed to infuse with each other.
 /// DEPRECATED: Items can now have multiple infusion categories. Please use infusionCategoryHashes instead.
     pub infusion_category_name: String,
     /// The "base" defined level of an item. This is a list because, in theory, each Expansion could define its own base level for an item.
 /// In practice, not only was that never done in Destiny 1, but now this isn't even populated at all. When it's not populated, the level at which it spawns has to be inferred by Reward information, of which BNet receives an imperfect view and will only be reliable on instanced data as a result.
-    pub item_levels: i32,
+    pub item_levels: Vec<i32>,
     /// An item can refer to pre-set level requirements. They are defined in DestinyProgressionLevelRequirementDefinition, and you can use this hash to find the appropriate definition.
     pub progression_level_requirement_hash: crate::id::Id<crate::generated::models::destiny::definitions::progression::DestinyProgressionLevelRequirementDefinition>,
     /// qualityLevel is used in combination with the item's level to calculate stats like Attack and Defense. It plays a role in that calculation, but not nearly as large as itemLevel does.
     pub quality_level: i32,
     /// The list of versions available for this item.
-    pub versions: i32,
+    pub versions: Vec<crate::generated::models::destiny::definitions::DestinyItemVersionDefinition>,
 }
 
 /// Some items are "sacks" - they can be "opened" to produce other items. This is information related to its sack status, mostly UI strings. Engrams are an example of items that are considered to be "Sacks".
@@ -1093,7 +1093,7 @@ pub struct DestinyItemSackBlockDefinition {
 pub struct DestinyItemSetBlockDefinition {
 
     /// A collection of hashes of set items, for items such as Quest Metadata items that possess this data.
-    pub item_list: i32,
+    pub item_list: Vec<crate::generated::models::destiny::definitions::DestinyItemSetBlockEntryDefinition>,
     /// The description of the quest line that this quest step is a part of.
     pub quest_line_description: String,
     /// The name of the quest line that this quest step is a part of.
@@ -1125,11 +1125,11 @@ pub struct DestinyItemSocketBlockDefinition {
     /// This was supposed to be a string that would give per-item details about sockets. In practice, it turns out that all this ever has is the localized word "details". ... that's lame, but perhaps it will become something cool in the future.
     pub detail: String,
     /// Each intrinsic (or immutable/permanent) socket on an item is defined here, along with the plug that is permanently affixed to the socket.
-    pub intrinsic_sockets: i32,
+    pub intrinsic_sockets: Vec<crate::generated::models::destiny::definitions::DestinyItemIntrinsicSocketEntryDefinition>,
     /// A convenience property, that refers to the sockets in the "sockets" property, pre-grouped by category and ordered in the manner that they should be grouped in the UI. You could form this yourself with the existing data, but why would you want to? Enjoy life man.
-    pub socket_categories: i32,
+    pub socket_categories: Vec<crate::generated::models::destiny::definitions::DestinyItemSocketCategoryDefinition>,
     /// Each non-intrinsic (or mutable) socket on an item is defined here. Check inside for more info.
-    pub socket_entries: i32,
+    pub socket_entries: Vec<crate::generated::models::destiny::definitions::DestinyItemSocketEntryDefinition>,
 }
 
 /// Sockets are grouped into categories in the UI. These define which category and which sockets are under that category.
@@ -1139,7 +1139,7 @@ pub struct DestinyItemSocketCategoryDefinition {
     /// The hash for the Socket Category: a quick way to go get the header display information for the category. Use it to look up DestinySocketCategoryDefinition info.
     pub socket_category_hash: crate::id::Id<crate::generated::models::destiny::definitions::sockets::DestinySocketCategoryDefinition>,
     /// Use these indexes to look up the sockets in the "sockets.socketEntries" property on the item definition. These are the indexes under the category, in game-rendered order.
-    pub socket_indexes: i32,
+    pub socket_indexes: Vec<i32>,
 }
 
 /// The definition information for a specific socket on an item. This will determine how the socket behaves in-game.
@@ -1160,7 +1160,7 @@ pub struct DestinyItemSocketEntryDefinition {
     pub randomized_plug_set_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::sockets::DestinyPlugSetDefinition>>,
     /// This is a list of pre-determined plugs that can *always* be plugged into this socket, without the character having the plug in their inventory.
 /// If this list is populated, you will not be allowed to plug an arbitrary item in the socket: you will only be able to choose from one of these reusable plugs.
-    pub reusable_plug_items: i32,
+    pub reusable_plug_items: Vec<crate::generated::models::destiny::definitions::DestinyItemSocketEntryPlugItemDefinition>,
     /// If this socket's plugs come from a reusable DestinyPlugSetDefinition, this is the identifier for that set. We added this concept to reduce some major duplication that's going to come from sockets as replacements for what was once implemented as large sets of items and kiosks (like Emotes).
 ///  As of Shadowkeep, these will come up much more frequently and be driven by game content rather than custom curation.
     pub reusable_plug_set_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::sockets::DestinyPlugSetDefinition>>,
@@ -1197,11 +1197,11 @@ pub struct DestinyItemSourceBlockDefinition {
     /// If we found that this item is exclusive to a specific platform, this will be set to the BungieMembershipType enumeration that matches that platform.
     pub exclusive: crate::generated::models::BungieMembershipType,
     /// The list of hash identifiers for Reward Sources that hint where the item can be found (DestinyRewardSourceDefinition).
-    pub source_hashes: i32,
+    pub source_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyRewardSourceDefinition>>,
     /// A collection of details about the stats that were computed for the ways we found that the item could be spawned.
-    pub sources: i32,
+    pub sources: Vec<crate::generated::models::destiny::definitions::sources::DestinyItemSourceDefinition>,
     /// A denormalized reference back to vendors that potentially sell this item.
-    pub vendor_sources: i32,
+    pub vendor_sources: Vec<crate::generated::models::destiny::definitions::DestinyItemVendorSourceReference>,
 }
 
 /// Information about the item's calculated stats, with as much data as we can find for the stats without having an actual instance of the item.
@@ -1266,15 +1266,15 @@ pub struct DestinyItemTooltipNotification {
 pub struct DestinyItemTranslationBlockDefinition {
 
     /// No documentation provided.
-    pub arrangements: i32,
+    pub arrangements: Vec<crate::generated::models::destiny::definitions::DestinyGearArtArrangementReference>,
     /// No documentation provided.
-    pub custom_dyes: i32,
+    pub custom_dyes: Vec<crate::generated::models::destiny::DyeReference>,
     /// No documentation provided.
-    pub default_dyes: i32,
+    pub default_dyes: Vec<crate::generated::models::destiny::DyeReference>,
     /// No documentation provided.
     pub has_geometry: bool,
     /// No documentation provided.
-    pub locked_dyes: i32,
+    pub locked_dyes: Vec<crate::generated::models::destiny::DyeReference>,
     /// No documentation provided.
     pub weapon_pattern_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinySandboxPatternDefinition>,
     /// No documentation provided.
@@ -1288,7 +1288,7 @@ pub struct DestinyItemTranslationBlockDefinition {
 pub struct DestinyItemValueBlockDefinition {
 
     /// References to the items that make up this item's "value", and the quantity.
-    pub item_value: i32,
+    pub item_value: Vec<crate::generated::models::destiny::DestinyItemQuantity>,
     /// If there's a localized text description of the value provided, this will be said description.
     pub value_description: String,
 }
@@ -1302,7 +1302,7 @@ pub struct DestinyItemVendorSourceReference {
     /// The identifier for the vendor that may sell this item.
     pub vendor_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>,
     /// The Vendor sale item indexes that represent the sale information for this item. The same vendor may sell an item in multiple "ways", hence why this is a list. (for instance, a weapon may be "sold" as a reward in a quest, for Glimmer, and for Masterwork Cores: each of those ways would be represented by a different vendor sale item with a different index)
-    pub vendor_item_indexes: i32,
+    pub vendor_item_indexes: Vec<i32>,
 }
 
 /// The version definition currently just holds a reference to the power cap.
@@ -1324,7 +1324,7 @@ pub struct DestinyLocationDefinition {
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// A Location may refer to different specific spots in the world based on the world's current state. This is a list of those potential spots, and the data we can use at runtime to determine which one of the spots is the currently valid one.
-    pub location_releases: i32,
+    pub location_releases: Vec<crate::generated::models::destiny::definitions::DestinyLocationReleaseDefinition>,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// If the location has a Vendor on it, this is the hash identifier for that Vendor. Look them up with DestinyVendorDefinition.
@@ -1362,7 +1362,7 @@ pub struct DestinyLocationReleaseDefinition {
     /// If we had map information, this spawnPoint would be interesting. But sadly, we don't have that info.
     pub spawn_point: u32,
     /// Looks like it should be the position on the map, but sadly it does not look populated... yet?
-    pub world_position: i32,
+    pub world_position: Vec<i32>,
 }
 
 /// Many actions relating to items require you to expend materials: - Activating a talent node - Inserting a plug into a socket The items will refer to material requirements by a materialRequirementsHash in these cases, and this is the definition for those requirements in terms of the item required, how much of it is required and other interesting info. This is one of the rare/strange times where a single contract class is used both in definitions *and* in live data response contracts. I'm not sure yet whether I regret that.
@@ -1392,7 +1392,7 @@ pub struct DestinyMaterialRequirementSetDefinition {
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// The list of all materials that are required.
-    pub materials: i32,
+    pub materials: Vec<crate::generated::models::destiny::definitions::DestinyMaterialRequirement>,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
 }
@@ -1425,7 +1425,7 @@ pub struct DestinyNodeActivationRequirement {
     pub grid_level: i32,
     /// The list of hash identifiers for material requirement sets: materials that are required for the node to be activated. See DestinyMaterialRequirementSetDefinition for more information about material requirements.
 /// In this case, only a single DestinyMaterialRequirementSetDefinition will be chosen from this list, and we won't know which one will be chosen until an instance of the item is created.
-    pub material_requirement_hashes: i32,
+    pub material_requirement_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyMaterialRequirementSetDefinition>>,
 }
 
 /// This is a bit of an odd duck. Apparently, if talent nodes steps have this data, the game will go through on step activation and alter the first Socket it finds on the item that has a type matching the given socket type, inserting the indicated plug item.
@@ -1470,14 +1470,14 @@ pub struct DestinyNodeStepDefinition {
     /// The hash of this node step. Unfortunately, while it can be used to uniquely identify the step within a node, it is also content version dependent and should not be relied on without ensuring you have the latest vesion of content.
     pub node_step_hash: u32,
     /// The list of hash identifiers for Perks (DestinySandboxPerkDefinition) that are applied when this step is active. Perks provide a variety of benefits and modifications - examine DestinySandboxPerkDefinition to learn more.
-    pub perk_hashes: i32,
+    pub perk_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinySandboxPerkDefinition>>,
     /// If this step is activated, this will be a list of information used to replace socket items with new Plugs. See DestinyInventoryItemDefinition for more information about sockets and plugs.
-    pub socket_replacements: i32,
+    pub socket_replacements: Vec<crate::generated::models::destiny::definitions::DestinyNodeSocketReplaceResponse>,
     /// When the Talent Grid's progression reaches this value, the circular "progress bar" that surrounds the talent node should be shown.
 /// This also indicates the lower bound of said progress bar, with the upper bound being the progress required to reach activationRequirement.gridLevel. (at some point I should precalculate the upper bound and put it in the definition to save people time)
     pub start_progression_bar_at_progress: i32,
     /// When the step provides stat benefits on the item or character, this is the list of hash identifiers for stats (DestinyStatDefinition) that are provided.
-    pub stat_hashes: i32,
+    pub stat_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyStatDefinition>>,
     /// In Destiny 1, the Armory's Perk Filtering was driven by a concept of TalentNodeStepGroups: categorizations of talent nodes based on their functionality. While the Armory isn't a BNet-facing thing for now, and the new Armory will need to account for Sockets rather than Talent Nodes, this categorization capability feels useful enough to still keep around.
     pub step_groups: crate::generated::models::destiny::definitions::DestinyTalentNodeStepGroups,
     /// The index of this step in the list of Steps on the Talent Node.
@@ -1595,11 +1595,11 @@ pub struct DestinyPlaceDefinition {
 pub struct DestinyPlugItemCraftingRequirements {
 
     /// No documentation provided.
-    pub material_requirement_hashes: i32,
+    pub material_requirement_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyMaterialRequirementSetDefinition>>,
     /// If the plug has a known level requirement, it'll be available here.
     pub required_level: Option<i32>,
     /// No documentation provided.
-    pub unlock_requirements: i32,
+    pub unlock_requirements: Vec<crate::generated::models::destiny::definitions::DestinyPlugItemCraftingUnlockRequirement>,
 }
 
 /// No documentation provided.
@@ -1637,7 +1637,7 @@ pub struct DestinyProgressionDefinition {
     /// If this is True, then the progression doesn't have a maximum level.
     pub repeat_last_step: bool,
     /// No documentation provided.
-    pub reward_items: i32,
+    pub reward_items: Vec<crate::generated::models::destiny::definitions::DestinyProgressionRewardItemQuantity>,
     /// The "Scope" of the progression indicates the source of the progression's live data.
 /// See the DestinyProgressionScope enum for more info: but essentially, a Progression can either be backed by a stored value, or it can be a calculated derivative of other values.
     pub scope: crate::generated::models::destiny::DestinyProgressionScope,
@@ -1645,7 +1645,7 @@ pub struct DestinyProgressionDefinition {
     pub source: String,
     /// Progressions are divided into Steps, which roughly equate to "Levels" in the traditional sense of a Progression. Notably, the last step can be repeated indefinitely if repeatLastStep is true, meaning that the calculation for your level is not as simple as comparing your current progress to the max progress of the steps. 
 /// These and more calculations are done for you if you grab live character progression data, such as in the DestinyCharacterProgressionComponent.
-    pub steps: i32,
+    pub steps: Vec<crate::generated::models::destiny::definitions::DestinyProgressionStepDefinition>,
     /// If true, the Progression is something worth showing to users.
 /// If false, BNet isn't going to show it. But that doesn't mean you can't. We're all friends here.
     pub visible: bool,
@@ -1668,7 +1668,7 @@ pub struct DestinyProgressionDisplayPropertiesDefinition {
 /// They are currently represented as 96px x 96px images.
     pub icon: String,
     /// No documentation provided.
-    pub icon_sequences: i32,
+    pub icon_sequences: Vec<crate::generated::models::destiny::definitions::common::DestinyIconSequenceDefinition>,
     /// No documentation provided.
     pub name: String,
 }
@@ -1711,7 +1711,7 @@ pub struct DestinyProgressionRewardItemQuantity {
     /// No documentation provided.
     pub acquisition_behavior: crate::generated::models::destiny::DestinyProgressionRewardItemAcquisitionBehavior,
     /// No documentation provided.
-    pub claim_unlock_display_strings: i32,
+    pub claim_unlock_display_strings: Vec<String>,
     /// Indicates that this item quantity may be conditionally shown or hidden, based on various sources of state. For example: server flags, account state, or character progress.
     pub has_conditional_visibility: bool,
     /// The hash identifier for the item in question. Use it to look up the item's DestinyInventoryItemDefinition.
@@ -1738,7 +1738,7 @@ pub struct DestinyProgressionStepDefinition {
     /// The total amount of progression points/"experience" you will need to initially reach this step. If this is the last step and the progression is repeating indefinitely (DestinyProgressionDefinition.repeatLastStep), this will also be the progress needed to level it up further by repeating this step again.
     pub progress_total: i32,
     /// A listing of items rewarded as a result of reaching this level.
-    pub reward_items: i32,
+    pub reward_items: Vec<crate::generated::models::destiny::DestinyItemQuantity>,
     /// Very rarely, Progressions will have localized text describing the Level of the progression. This will be that localized text, if it exists. Otherwise, the standard appears to be to simply show the level numerically.
     pub step_name: String,
 }
@@ -1802,7 +1802,7 @@ pub struct DestinyRewardSourceDefinition {
 pub struct DestinySandboxPatternDefinition {
 
     /// No documentation provided.
-    pub filters: i32,
+    pub filters: Vec<crate::generated::models::destiny::definitions::DestinyArrangementRegionFilterDefinition>,
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity, but not globally.
 /// When entities refer to each other in Destiny content, it is this hash that they are referring to.
     pub hash: u32,
@@ -1897,7 +1897,7 @@ pub struct DestinyStatDisplayDefinition {
     pub display_as_numeric: bool,
     /// The interpolation table representing how the Investment Stat is transformed into a Display Stat. 
 /// See DestinyStatDefinition for a description of the stages of stat transformation.
-    pub display_interpolation: i32,
+    pub display_interpolation: Vec<crate::generated::models::interpolation::InterpolationPoint>,
     /// Regardless of the output of interpolation, this is the maximum possible value that the stat can be. It should also be used as the upper bound for displaying the stat as a progress bar (the minimum always being 0)
     pub maximum_value: i32,
     /// The hash identifier for the stat being transformed into a Display stat.
@@ -1926,7 +1926,7 @@ pub struct DestinyStatGroupDefinition {
     pub redacted: bool,
     /// Any stat that requires scaling to be transformed from an "Investment" stat to a "Display" stat will have an entry in this list. For more information on what those types of stats mean and the transformation process, see DestinyStatDefinition.
 /// In retrospect, I wouldn't mind if this was a dictionary keyed by the stat hash instead. But I'm going to leave it be because [[After Apple Picking]].
-    pub scaled_stats: i32,
+    pub scaled_stats: Vec<crate::generated::models::destiny::definitions::DestinyStatDisplayDefinition>,
     /// This apparently indicates the position of the stats in the UI? I've returned it in case anyone can use it, but it's not of any use to us on BNet. Something's being lost in translation with this value.
     pub ui_position: i32,
 }
@@ -1953,11 +1953,11 @@ pub struct DestinyTalentExclusiveGroup {
     /// If this group has an associated piece of lore to show next to it, this will be the identifier for that DestinyLoreDefinition.
     pub lore_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::lore::DestinyLoreDefinition>>,
     /// A quick reference of the talent nodes that are part of this group, by their Talent Node hashes. (See DestinyTalentNodeDefinition.nodeHash)
-    pub node_hashes: i32,
+    pub node_hashes: Vec<u32>,
     /// A quick reference of Groups whose nodes will be deactivated if any node in this group is activated.
-    pub opposing_group_hashes: i32,
+    pub opposing_group_hashes: Vec<u32>,
     /// A quick reference of Nodes that will be deactivated if any node in this group is activated, by their Talent Node hashes. (See DestinyTalentNodeDefinition.nodeHash)
-    pub opposing_node_hashes: i32,
+    pub opposing_node_hashes: Vec<u32>,
 }
 
 /// The time has unfortunately come to talk about Talent Grids.
@@ -1972,7 +1972,7 @@ pub struct DestinyTalentGridDefinition {
     /// Talent Nodes can exist in "exclusive sets": these are sets of nodes in which only a single node in the set can be activated at any given time. Activating a node in this set will automatically deactivate the other nodes in the set (referred to as a "Swap").
 /// If a node in the exclusive set has already been activated, the game will not charge you materials to activate another node in the set, even if you have never activated it before, because you already paid the cost to activate one node in the set.
 /// Not to be confused with Exclusive Groups. (how the heck do we NOT get confused by that? Jeez) See the groups property for information about that only-tangentially-related concept.
-    pub exclusive_sets: i32,
+    pub exclusive_sets: Vec<crate::generated::models::destiny::definitions::DestinyTalentNodeExclusiveSetDefinition>,
     /// The meaning of this has been lost in the sands of time: it still exists as a property, but appears to be unused in the modern UI of talent grids. It used to imply that each visual "column" of talent nodes required identical progression levels in order to be activated. Returning this value in case it is still useful to someone? Perhaps it's just a bit of interesting history.
     pub grid_level_per_column: i32,
     /// Talent Nodes can have "Exclusive Groups". These are not to be confused with Exclusive Sets (see exclusiveSets property).
@@ -1982,16 +1982,16 @@ pub struct DestinyTalentGridDefinition {
 /// When entities refer to each other in Destiny content, it is this hash that they are referring to.
     pub hash: u32,
     /// This is a quick reference to the indexes of nodes that are not part of exclusive sets. Handy for knowing which talent nodes can only be activated directly, rather than via swapping.
-    pub independent_node_indexes: i32,
+    pub independent_node_indexes: Vec<i32>,
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// The maximum possible level of the Talent Grid: at this level, any nodes are allowed to be activated.
     pub max_grid_level: i32,
     /// BNet wants to show talent nodes grouped by similar purpose with localized titles. This is the ordered list of those categories: if you want to show nodes by category, you can iterate over this list, render the displayProperties for the category as the title, and then iterate over the talent nodes referenced by the category to show the related nodes.
 /// Note that this is different from Exclusive Groups or Sets, because these categories also incorporate "Independent" nodes that belong to neither sets nor groups. These are purely for visual grouping of nodes rather than functional grouping.
-    pub node_categories: i32,
+    pub node_categories: Vec<crate::generated::models::destiny::definitions::DestinyTalentNodeCategory>,
     /// The list of Talent Nodes on the Grid (recall that Nodes themselves are really just locations in the UI to show whatever their current Step is. You will only know the current step for a node by retrieving instanced data through platform calls to the API that return DestinyItemTalentGridComponent).
-    pub nodes: i32,
+    pub nodes: Vec<crate::generated::models::destiny::definitions::DestinyTalentNodeDefinition>,
     /// The hash identifier of the Progression (DestinyProgressionDefinition) that drives whether and when Talent Nodes can be activated on the Grid. Items will have instances of this Progression, and will gain experience that will eventually cause the grid to increase in level. As the grid's level increases, it will cross the threshold where nodes can be activated. See DestinyTalentGridStepDefinition's activation requirements for more information.
     pub progression_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyProgressionDefinition>,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
@@ -2010,7 +2010,7 @@ pub struct DestinyTalentNodeCategory {
     /// If true, we found the localized content in a related DestinyLoreDefinition instead of local BNet localization files. This is mostly for ease of my own future investigations.
     pub is_lore_driven: bool,
     /// The set of all hash identifiers for Talent Nodes (DestinyTalentNodeDefinition) in this Talent Grid that are part of this Category.
-    pub node_hashes: i32,
+    pub node_hashes: Vec<u32>,
 }
 
 /// Talent Grids on items have Nodes. These nodes have positions in the talent grid's UI, and contain "Steps" (DestinyTalentNodeStepDefinition), one of whom will be the "Current" step.
@@ -2029,7 +2029,7 @@ pub struct DestinyTalentNodeDefinition {
     /// The nodeHash values for nodes that are in an Exclusive Set with this node.
 /// See DestinyTalentGridDefinition.exclusiveSets for more info about exclusive sets.
 /// Again, note that these are nodeHashes and *not* nodeIndexes.
-    pub exclusive_with_node_hashes: i32,
+    pub exclusive_with_node_hashes: Vec<u32>,
     /// As of Destiny 2, nodes can exist as part of "Exclusive Groups". These differ from exclusive sets in that, within the group, many nodes can be activated. But the act of activating any node in the group will cause "opposing" nodes (nodes in groups that are not allowed to be activated at the same time as this group) to deactivate.
 /// See DestinyTalentExclusiveGroup for more information on the details. This is an identifier for this node's group, if it is part of one.
     pub group_hash: Option<u32>,
@@ -2055,7 +2055,7 @@ pub struct DestinyTalentNodeDefinition {
     pub node_style_identifier: String,
     /// Indexes into the DestinyTalentGridDefinition.nodes property for any nodes that must be activated before this one is allowed to be activated.
 /// I would have liked to change this to hashes for Destiny 2, but we have run out of time.
-    pub prerequisite_node_indexes: i32,
+    pub prerequisite_node_indexes: Vec<i32>,
     /// At one point, you were going to be able to repurchase talent nodes that had random steps, to "re-roll" the current step of the node (and thus change the properties of your item). This was to be the activation requirement for performing that re-roll.
 /// The system still exists to do this, as far as I know, so it may yet come back around!
     pub random_activation_requirement: crate::generated::models::destiny::definitions::DestinyNodeActivationRequirement,
@@ -2065,7 +2065,7 @@ pub struct DestinyTalentNodeDefinition {
     pub row: i32,
     /// At this point, "steps" have been obfuscated into conceptual entities, aggregating the underlying notions of "properties" and "true steps".
 /// If you need to know a step as it truly exists - such as when recreating Node logic when processing Vendor data - you'll have to use the "realSteps" property below.
-    pub steps: i32,
+    pub steps: Vec<crate::generated::models::destiny::definitions::DestinyNodeStepDefinition>,
 }
 
 /// The list of indexes into the Talent Grid's "nodes" property for nodes in this exclusive set. (See DestinyTalentNodeDefinition.nodeIndex)
@@ -2073,7 +2073,7 @@ pub struct DestinyTalentNodeDefinition {
 pub struct DestinyTalentNodeExclusiveSetDefinition {
 
     /// The list of node indexes for the exclusive set. Historically, these were indexes. I would have liked to replace this with nodeHashes for consistency, but it's way too late for that. (9:09 PM, he's right!)
-    pub node_indexes: i32,
+    pub node_indexes: Vec<i32>,
 }
 
 /// No documentation provided.
@@ -2329,7 +2329,7 @@ pub struct DestinyVendorCategoryEntryDefinition {
     /// Used in sorting items in vendors... but there's a lot more to it. Just go with the order provided in the itemIndexes property on the DestinyVendorCategoryComponent instead, it should be more reliable than trying to recalculate it yourself.
     pub sort_value: i32,
     /// A shortcut for the vendor item indexes sold under this category. Saves us from some expensive reorganization at runtime.
-    pub vendor_item_indexes: i32,
+    pub vendor_item_indexes: Vec<i32>,
 }
 
 /// The details of an overlay prompt to show to a user. They are all fairly self-explanatory localized strings that can be shown.
@@ -2361,20 +2361,20 @@ pub struct DestinyVendorCategoryOverlayDefinition {
 pub struct DestinyVendorDefinition {
 
     /// If the Vendor is actually a vehicle for the transferring of items (like the Vault and Postmaster vendors), this defines the list of source->destination buckets for transferring.
-    pub accepted_items: i32,
+    pub accepted_items: Vec<crate::generated::models::destiny::definitions::DestinyVendorAcceptedItemDefinition>,
     /// Describes "actions" that can be performed on a vendor. Currently, none of these exist. But theoretically a Vendor could let you interact with it by performing actions. We'll see what these end up looking like if they ever get used.
-    pub actions: i32,
+    pub actions: Vec<crate::generated::models::destiny::definitions::DestinyVendorActionDefinition>,
     /// If the vendor has a custom localized string describing the "buy" action, that is returned here.
     pub buy_string: String,
     /// These are the headers for sections of items that the vendor is selling. When you see items organized by category in the header, it is these categories that it is showing.
 /// Well, technically not *exactly* these. On BNet, it doesn't make sense to have categories be "paged" as we do in Destiny, so we run some heuristics to attempt to aggregate pages of categories together. 
 /// These are the categories post-concatenation, if the vendor had concatenation applied. If you want the pre-aggregated category data, use originalCategories.
-    pub categories: i32,
+    pub categories: Vec<crate::generated::models::destiny::definitions::DestinyVendorCategoryEntryDefinition>,
     /// If TRUE, consolidate categories that only differ by trivial properties (such as having minor differences in name)
     pub consolidate_categories: bool,
     /// Display Categories are different from "categories" in that these are specifically for visual grouping and display of categories in Vendor UI. 
 /// The "categories" structure is for validation of the contained items, and can be categorized entirely separately from "Display Categories", there need be and often will be no meaningful relationship between the two.
-    pub display_categories: i32,
+    pub display_categories: Vec<crate::generated::models::destiny::definitions::DestinyDisplayCategoryDefinition>,
     /// If the vendor has an item that should be displayed as the "featured" item, this is the hash identifier for that DestinyVendorItemDefinition.
 /// Apparently this is usually a related currency, like a reputation token. But it need not be restricted to that.
     pub display_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
@@ -2387,14 +2387,14 @@ pub struct DestinyVendorDefinition {
     pub faction_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyFactionDefinition>,
     /// If an item can't be purchased from the vendor, there may be many "custom"/game state specific reasons why not.
 /// This is a list of localized strings with messages for those custom failures. The live BNet data will return a failureIndexes property for items that can't be purchased: using those values to index into this array, you can show the user the appropriate failure message for the item that can't be bought.
-    pub failure_strings: i32,
+    pub failure_strings: Vec<String>,
     /// A vendor can be a part of 0 or 1 "groups" at a time: a group being a collection of Vendors related by either location or function/purpose. It's used for our our Companion Vendor UI. Only one of these can be active for a Vendor at a time.
-    pub groups: i32,
+    pub groups: Vec<crate::generated::models::destiny::definitions::DestinyVendorGroupReference>,
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity, but not globally.
 /// When entities refer to each other in Destiny content, it is this hash that they are referring to.
     pub hash: u32,
     /// Some items don't make sense to return in the API, for example because they represent an action to be performed rather than an item being sold. I'd rather we not do this, but at least in the short term this is a workable workaround.
-    pub ignore_sale_item_hashes: i32,
+    pub ignore_sale_item_hashes: Vec<u32>,
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// If this is true, you aren't allowed to buy whatever the vendor is selling.
@@ -2402,16 +2402,16 @@ pub struct DestinyVendorDefinition {
     /// If this is true, you're not allowed to sell whatever the vendor is buying.
     pub inhibit_selling: bool,
     /// In addition to selling items, vendors can have "interactions": UI where you "talk" with the vendor and they offer you a reward, some item, or merely acknowledge via dialog that you did something cool.
-    pub interactions: i32,
+    pub interactions: Vec<crate::generated::models::destiny::definitions::DestinyVendorInteractionDefinition>,
     /// If the vendor shows you items from your own inventory - such as the Vault vendor does - this data describes the UI around showing those inventory buckets and which ones get shown.
-    pub inventory_flyouts: i32,
+    pub inventory_flyouts: Vec<crate::generated::models::destiny::definitions::DestinyVendorInventoryFlyoutDefinition>,
     /// If the vendor sells items (or merely has a list of items to show like the "Sack" vendors do), this is the list of those items that the vendor can sell. From this list, only a subset will be available from the vendor at any given time, selected randomly and reset on the vendor's refresh interval.
 /// Note that a vendor can sell the same item multiple ways: for instance, nothing stops a vendor from selling you some specific weapon but using two different currencies, or the same weapon at multiple "item levels".
-    pub item_list: i32,
+    pub item_list: Vec<crate::generated::models::destiny::definitions::DestinyVendorItemDefinition>,
     /// A vendor can be at different places in the world depending on the game/character/account state. This is the list of possible locations for the vendor, along with conditions we use to determine which one is currently active.
-    pub locations: i32,
+    pub locations: Vec<crate::generated::models::destiny::definitions::vendors::DestinyVendorLocationDefinition>,
     /// See the categories property for a description of categories and why originalCategories exists.
-    pub original_categories: i32,
+    pub original_categories: Vec<crate::generated::models::destiny::definitions::DestinyVendorCategoryEntryDefinition>,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// A number used for calculating the frequency of a vendor's inventory resetting/refreshing.
@@ -2424,9 +2424,9 @@ pub struct DestinyVendorDefinition {
     /// Ditto for selling. Not that you can sell items to a vendor anymore. Will it come back? Who knows. The string's still there.
     pub sell_string: String,
     /// BNet doesn't use this data yet, but it appears to be an optional list of flavor text about services that the Vendor can provide.
-    pub services: i32,
+    pub services: Vec<crate::generated::models::destiny::definitions::DestinyVendorServiceDefinition>,
     /// If we were able to predict the dates when this Vendor will be visible/available, this will be the list of those date ranges. Sadly, we're not able to predict this very frequently, so this will often be useless data.
-    pub unlock_ranges: i32,
+    pub unlock_ranges: Vec<crate::generated::models::dates::DateRange>,
     /// If the vendor has a custom banner image, that can be found here.
     pub vendor_banner: String,
     /// The internal identifier for the Vendor. A holdover from the old days of Vendors, but we don't have time to refactor it away.
@@ -2456,7 +2456,7 @@ pub struct DestinyVendorDisplayPropertiesDefinition {
 /// They are currently represented as 96px x 96px images.
     pub icon: String,
     /// No documentation provided.
-    pub icon_sequences: i32,
+    pub icon_sequences: Vec<crate::generated::models::destiny::definitions::common::DestinyIconSequenceDefinition>,
     /// I regret calling this a "large icon". It's more like a medium-sized image with a picture of the vendor's mug on it, trying their best to look cool. Not what one would call an icon.
     pub large_icon: String,
     /// This is apparently the "Watermark". I am not certain offhand where this is actually used in the Game UI, but some people may find it useful.
@@ -2468,7 +2468,7 @@ pub struct DestinyVendorDisplayPropertiesDefinition {
     /// If we replaced the icon with something more glitzy, this is the original icon that the vendor had according to the game's content. It may be more lame and/or have less razzle-dazzle. But who am I to tell you which icon to use.
     pub original_icon: String,
     /// Vendors, in addition to expected display property data, may also show some "common requirements" as statically defined definition data. This might be when a vendor accepts a single type of currency, or when the currency is unique to the vendor and the designers wanted to show that currency when you interact with the vendor.
-    pub requirements_display: i32,
+    pub requirements_display: Vec<crate::generated::models::destiny::definitions::DestinyVendorRequirementDisplayEntryDefinition>,
     /// This is the icon used in parts of the game UI such as the vendor's waypoint.
     pub small_transparent_icon: String,
     /// No documentation provided.
@@ -2521,13 +2521,13 @@ pub struct DestinyVendorInteractionDefinition {
     /// If this interaction dialog is about a quest, this is the questline related to the interaction. You can use this to show the quest overview, or even the character's status with the quest if you use it to find the character's current Quest Step by checking their inventory against this questlineItemHash's DestinyInventoryItemDefinition.setData.
     pub questline_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// The potential replies that the user can make to the interaction.
-    pub replies: i32,
+    pub replies: Vec<crate::generated::models::destiny::definitions::DestinyVendorInteractionReplyDefinition>,
     /// If this interaction is displaying rewards, this is the text to use for the header of the reward-displaying section of the interaction.
     pub reward_block_label: String,
     /// If the vendor's reward list is sourced from one of his categories, this is the index into the category array of items to show.
     pub reward_vendor_category_index: i32,
     /// If this interaction is meant to show you sacks, this is the list of types of sacks to be shown. If empty, the interaction is not meant to show sacks.
-    pub sack_interaction_list: i32,
+    pub sack_interaction_list: Vec<crate::generated::models::destiny::definitions::DestinyVendorInteractionSackEntryDefinition>,
     /// A UI hint for the behavior of the interaction screen. This is useful to determine what type of interaction is occurring, such as a prompt to receive a rank up reward or a prompt to choose a reward for completing a quest. The hash isn't as useful as the Enum in retrospect, well what can you do. Try using interactionType instead.
     pub ui_interaction_type: u32,
     /// If >= 0, this is the category of sale items to show along with this interaction dialog.
@@ -2572,7 +2572,7 @@ pub struct DestinyVendorInventoryFlyoutBucketDefinition {
 pub struct DestinyVendorInventoryFlyoutDefinition {
 
     /// A list of inventory buckets and other metadata to show on the screen.
-    pub buckets: i32,
+    pub buckets: Vec<crate::generated::models::destiny::definitions::DestinyVendorInventoryFlyoutBucketDefinition>,
     /// The title and other common properties of the flyout.
     pub display_properties: crate::generated::models::destiny::definitions::common::DestinyDisplayPropertiesDefinition,
     /// If this flyout is meant to show you the contents of the player's equipment slot, this is the slot to show.
@@ -2594,10 +2594,10 @@ pub struct DestinyVendorItemDefinition {
     /// The index into the DestinyVendorDefinition.categories array, so you can find the category associated with this item.
     pub category_index: i32,
     /// The Default level at which the item will spawn. Almost always driven by an adjusto these days. Ideally should be singular. It's a long story how this ended up as a list, but there is always either going to be 0:1 of these entities.
-    pub creation_levels: i32,
+    pub creation_levels: Vec<crate::generated::models::destiny::definitions::DestinyItemCreationEntryLevelDefinition>,
     /// This is a pre-compiled aggregation of item value and priceOverrideList, so that we have one place to check for what the purchaser must pay for the item. Use this instead of trying to piece together the price separately.
 /// The somewhat crappy part about this is that, now that item quantity overrides have dynamic modifiers, this will not necessarily be statically true. If you were using this instead of live data, switch to using live data.
-    pub currencies: i32,
+    pub currencies: Vec<crate::generated::models::destiny::definitions::DestinyVendorItemQuantity>,
     /// The string identifier for the category selling this item.
     pub display_category: String,
     /// This is an index specifically into the display category, as opposed to the server-side Categories (which do not need to match or pair with each other in any way: server side categories are really just structures for common validation. Display Category will let us more easily categorize items visually)
@@ -2607,7 +2607,7 @@ pub struct DestinyVendorItemDefinition {
     /// If this item can expire, this is the tooltip message to show with its expiration info.
     pub expiration_tooltip: String,
     /// An list of indexes into the DestinyVendorDefinition.failureStrings array, indicating the possible failure strings that can be relevant for this item.
-    pub failure_indexes: i32,
+    pub failure_indexes: Vec<i32>,
     /// The inventory bucket into which this item will be placed upon purchase.
     pub inventory_bucket_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryBucketDefinition>,
     /// If this sale can only be performed as the result of receiving a CRM offer, this is true.
@@ -2629,13 +2629,13 @@ pub struct DestinyVendorItemDefinition {
     /// The amount you will recieve of the item described in itemHash if you make the purchase.
     pub quantity: i32,
     /// If this is populated, the purchase of this item should redirect to purchasing these other items instead.
-    pub redirect_to_sale_indexes: i32,
+    pub redirect_to_sale_indexes: Vec<i32>,
     /// If this item can be refunded, this is the policy for what will be refundd, how, and in what time period.
     pub refund_policy: crate::generated::models::destiny::DestinyVendorItemRefundPolicy,
     /// The amount of time before refundability of the newly purchased item will expire.
     pub refund_time_limit: i32,
     /// No documentation provided.
-    pub socket_overrides: i32,
+    pub socket_overrides: Vec<crate::generated::models::destiny::definitions::DestinyVendorItemSocketOverride>,
     /// *if* the category this item is in supports non-default sorting, this value should represent the sorting value to use, pre-processed and ready to go.
     pub sort_value: i32,
     /// If true, this item is some sort of dummy sale item that cannot actually be purchased. It may be a display only item, or some fluff left by a content designer for testing purposes, or something that got disabled because it was a terrible idea. You get the picture. We won't know *why* it can't be purchased, only that it can't be. Sorry.

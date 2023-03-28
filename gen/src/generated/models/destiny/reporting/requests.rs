@@ -13,7 +13,7 @@ pub struct DestinyReportOffensePgcrRequest {
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
     pub offending_character_id: i64,
     /// So you've decided to report someone instead of cursing them and their descendants. Well, okay then. This is the category or categorie(s) of infractions for which you are reporting the user. These are hash identifiers that map to DestinyReportReasonCategoryDefinition entries.
-    pub reason_category_hashes: i32,
+    pub reason_category_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::reporting::DestinyReportReasonCategoryDefinition>>,
     /// If applicable, provide a more specific reason(s) within the general category of problems provided by the reasonHash. This is also an identifier for a reason. All reasonHashes provided must be children of at least one the reasonCategoryHashes provided.
-    pub reason_hashes: i32,
+    pub reason_hashes: Vec<u32>,
 }

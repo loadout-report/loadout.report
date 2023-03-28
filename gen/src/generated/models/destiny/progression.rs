@@ -30,9 +30,9 @@ pub struct DestinyFactionProgression {
     /// The hash identifier of the Progression in question. Use it to look up the DestinyProgressionDefinition in static data.
     pub progression_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyProgressionDefinition>,
     /// Information about historical rewards for this progression, if there is any data for it.
-    pub reward_item_states: i32,
+    pub reward_item_states: Vec<crate::generated::models::destiny::DestinyProgressionRewardItemState>,
     /// Information about historical resets of this progression, if there is any data for it.
-    pub season_resets: i32,
+    pub season_resets: Vec<crate::generated::models::destiny::DestinyProgressionResetEntry>,
     /// Progressions define their levels in "steps". Since the last step may be repeatable, the user may be at a higher level than the actual Step achieved in the progression. Not necessarily useful, but potentially interesting for those cruising the API. Relate this to the "steps" property of the DestinyProgression to see which step the user is on, if you care about that. (Note that this is Content Version dependent since it refers to indexes.)
     pub step_index: i32,
     /// If this progression has a weekly limit, this is that limit.

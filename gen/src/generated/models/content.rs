@@ -47,9 +47,9 @@ pub struct ContentItemPublicContract {
     /// No documentation provided.
     pub rating_image_path: String,
     /// No documentation provided.
-    pub representations: i32,
+    pub representations: Vec<crate::generated::models::content::ContentRepresentation>,
     /// NOTE: Tags will always be lower case.
-    pub tags: i32,
+    pub tags: Vec<String>,
 }
 
 /// No documentation provided.
@@ -95,7 +95,7 @@ pub struct NewsArticleRssResponse {
     /// No documentation provided.
     pub current_pagination_token: i32,
     /// No documentation provided.
-    pub news_articles: i32,
+    pub news_articles: Vec<crate::generated::models::content::NewsArticleRssItem>,
     /// No documentation provided.
     pub next_pagination_token: Option<i32>,
     /// No documentation provided.

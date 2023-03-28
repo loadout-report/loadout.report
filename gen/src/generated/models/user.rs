@@ -9,7 +9,7 @@ pub struct CrossSaveUserMembership {
 
     /// The list of Membership Types indicating the platforms on which this Membership can be used.
 ///  Not in Cross Save = its original membership type. Cross Save Primary = Any membership types it is overridding, and its original membership type Cross Save Overridden = Empty list
-    pub applicable_membership_types: i32,
+    pub applicable_membership_types: Vec<crate::generated::models::BungieMembershipType>,
     /// The bungie global display name, if set.
     pub bungie_global_display_name: String,
     /// The bungie global display name code, if set.
@@ -62,7 +62,7 @@ pub struct EMailSettingSubscriptionLocalization {
 pub struct EmailOptInDefinition {
 
     /// Information about the dependent subscriptions for this opt-in.
-    pub dependent_subscriptions: i32,
+    pub dependent_subscriptions: Vec<crate::generated::models::user::EmailSubscriptionDefinition>,
     /// The unique identifier for this opt-in category.
     pub name: String,
     /// If true, this opt-in setting should be set by default in situations where accounts are created without explicit choices about what they're opting into.
@@ -103,7 +103,7 @@ pub struct EmailViewDefinition {
     /// The identifier for this view.
     pub name: String,
     /// The ordered list of settings to show in this view.
-    pub view_settings: i32,
+    pub view_settings: Vec<crate::generated::models::user::EmailViewDefinitionSetting>,
 }
 
 /// No documentation provided.
@@ -119,7 +119,7 @@ pub struct EmailViewDefinitionSetting {
     /// If true, this setting should be set by default if the user hasn't chosen whether it's set or cleared yet.
     pub set_by_default: bool,
     /// The subscriptions to show as children of this setting, if any.
-    pub subscriptions: i32,
+    pub subscriptions: Vec<crate::generated::models::user::EmailSubscriptionDefinition>,
 }
 
 /// No documentation provided.
@@ -263,7 +263,7 @@ pub struct UserInfoCard {
 
     /// The list of Membership Types indicating the platforms on which this Membership can be used.
 ///  Not in Cross Save = its original membership type. Cross Save Primary = Any membership types it is overridding, and its original membership type Cross Save Overridden = Empty list
-    pub applicable_membership_types: i32,
+    pub applicable_membership_types: Vec<crate::generated::models::BungieMembershipType>,
     /// The bungie global display name, if set.
     pub bungie_global_display_name: String,
     /// The bungie global display name code, if set.
@@ -309,7 +309,7 @@ pub struct UserMembershipData {
     /// No documentation provided.
     pub bungie_net_user: crate::generated::models::user::GeneralUser,
     /// this allows you to see destiny memberships that are visible and linked to this account (regardless of whether or not they have characters on the world server)
-    pub destiny_memberships: i32,
+    pub destiny_memberships: Vec<crate::generated::models::groups_v_2::GroupUserInfoCard>,
     /// If this property is populated, it will have the membership ID of the account considered to be "primary" in this user's cross save relationship.
 ///  If null, this user has no cross save relationship, nor primary account.
     #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
@@ -333,7 +333,7 @@ pub struct UserSearchResponse {
     /// No documentation provided.
     pub page: i32,
     /// No documentation provided.
-    pub search_results: i32,
+    pub search_results: Vec<crate::generated::models::user::UserSearchResponseDetail>,
 }
 
 /// No documentation provided.
@@ -348,7 +348,7 @@ pub struct UserSearchResponseDetail {
     #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
     pub bungie_net_membership_id: Option<i64>,
     /// No documentation provided.
-    pub destiny_memberships: i32,
+    pub destiny_memberships: Vec<crate::generated::models::user::UserInfoCard>,
 }
 
 /// No documentation provided.

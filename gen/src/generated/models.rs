@@ -840,7 +840,7 @@ pub struct SearchResultOfContentItemPublicContract {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::content::ContentItemPublicContract>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -861,7 +861,7 @@ pub struct SearchResultOfDestinyEntitySearchResultItem {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::destiny::definitions::DestinyEntitySearchResultItem>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -882,7 +882,7 @@ pub struct SearchResultOfFireteamResponse {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::fireteam::FireteamResponse>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -903,7 +903,7 @@ pub struct SearchResultOfFireteamSummary {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::fireteam::FireteamSummary>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -924,7 +924,7 @@ pub struct SearchResultOfGroupBan {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::groups_v_2::GroupBan>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -945,7 +945,7 @@ pub struct SearchResultOfGroupMember {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::groups_v_2::GroupMember>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -966,7 +966,7 @@ pub struct SearchResultOfGroupMemberApplication {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::groups_v_2::GroupMemberApplication>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -987,7 +987,7 @@ pub struct SearchResultOfGroupMembership {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::groups_v_2::GroupMembership>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -1008,7 +1008,7 @@ pub struct SearchResultOfGroupPotentialMembership {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::groups_v_2::GroupPotentialMembership>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -1029,7 +1029,7 @@ pub struct SearchResultOfGroupV2Card {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::groups_v_2::GroupV2Card>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -1050,7 +1050,7 @@ pub struct SearchResultOfPostResponse {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::forum::PostResponse>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -1071,7 +1071,7 @@ pub struct SearchResultOfTrendingEntry {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::trending::TrendingEntry>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.

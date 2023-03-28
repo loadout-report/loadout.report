@@ -8,9 +8,9 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct ApiUsage {
 
     /// Counts for on API calls made for the time range.
-    pub api_calls: i32,
+    pub api_calls: Vec<crate::generated::models::applications::Series>,
     /// Instances of blocked requests or requests that crossed the warn threshold during the time range.
-    pub throttled_requests: i32,
+    pub throttled_requests: Vec<crate::generated::models::applications::Series>,
 }
 
 /// No documentation provided.
@@ -41,7 +41,7 @@ pub struct Application {
     /// Date the application status last changed.
     pub status_changed: chrono::DateTime<chrono::Utc>,
     /// List of team members who manage this application on Bungie.net. Will always consist of at least the application owner.
-    pub team: i32,
+    pub team: Vec<crate::generated::models::applications::ApplicationDeveloper>,
 }
 
 /// No documentation provided.
@@ -136,7 +136,7 @@ pub enum DeveloperRole {
 pub struct Series {
 
     /// Collection of samples with time and value.
-    pub datapoints: i32,
+    pub datapoints: Vec<crate::generated::models::applications::Datapoint>,
     /// Target to which to datapoints apply.
     pub target: String,
 }

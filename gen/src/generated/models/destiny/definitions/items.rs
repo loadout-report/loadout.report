@@ -11,7 +11,7 @@ pub struct DestinyDerivedItemCategoryDefinition {
     /// The localized string for the category title. This will be something describing the items you can get as a group, or your likelihood/the quantity you'll get.
     pub category_description: String,
     /// This is the list of all of the items for this category and the basic properties we'll know about them.
-    pub items: i32,
+    pub items: Vec<crate::generated::models::destiny::definitions::items::DestinyDerivedItemDefinition>,
 }
 
 /// This is a reference to, and summary data for, a specific item that you can get as a result of Using or Acquiring some other Item (For example, this could be summary information for an Emote that you can get by opening an an Eververse Box) See DestinyDerivedItemCategoryDefinition for more information.
@@ -69,7 +69,7 @@ pub struct DestinyItemPlugDefinition {
     pub enabled_material_requirement_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyMaterialRequirementSetDefinition>,
     /// The rules around whether the plug, once inserted, is enabled and providing its benefits.
 /// The live data DestinyItemPlugComponent.enableFailIndexes will be an index into this array, so you can pull out the failure strings appropriate for the user.
-    pub enabled_rules: i32,
+    pub enabled_rules: Vec<crate::generated::models::destiny::definitions::items::DestinyPlugRuleDefinition>,
     /// IF not null, this plug provides Energy capacity to the item in which it is socketed. In Armor 2.0 for example, is implemented in a similar way to Masterworks, where visually it's a single area of the UI being clicked on to "Upgrade" to higher energy levels, but it's actually socketing new plugs.
     pub energy_capacity: crate::generated::models::destiny::definitions::items::DestinyEnergyCapacityEntry,
     /// IF not null, this plug has an energy cost. This contains the details of that cost.
@@ -78,7 +78,7 @@ pub struct DestinyItemPlugDefinition {
     pub insertion_material_requirement_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyMaterialRequirementSetDefinition>,
     /// The rules around when this plug can be inserted into a socket, aside from the socket's individual restrictions.
 /// The live data DestinyItemPlugComponent.insertFailIndexes will be an index into this array, so you can pull out the failure strings appropriate for the user.
-    pub insertion_rules: i32,
+    pub insertion_rules: Vec<crate::generated::models::destiny::definitions::items::DestinyPlugRuleDefinition>,
     /// If TRUE, this plug is used for UI display purposes only, and doesn't have any interesting effects of its own.
     pub is_dummy_plug: bool,
     /// If you successfully socket the item, this will determine whether or not you get "refunded" on the plug.
@@ -134,7 +134,7 @@ pub struct DestinyItemTierTypeInfusionBlock {
 pub struct DestinyParentItemOverride {
 
     /// No documentation provided.
-    pub additional_equip_requirements_display_strings: i32,
+    pub additional_equip_requirements_display_strings: Vec<String>,
     /// No documentation provided.
     pub pip_icon: String,
 }

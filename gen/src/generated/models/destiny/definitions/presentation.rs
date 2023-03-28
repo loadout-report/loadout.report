@@ -10,7 +10,7 @@ pub struct DestinyPresentationChildBlock {
     /// No documentation provided.
     pub display_style: crate::generated::models::destiny::DestinyPresentationDisplayStyle,
     /// No documentation provided.
-    pub parent_presentation_node_hashes: i32,
+    pub parent_presentation_node_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
     /// No documentation provided.
     pub presentation_node_type: crate::generated::models::destiny::DestinyPresentationNodeType,
 }
@@ -25,15 +25,15 @@ pub struct DestinyPresentationNodeBaseDefinition {
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// A quick reference to presentation nodes that have this node as a child. Presentation nodes can be parented under multiple parents.
-    pub parent_node_hashes: i32,
+    pub parent_node_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
     /// No documentation provided.
     pub presentation_node_type: crate::generated::models::destiny::DestinyPresentationNodeType,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// No documentation provided.
-    pub trait_hashes: i32,
+    pub trait_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::traits::DestinyTraitDefinition>>,
     /// No documentation provided.
-    pub trait_ids: i32,
+    pub trait_ids: Vec<String>,
 }
 
 /// No documentation provided.
@@ -59,15 +59,15 @@ pub struct DestinyPresentationNodeChildEntryBase {
 pub struct DestinyPresentationNodeChildrenBlock {
 
     /// No documentation provided.
-    pub collectibles: i32,
+    pub collectibles: Vec<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeCollectibleChildEntry>,
     /// No documentation provided.
-    pub craftables: i32,
+    pub craftables: Vec<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeCraftableChildEntry>,
     /// No documentation provided.
-    pub metrics: i32,
+    pub metrics: Vec<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeMetricChildEntry>,
     /// No documentation provided.
-    pub presentation_nodes: i32,
+    pub presentation_nodes: Vec<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeChildEntry>,
     /// No documentation provided.
-    pub records: i32,
+    pub records: Vec<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeRecordChildEntry>,
 }
 
 /// No documentation provided.
@@ -122,7 +122,7 @@ pub struct DestinyPresentationNodeDefinition {
     /// The original icon for this presentation node, before we futzed with it.
     pub original_icon: String,
     /// A quick reference to presentation nodes that have this node as a child. Presentation nodes can be parented under multiple parents.
-    pub parent_node_hashes: i32,
+    pub parent_node_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
     /// No documentation provided.
     pub presentation_node_type: crate::generated::models::destiny::DestinyPresentationNodeType,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
@@ -136,9 +136,9 @@ pub struct DestinyPresentationNodeDefinition {
     /// A hint for how to display this presentation node when it's shown in its own detail screen.
     pub screen_style: crate::generated::models::destiny::DestinyPresentationScreenStyle,
     /// No documentation provided.
-    pub trait_hashes: i32,
+    pub trait_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::traits::DestinyTraitDefinition>>,
     /// No documentation provided.
-    pub trait_ids: i32,
+    pub trait_ids: Vec<String>,
 }
 
 /// No documentation provided.
@@ -181,13 +181,13 @@ pub struct DestinyScoredPresentationNodeBaseDefinition {
     /// No documentation provided.
     pub max_category_record_score: i32,
     /// A quick reference to presentation nodes that have this node as a child. Presentation nodes can be parented under multiple parents.
-    pub parent_node_hashes: i32,
+    pub parent_node_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
     /// No documentation provided.
     pub presentation_node_type: crate::generated::models::destiny::DestinyPresentationNodeType,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// No documentation provided.
-    pub trait_hashes: i32,
+    pub trait_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::traits::DestinyTraitDefinition>>,
     /// No documentation provided.
-    pub trait_ids: i32,
+    pub trait_ids: Vec<String>,
 }

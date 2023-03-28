@@ -22,7 +22,7 @@ pub struct DestinyItemComponent {
     #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
     pub item_instance_id: Option<i64>,
     /// If available, a list that describes which item values (rewards) should be shown (true) or hidden (false).
-    pub item_value_visibility: i32,
+    pub item_value_visibility: Vec<bool>,
     /// An easy reference for where the item is located. Redundant if you got the item from an Inventory, but useful when making detail calls on specific items.
     pub location: crate::generated::models::destiny::ItemLocation,
     /// If the item can be locked, this will indicate that state.
@@ -39,7 +39,7 @@ pub struct DestinyItemComponent {
     /// A flags enumeration indicating the transient/custom states of the item that affect how it is rendered: whether it's tracked or locked for example, or whether it has a masterwork plug inserted.
     pub state: crate::generated::models::destiny::ItemState,
     /// If this is populated, it is a list of indexes into DestinyInventoryItemDefinition.tooltipNotifications for any special tooltip messages that need to be shown for this item.
-    pub tooltip_notification_indexes: i32,
+    pub tooltip_notification_indexes: Vec<i32>,
     /// If there is a known error state that would cause this item to not be transferable, this Flags enum will indicate all of those error states. Otherwise, it will be 0 (CanTransfer).
     pub transfer_status: crate::generated::models::destiny::TransferStatuses,
     /// The version of this item, used to index into the versions list in the item definition quality block.
@@ -78,7 +78,7 @@ pub struct DestinyItemInstanceComponent {
     pub quality: i32,
     /// Sometimes, there are limitations to equipping that are represented by character-level flags called "unlocks".
 /// This is a list of flags that they need in order to equip the item that the character has not met. Use these to look up the descriptions to show in your UI by looking up the relevant DestinyUnlockDefinitions for the hashes.
-    pub unlock_hashes_required_to_equip: i32,
+    pub unlock_hashes_required_to_equip: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyUnlockDefinition>>,
 }
 
 /// No documentation provided.
@@ -107,7 +107,7 @@ pub struct DestinyItemObjectivesComponent {
     pub flavor_objective: crate::generated::models::destiny::quests::DestinyObjectiveProgress,
     /// If the item has a hard association with objectives, your progress on them will be defined here. 
 /// Objectives are our standard way to describe a series of tasks that have to be completed for a reward.
-    pub objectives: i32,
+    pub objectives: Vec<crate::generated::models::destiny::quests::DestinyObjectiveProgress>,
 }
 
 /// Instanced items can have perks: benefits that the item bestows.
@@ -117,7 +117,7 @@ pub struct DestinyItemObjectivesComponent {
 pub struct DestinyItemPerksComponent {
 
     /// The list of perks to display in an item tooltip - and whether or not they have been activated.
-    pub perks: i32,
+    pub perks: Vec<crate::generated::models::destiny::perks::DestinyPerkReference>,
 }
 
 /// Many items can be rendered in 3D. When you request this block, you will obtain the custom data needed to render this specific instance of the item.
@@ -138,7 +138,7 @@ pub struct DestinyItemRenderComponent {
 pub struct DestinyItemSocketState {
 
     /// If a plug is inserted but not enabled, this will be populated with indexes into the plug item definition's plug.enabledRules property, so that you can show the reasons why it is not enabled.
-    pub enable_fail_indexes: i32,
+    pub enable_fail_indexes: Vec<i32>,
     /// Even if a plug is inserted, it doesn't mean it's enabled.
 /// This flag indicates whether the plug is active and providing its benefits.
     pub is_enabled: bool,
@@ -156,7 +156,7 @@ pub struct DestinyItemSocketState {
 pub struct DestinyItemSocketsComponent {
 
     /// The list of all sockets on the item, and their status information.
-    pub sockets: i32,
+    pub sockets: Vec<crate::generated::models::destiny::entities::items::DestinyItemSocketState>,
 }
 
 /// If you want the stats on an item's instanced data, get this component.
@@ -186,7 +186,7 @@ pub struct DestinyItemTalentGridComponent {
     pub is_grid_complete: bool,
     /// Detailed information about the individual nodes in the talent grid.
 /// A node represents a single visual "pip" in the talent grid or Build detail view, though each node may have multiple "steps" which indicate the actual bonuses and visual representation of that node.
-    pub nodes: i32,
+    pub nodes: Vec<crate::generated::models::destiny::DestinyTalentNode>,
     /// Most items don't have useful talent grids anymore, but Builds in particular still do.
 /// You can use this hash to lookup the DestinyTalentGridDefinition attached to this item, which will be crucial for understanding the node values on the item.
     pub talent_grid_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyTalentGridDefinition>,

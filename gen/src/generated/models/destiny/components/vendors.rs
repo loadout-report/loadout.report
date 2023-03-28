@@ -26,7 +26,7 @@ pub struct DestinyPublicVendorSaleItemComponent {
     /// If true, this item can be purchased through the Bungie.net API.
     pub api_purchasable: Option<bool>,
     /// A summary of the current costs of the item.
-    pub costs: i32,
+    pub costs: Vec<crate::generated::models::destiny::DestinyItemQuantity>,
     /// The hash of the item being sold, as a quick shortcut for looking up the DestinyInventoryItemDefinition of the sale item.
     pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// If this item has its own custom date where it may be removed from the Vendor's rotation, this is that date.
@@ -65,7 +65,7 @@ pub struct DestinyVendorGroup {
     /// No documentation provided.
     pub vendor_group_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorGroupDefinition>,
     /// The ordered list of vendors within a particular group.
-    pub vendor_hashes: i32,
+    pub vendor_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>>,
 }
 
 /// This component returns references to all of the Vendors in the response, grouped by categorizations that Bungie has deemed to be interesting, in the order in which both the groups and the vendors within that group should be rendered.
@@ -73,7 +73,7 @@ pub struct DestinyVendorGroup {
 pub struct DestinyVendorGroupComponent {
 
     /// The ordered list of groups being returned.
-    pub groups: i32,
+    pub groups: Vec<crate::generated::models::destiny::components::vendors::DestinyVendorGroup>,
 }
 
 /// The base class for Vendor Sale Item data. Has a bunch of character-agnostic state about the item being sold.
@@ -84,7 +84,7 @@ pub struct DestinyVendorSaleItemBaseComponent {
     /// If true, this item can be purchased through the Bungie.net API.
     pub api_purchasable: Option<bool>,
     /// A summary of the current costs of the item.
-    pub costs: i32,
+    pub costs: Vec<crate::generated::models::destiny::DestinyItemQuantity>,
     /// The hash of the item being sold, as a quick shortcut for looking up the DestinyInventoryItemDefinition of the sale item.
     pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// If this item has its own custom date where it may be removed from the Vendor's rotation, this is that date.

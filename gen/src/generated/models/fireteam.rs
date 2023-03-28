@@ -93,9 +93,9 @@ pub enum FireteamPublicSearchOption {
 pub struct FireteamResponse {
 
     /// No documentation provided.
-    pub alternates: i32,
+    pub alternates: Vec<crate::generated::models::fireteam::FireteamMember>,
     /// No documentation provided.
-    pub members: i32,
+    pub members: Vec<crate::generated::models::fireteam::FireteamMember>,
     /// No documentation provided.
     pub summary: crate::generated::models::fireteam::FireteamSummary,
 }
@@ -175,7 +175,7 @@ pub struct FireteamUserInfoCard {
     pub fireteam_membership_type: crate::generated::models::BungieMembershipType,
     /// The list of Membership Types indicating the platforms on which this Membership can be used.
 ///  Not in Cross Save = its original membership type. Cross Save Primary = Any membership types it is overridding, and its original membership type Cross Save Overridden = Empty list
-    pub applicable_membership_types: i32,
+    pub applicable_membership_types: Vec<crate::generated::models::BungieMembershipType>,
     /// The bungie global display name, if set.
     pub bungie_global_display_name: String,
     /// The bungie global display name code, if set.

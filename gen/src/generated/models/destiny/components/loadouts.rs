@@ -12,7 +12,7 @@ pub struct DestinyLoadoutComponent {
     /// No documentation provided.
     pub icon_hash: crate::id::Id<crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutIconDefinition>,
     /// No documentation provided.
-    pub items: i32,
+    pub items: Vec<crate::generated::models::destiny::components::loadouts::DestinyLoadoutItemComponent>,
     /// No documentation provided.
     pub name_hash: crate::id::Id<crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutNameDefinition>,
 }
@@ -25,7 +25,7 @@ pub struct DestinyLoadoutItemComponent {
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
     pub item_instance_id: i64,
     /// No documentation provided.
-    pub plug_item_hashes: i32,
+    pub plug_item_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
 }
 
 /// No documentation provided.
@@ -33,5 +33,5 @@ pub struct DestinyLoadoutItemComponent {
 pub struct DestinyLoadoutsComponent {
 
     /// No documentation provided.
-    pub loadouts: i32,
+    pub loadouts: Vec<crate::generated::models::destiny::components::loadouts::DestinyLoadoutComponent>,
 }

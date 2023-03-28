@@ -20,5 +20,5 @@ pub struct DestinyProgressionLevelRequirementDefinition {
     pub redacted: bool,
     /// A curve of level requirements, weighted by the related progressions' level.
 /// Interpolate against this curve with the character's progression level to determine what the level requirement of the generated item that is using this data will be.
-    pub requirement_curve: i32,
+    pub requirement_curve: Vec<crate::generated::models::interpolation::InterpolationPointFloat>,
 }

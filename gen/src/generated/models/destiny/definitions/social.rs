@@ -14,7 +14,7 @@ pub struct DestinySocialCommendationDefinition {
     /// No documentation provided.
     pub color: crate::generated::models::destiny::misc::DestinyColor,
     /// The display properties for the the activities that this commendation is available in.
-    pub display_activities: i32,
+    pub display_activities: Vec<crate::generated::models::destiny::definitions::common::DestinyDisplayPropertiesDefinition>,
     /// No documentation provided.
     pub display_priority: i32,
     /// No documentation provided.
@@ -35,9 +35,9 @@ pub struct DestinySocialCommendationDefinition {
 pub struct DestinySocialCommendationNodeDefinition {
 
     /// A list of hashes that map to child commendations.
-    pub child_commendation_hashes: i32,
+    pub child_commendation_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::social::DestinySocialCommendationDefinition>>,
     /// A list of hashes that map to child commendation nodes. Only the root commendations node is expected to have child nodes.
-    pub child_commendation_node_hashes: i32,
+    pub child_commendation_node_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::social::DestinySocialCommendationNodeDefinition>>,
     /// The color associated with this group of commendations.
     pub color: crate::generated::models::destiny::misc::DestinyColor,
     /// No documentation provided.

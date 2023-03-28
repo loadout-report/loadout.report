@@ -27,9 +27,9 @@ pub struct DestinyProfileTransitoryComponent {
     /// The hash identifier for the DestinyDestinationDefinition of the last location you were orbiting when in orbit.
     pub last_orbited_destination_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyDestinationDefinition>>,
     /// If you have any members currently in your party, this is some (very) bare-bones information about those members.
-    pub party_members: i32,
+    pub party_members: Vec<crate::generated::models::destiny::components::profiles::DestinyProfileTransitoryPartyMember>,
     /// Information about tracked entities.
-    pub tracking: i32,
+    pub tracking: Vec<crate::generated::models::destiny::components::profiles::DestinyProfileTransitoryTrackingEntry>,
 }
 
 /// If you are playing in an activity, this is some information about it.

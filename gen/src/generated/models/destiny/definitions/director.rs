@@ -30,22 +30,22 @@ pub struct DestinyActivityGraphConnectionDefinition {
 pub struct DestinyActivityGraphDefinition {
 
     /// Represents one-off/special UI elements that appear on the map.
-    pub art_elements: i32,
+    pub art_elements: Vec<crate::generated::models::destiny::definitions::director::DestinyActivityGraphArtElementDefinition>,
     /// Represents connections between graph nodes. However, it lacks context that we'd need to make good use of it.
-    pub connections: i32,
+    pub connections: Vec<crate::generated::models::destiny::definitions::director::DestinyActivityGraphConnectionDefinition>,
     /// Objectives can display on maps, and this is supposedly metadata for that. I have not had the time to analyze the details of what is useful within however: we could be missing important data to make this work. Expect this property to be expanded on later if possible.
-    pub display_objectives: i32,
+    pub display_objectives: Vec<crate::generated::models::destiny::definitions::director::DestinyActivityGraphDisplayObjectiveDefinition>,
     /// Progressions can also display on maps, but similarly to displayObjectives we appear to lack some required information and context right now. We will have to look into it later and add more data if possible.
-    pub display_progressions: i32,
+    pub display_progressions: Vec<crate::generated::models::destiny::definitions::director::DestinyActivityGraphDisplayProgressionDefinition>,
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity, but not globally.
 /// When entities refer to each other in Destiny content, it is this hash that they are referring to.
     pub hash: u32,
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// Represents links between this Activity Graph and other ones.
-    pub linked_graphs: i32,
+    pub linked_graphs: Vec<crate::generated::models::destiny::definitions::director::DestinyLinkedGraphDefinition>,
     /// These represent the visual "nodes" on the map's view. These are the activities you can click on in the map.
-    pub nodes: i32,
+    pub nodes: Vec<crate::generated::models::destiny::definitions::director::DestinyActivityGraphNodeDefinition>,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
 }
@@ -85,9 +85,9 @@ pub struct DestinyActivityGraphNodeActivityDefinition {
 pub struct DestinyActivityGraphNodeDefinition {
 
     /// The node may have various possible activities that could be active for it, however only one may be active at a time. See the DestinyActivityGraphNodeActivityDefinition for details.
-    pub activities: i32,
+    pub activities: Vec<crate::generated::models::destiny::definitions::director::DestinyActivityGraphNodeActivityDefinition>,
     /// The node may have various visual accents placed on it, or styles applied. These are the list of possible styles that the Node can have. The game iterates through each, looking for the first one that passes a check of the required game/character/account state in order to show that style, and then renders the node in that style.
-    pub featuring_states: i32,
+    pub featuring_states: Vec<crate::generated::models::destiny::definitions::director::DestinyActivityGraphNodeFeaturingStateDefinition>,
     /// An identifier for the Activity Graph Node, only guaranteed to be unique within its parent Activity Graph.
     pub node_id: u32,
     /// The node *may* have display properties that override the active Activity's display properties.
@@ -95,7 +95,7 @@ pub struct DestinyActivityGraphNodeDefinition {
     /// The position on the map for this node.
     pub position: crate::generated::models::destiny::definitions::common::DestinyPositionDefinition,
     /// Represents possible states that the graph node can be in. These are combined with some checking that happens in the game client and server to determine which state is actually active at any given time.
-    pub states: i32,
+    pub states: Vec<crate::generated::models::destiny::definitions::director::DestinyActivityGraphNodeStateEntry>,
 }
 
 /// Nodes can have different visual states. This object represents a single visual state ("highlight type") that a node can be in, and the unlock expression condition to determine whether it should be set.
@@ -123,7 +123,7 @@ pub struct DestinyLinkedGraphDefinition {
     /// No documentation provided.
     pub linked_graph_id: u32,
     /// No documentation provided.
-    pub linked_graphs: i32,
+    pub linked_graphs: Vec<crate::generated::models::destiny::definitions::director::DestinyLinkedGraphEntryDefinition>,
     /// No documentation provided.
     pub name: String,
     /// No documentation provided.

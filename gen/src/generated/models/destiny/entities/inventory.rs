@@ -9,5 +9,5 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DestinyInventoryComponent {
 
     /// The items in this inventory. If you care to bucket them, use the item's bucketHash property to group them.
-    pub items: i32,
+    pub items: Vec<crate::generated::models::destiny::entities::items::DestinyItemComponent>,
 }

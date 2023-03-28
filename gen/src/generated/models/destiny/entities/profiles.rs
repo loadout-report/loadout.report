@@ -10,7 +10,7 @@ pub struct DestinyProfileComponent {
     /// If populated, this is a reference to the event card that is currently active.
     pub active_event_card_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::seasons::DestinyEventCardDefinition>>,
     /// A list of the character IDs, for further querying on your part.
-    pub character_ids: i32,
+    pub character_ids: Vec<i64>,
     /// The 'current' Guardian Rank value, which starts at rank 1.
     pub current_guardian_rank: crate::id::Id<crate::generated::models::destiny::definitions::guardian_ranks::DestinyGuardianRankDefinition>,
     /// If populated, this is a reference to the season that is currently active.
@@ -20,12 +20,12 @@ pub struct DestinyProfileComponent {
     /// The last time the user played with any character on this Profile.
     pub date_last_played: chrono::DateTime<chrono::Utc>,
     /// A list of hashes for event cards that a profile owns. Unlike most values in versionsOwned, these stay with the profile across all platforms.
-    pub event_card_hashes_owned: i32,
+    pub event_card_hashes_owned: Vec<crate::id::Id<crate::generated::models::destiny::definitions::seasons::DestinyEventCardDefinition>>,
     /// The 'lifetime highest' Guardian Rank value, which starts at rank 1.
     pub lifetime_highest_guardian_rank: crate::id::Id<crate::generated::models::destiny::definitions::guardian_ranks::DestinyGuardianRankDefinition>,
     /// A list of seasons that this profile owns. Unlike versionsOwned, these stay with the profile across Platforms, and thus will be valid.
 ///  It turns out that Stadia Pro subscriptions will give access to seasons but only while playing on Stadia and with an active subscription. So some users (users who have Stadia Pro but choose to play on some other platform) won't see these as available: it will be whatever seasons are available for the platform on which they last played.
-    pub season_hashes: i32,
+    pub season_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::seasons::DestinySeasonDefinition>>,
     /// If you need to render the Profile (their platform name, icon, etc...) somewhere, this property contains that information.
     pub user_info: crate::generated::models::user::UserInfoCard,
     /// If you want to know what expansions they own, this will contain that data.
@@ -39,5 +39,5 @@ pub struct DestinyProfileComponent {
 pub struct DestinyVendorReceiptsComponent {
 
     /// The receipts for refundable purchases made at a vendor.
-    pub receipts: i32,
+    pub receipts: Vec<crate::generated::models::destiny::vendors::DestinyVendorReceipt>,
 }

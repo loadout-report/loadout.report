@@ -82,7 +82,7 @@ pub struct AwaUserResponse {
     /// Correlation ID of the request
     pub correlation_id: String,
     /// Secret nonce received via the PUSH notification.
-    pub nonce: i32,
+    pub nonce: Vec<String>,
     /// Indication of the selection the user has made (Approving or rejecting the action)
     pub selection: crate::generated::models::destiny::advanced::AwaUserSelection,
 }

@@ -14,7 +14,7 @@ pub struct DestinyArtifactCharacterScoped {
     /// No documentation provided.
     pub reset_count: i32,
     /// No documentation provided.
-    pub tiers: i32,
+    pub tiers: Vec<crate::generated::models::destiny::artifacts::DestinyArtifactTier>,
 }
 
 /// Represents a Seasonal Artifact and all data related to it for the requested Account.
@@ -41,7 +41,7 @@ pub struct DestinyArtifactTier {
     /// No documentation provided.
     pub is_unlocked: bool,
     /// No documentation provided.
-    pub items: i32,
+    pub items: Vec<crate::generated::models::destiny::artifacts::DestinyArtifactTierItem>,
     /// No documentation provided.
     pub points_to_unlock: i32,
     /// No documentation provided.

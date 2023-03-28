@@ -76,7 +76,7 @@ pub struct PartnerOfferSkuHistoryResponse {
     /// No documentation provided.
     pub sku_identifier: String,
     /// No documentation provided.
-    pub sku_offers: i32,
+    pub sku_offers: Vec<crate::generated::models::tokens::PartnerOfferHistoryResponse>,
     /// No documentation provided.
     pub transaction_id: String,
 }
@@ -86,9 +86,9 @@ pub struct PartnerOfferSkuHistoryResponse {
 pub struct PartnerRewardHistoryResponse {
 
     /// No documentation provided.
-    pub partner_offers: i32,
+    pub partner_offers: Vec<crate::generated::models::tokens::PartnerOfferSkuHistoryResponse>,
     /// No documentation provided.
-    pub twitch_drops: i32,
+    pub twitch_drops: Vec<crate::generated::models::tokens::TwitchDropHistoryResponse>,
 }
 
 /// No documentation provided.
@@ -96,7 +96,7 @@ pub struct PartnerRewardHistoryResponse {
 pub struct RewardAvailabilityModel {
 
     /// No documentation provided.
-    pub collectible_definitions: i32,
+    pub collectible_definitions: Vec<crate::generated::models::tokens::CollectibleDefinitions>,
     /// No documentation provided.
     pub decrypted_token: String,
     /// No documentation provided.
@@ -112,7 +112,7 @@ pub struct RewardAvailabilityModel {
     /// No documentation provided.
     pub offer_applied: bool,
     /// No documentation provided.
-    pub record_definitions: i32,
+    pub record_definitions: Vec<crate::generated::models::destiny::definitions::records::DestinyRecordDefinition>,
     /// No documentation provided.
     pub redemption_end_date: chrono::DateTime<chrono::Utc>,
     /// No documentation provided.

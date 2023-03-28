@@ -17,7 +17,7 @@ pub struct DestinyMetricDefinition {
     /// No documentation provided.
     pub lower_value_is_better: bool,
     /// A quick reference to presentation nodes that have this node as a child. Presentation nodes can be parented under multiple parents.
-    pub parent_node_hashes: i32,
+    pub parent_node_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
     /// No documentation provided.
     pub presentation_node_type: crate::generated::models::destiny::DestinyPresentationNodeType,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
@@ -25,7 +25,7 @@ pub struct DestinyMetricDefinition {
     /// No documentation provided.
     pub tracking_objective_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
     /// No documentation provided.
-    pub trait_hashes: i32,
+    pub trait_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::traits::DestinyTraitDefinition>>,
     /// No documentation provided.
-    pub trait_ids: i32,
+    pub trait_ids: Vec<String>,
 }

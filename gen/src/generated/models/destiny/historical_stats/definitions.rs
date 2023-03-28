@@ -192,9 +192,9 @@ pub struct DestinyHistoricalStatsDefinition {
     /// Optional icon for the statistic
     pub merge_method: Option<i32>,
     /// Game modes where this statistic can be reported.
-    pub modes: i32,
+    pub modes: Vec<crate::generated::models::destiny::historical_stats::definitions::DestinyActivityModeType>,
     /// Time periods the statistic covers
-    pub period_types: i32,
+    pub period_types: Vec<crate::generated::models::destiny::historical_stats::definitions::PeriodType>,
     /// Description of a stat if applicable.
     pub stat_description: String,
     /// Unique programmer friendly ID for this stat

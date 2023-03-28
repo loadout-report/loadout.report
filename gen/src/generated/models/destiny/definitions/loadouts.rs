@@ -32,17 +32,17 @@ pub struct DestinyLoadoutConstantsDefinition {
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// A list of the loadout color hashes in index order, for convenience.
-    pub loadout_color_hashes: i32,
+    pub loadout_color_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutColorDefinition>>,
     /// The maximum number of loadouts available to each character. The loadouts component API response can return fewer loadouts than this, as more loadouts are unlocked by reaching higher Guardian Ranks.
     pub loadout_count_per_character: i32,
     /// A list of the loadout icon hashes in index order, for convenience.
-    pub loadout_icon_hashes: i32,
+    pub loadout_icon_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutIconDefinition>>,
     /// A list of the loadout name hashes in index order, for convenience.
-    pub loadout_name_hashes: i32,
+    pub loadout_name_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutNameDefinition>>,
     /// A list of the socket category hashes to be filtered out of loadout item preview displays.
-    pub loadout_preview_filter_out_socket_category_hashes: i32,
+    pub loadout_preview_filter_out_socket_category_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::sockets::DestinySocketCategoryDefinition>>,
     /// A list of the socket type hashes to be filtered out of loadout item preview displays.
-    pub loadout_preview_filter_out_socket_type_hashes: i32,
+    pub loadout_preview_filter_out_socket_type_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::sockets::DestinySocketTypeDefinition>>,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// This is the same icon as the one in the display properties, offered here as well with a more descriptive name.

@@ -94,13 +94,13 @@ pub struct ContentTypeDescription {
     /// No documentation provided.
     pub preview_image: String,
     /// No documentation provided.
-    pub previews: i32,
+    pub previews: Vec<crate::generated::models::content::models::ContentPreview>,
     /// No documentation provided.
     pub priority: i32,
     /// No documentation provided.
-    pub properties: i32,
+    pub properties: Vec<crate::generated::models::content::models::ContentTypeProperty>,
     /// No documentation provided.
-    pub property_sections: i32,
+    pub property_sections: Vec<crate::generated::models::content::models::ContentTypePropertySection>,
     /// No documentation provided.
     pub reminder: String,
     /// No documentation provided.
@@ -108,13 +108,13 @@ pub struct ContentTypeDescription {
     /// No documentation provided.
     pub suppress_cms_path: bool,
     /// No documentation provided.
-    pub tag_metadata: i32,
+    pub tag_metadata: Vec<crate::generated::models::content::models::TagMetadataDefinition>,
     /// No documentation provided.
     pub tag_metadata_items: i32,
     /// No documentation provided.
     pub type_of: String,
     /// No documentation provided.
-    pub usage_examples: i32,
+    pub usage_examples: Vec<String>,
 }
 
 /// No documentation provided.
@@ -128,13 +128,13 @@ pub struct ContentTypeProperty {
     /// No documentation provided.
     pub bound_regex: String,
     /// No documentation provided.
-    pub child_properties: i32,
+    pub child_properties: Vec<crate::generated::models::content::models::ContentTypeProperty>,
     /// No documentation provided.
     pub content_type_allowed: String,
     /// No documentation provided.
     pub datatype: crate::generated::models::content::models::ContentPropertyDataTypeEnum,
     /// No documentation provided.
-    pub default_values: i32,
+    pub default_values: Vec<crate::generated::models::content::models::ContentTypeDefaultValue>,
     /// No documentation provided.
     pub enabled: bool,
     /// No documentation provided.
@@ -152,7 +152,7 @@ pub struct ContentTypeProperty {
     /// No documentation provided.
     pub is_video: bool,
     /// No documentation provided.
-    pub legal_content_types: i32,
+    pub legal_content_types: Vec<String>,
     /// No documentation provided.
     pub localizable: bool,
     /// No documentation provided.
@@ -230,7 +230,7 @@ pub struct TagMetadataDefinition {
     /// No documentation provided.
     pub is_required: bool,
     /// No documentation provided.
-    pub items: i32,
+    pub items: Vec<crate::generated::models::content::models::TagMetadataItem>,
     /// No documentation provided.
     pub name: String,
     /// No documentation provided.
@@ -244,7 +244,7 @@ pub struct TagMetadataItem {
     /// No documentation provided.
     pub description: String,
     /// No documentation provided.
-    pub groups: i32,
+    pub groups: Vec<String>,
     /// No documentation provided.
     pub is_default: bool,
     /// No documentation provided.

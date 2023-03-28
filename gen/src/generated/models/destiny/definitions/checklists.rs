@@ -13,7 +13,7 @@ pub struct DestinyChecklistDefinition {
     /// No documentation provided.
     pub display_properties: crate::generated::models::destiny::definitions::common::DestinyDisplayPropertiesDefinition,
     /// The individual checklist items. Gotta catch 'em all.
-    pub entries: i32,
+    pub entries: Vec<crate::generated::models::destiny::definitions::checklists::DestinyChecklistEntryDefinition>,
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity, but not globally.
 /// When entities refer to each other in Destiny content, it is this hash that they are referring to.
     pub hash: u32,

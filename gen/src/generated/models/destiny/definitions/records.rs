@@ -39,9 +39,9 @@ pub struct DestinyRecordDefinition {
     /// No documentation provided.
     pub lore_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::lore::DestinyLoreDefinition>>,
     /// No documentation provided.
-    pub objective_hashes: i32,
+    pub objective_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>>,
     /// A quick reference to presentation nodes that have this node as a child. Presentation nodes can be parented under multiple parents.
-    pub parent_node_hashes: i32,
+    pub parent_node_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
     /// No documentation provided.
     pub presentation_info: crate::generated::models::destiny::definitions::presentation::DestinyPresentationChildBlock,
     /// No documentation provided.
@@ -54,7 +54,7 @@ pub struct DestinyRecordDefinition {
     pub requirements: crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeRequirementsBlock,
     /// If there is any publicly available information about rewards earned for achieving this record, this is the list of those items.
 ///  However, note that some records intentionally have "hidden" rewards. These will not be returned in this list.
-    pub reward_items: i32,
+    pub reward_items: Vec<crate::generated::models::destiny::DestinyItemQuantity>,
     /// Indicates whether this Record's state is determined on a per-character or on an account-wide basis.
     pub scope: crate::generated::models::destiny::DestinyScope,
     /// A hint to show a large icon for a reward
@@ -64,9 +64,9 @@ pub struct DestinyRecordDefinition {
     /// No documentation provided.
     pub title_info: crate::generated::models::destiny::definitions::records::DestinyRecordTitleBlock,
     /// No documentation provided.
-    pub trait_hashes: i32,
+    pub trait_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::traits::DestinyTraitDefinition>>,
     /// No documentation provided.
-    pub trait_ids: i32,
+    pub trait_ids: Vec<String>,
 }
 
 /// If this record has an expiration after which it cannot be earned, this is some information about that expiration.
@@ -86,9 +86,9 @@ pub struct DestinyRecordExpirationBlock {
 pub struct DestinyRecordIntervalBlock {
 
     /// No documentation provided.
-    pub interval_objectives: i32,
+    pub interval_objectives: Vec<crate::generated::models::destiny::definitions::records::DestinyRecordIntervalObjective>,
     /// No documentation provided.
-    pub interval_rewards: i32,
+    pub interval_rewards: Vec<crate::generated::models::destiny::definitions::records::DestinyRecordIntervalRewards>,
     /// No documentation provided.
     pub original_objective_array_insertion_index: i32,
 }
@@ -108,7 +108,7 @@ pub struct DestinyRecordIntervalObjective {
 pub struct DestinyRecordIntervalRewards {
 
     /// No documentation provided.
-    pub interval_reward_items: i32,
+    pub interval_reward_items: Vec<crate::generated::models::destiny::DestinyItemQuantity>,
 }
 
 /// No documentation provided.

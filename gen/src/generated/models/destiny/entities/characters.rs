@@ -8,17 +8,17 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DestinyCharacterActivitiesComponent {
 
     /// The list of activities that the user can play.
-    pub available_activities: i32,
+    pub available_activities: Vec<crate::generated::models::destiny::DestinyActivity>,
     /// If the user is in an activity, this will be the hash of the Activity being played. Note that you must combine this info with currentActivityModeHash to get a real picture of what the user is doing right now. For instance, PVP "Activities" are just maps: it's the ActivityMode that determines what type of PVP game they're playing.
     pub current_activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// If the user is in an activity, this will be the hash of the activity mode being played. Combine with currentActivityHash to give a person a full picture of what they're doing right now.
     pub current_activity_mode_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityModeDefinition>,
     /// If the user is in an activity, this will be the hashes of the DestinyActivityModeDefinition being played. Combine with currentActivityHash to give a person a full picture of what they're doing right now.
-    pub current_activity_mode_hashes: i32,
+    pub current_activity_mode_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityModeDefinition>>,
     /// And the current activity's most specific mode type, if it can be found.
     pub current_activity_mode_type: Option<i32>,
     /// All Activity Modes that apply to the current activity being played, in enum form.
-    pub current_activity_mode_types: i32,
+    pub current_activity_mode_types: Vec<crate::generated::models::destiny::historical_stats::definitions::DestinyActivityModeType>,
     /// If the user is in a playlist, this is the hash identifier for the playlist that they chose.
     pub current_playlist_activity_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>>,
     /// The last date that the user started playing an activity.
@@ -102,7 +102,7 @@ pub struct DestinyCharacterProgressionComponent {
     /// If the user has any active quests, the quests' statuses will be returned here.
 ///  Note that quests have been largely supplanted by Milestones, but that doesn't mean that they won't make a comeback independent of milestones at some point.
 ///  (Fun fact: quests came back as I feared they would, but we never looped back to populate this... I'm going to put that in the backlog.)
-    pub quests: i32,
+    pub quests: Vec<crate::generated::models::destiny::quests::DestinyQuestStatus>,
     /// Data related to your progress on the current season's artifact that can vary per character.
     pub seasonal_artifact: crate::generated::models::destiny::artifacts::DestinyArtifactCharacterScoped,
     /// Sometimes, you have items in your inventory that don't have instances, but still have Objective information. This provides you that objective information for uninstanced items. 
@@ -119,7 +119,7 @@ pub struct DestinyCharacterProgressionComponent {
 pub struct DestinyCharacterRenderComponent {
 
     /// Custom dyes, calculated by iterating over the character's equipped items. Useful for pre-fetching all of the dye data needed from our server.
-    pub custom_dyes: i32,
+    pub custom_dyes: Vec<crate::generated::models::destiny::DyeReference>,
     /// This is actually something that Spasm.js *doesn't* do right now, and that we don't return assets for yet. This is the data about what character customization options you picked. You can combine this with DestinyCharacterCustomizationOptionDefinition to show some cool info, and hopefully someday to actually render a user's face in 3D. We'll see if we ever end up with time for that.
     pub customization: crate::generated::models::destiny::character::DestinyCharacterCustomization,
     /// A minimal view of:

@@ -104,7 +104,7 @@ pub struct DestinyActivity {
     /// If true, the user is allowed to lead a Fireteam into this activity.
     pub can_lead: bool,
     /// No documentation provided.
-    pub challenges: i32,
+    pub challenges: Vec<crate::generated::models::destiny::challenges::DestinyChallengeStatus>,
     /// A DestinyActivityDifficultyTier enum value indicating the difficulty of the activity.
     pub difficulty_tier: crate::generated::models::destiny::DestinyActivityDifficultyTier,
     /// The difficulty level of the activity, if applicable.
@@ -119,7 +119,7 @@ pub struct DestinyActivity {
     pub loadout_requirement_index: Option<i32>,
     /// If the activity has modifiers, this will be the list of modifiers that all variants have in common. Perform lookups against DestinyActivityModifierDefinition which defines the modifier being applied to get at the modifier data.
 /// Note that, in the DestiyActivityDefinition, you will see many more modifiers than this being referred to: those are all *possible* modifiers for the activity, not the active ones. Use only the active ones to match what's really live.
-    pub modifier_hashes: i32,
+    pub modifier_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
     /// The recommended light level for the activity, if applicable.
     pub recommended_light: Option<i32>,
 }
@@ -392,7 +392,7 @@ pub struct DestinyEquipItemResult {
 pub struct DestinyEquipItemResults {
 
     /// No documentation provided.
-    pub equip_results: i32,
+    pub equip_results: Vec<crate::generated::models::destiny::DestinyEquipItemResult>,
 }
 
 /// A player can choose to restrict requests to join their Fireteam to specific states. These are the possible states a user can choose.
@@ -818,9 +818,9 @@ pub struct DestinyProgression {
     /// The hash identifier of the Progression in question. Use it to look up the DestinyProgressionDefinition in static data.
     pub progression_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyProgressionDefinition>,
     /// Information about historical rewards for this progression, if there is any data for it.
-    pub reward_item_states: i32,
+    pub reward_item_states: Vec<crate::generated::models::destiny::DestinyProgressionRewardItemState>,
     /// Information about historical resets of this progression, if there is any data for it.
-    pub season_resets: i32,
+    pub season_resets: Vec<crate::generated::models::destiny::DestinyProgressionResetEntry>,
     /// Progressions define their levels in "steps". Since the last step may be repeatable, the user may be at a higher level than the actual Step achieved in the progression. Not necessarily useful, but potentially interesting for those cruising the API. Relate this to the "steps" property of the DestinyProgression to see which step the user is on, if you care about that. (Note that this is Content Version dependent since it refers to indexes.)
     pub step_index: i32,
     /// If this progression has a weekly limit, this is that limit.
@@ -1078,7 +1078,7 @@ pub struct DestinyTalentNode {
     /// If true, the node is activated: it's current step then provides its benefits.
     pub is_activated: bool,
     /// If the node has material requirements to be activated, this is the list of those requirements.
-    pub materials_to_upgrade: i32,
+    pub materials_to_upgrade: Vec<crate::generated::models::destiny::definitions::DestinyMaterialRequirement>,
     /// The hash of the Talent Node being referred to (in DestinyTalentGridDefinition.nodes). Deceptively CONTENT VERSION DEPENDENT. We have no guarantee of the hash's immutability between content versions.
     pub node_hash: u32,
     /// The index of the Talent Node being referred to (an index into DestinyTalentGridDefinition.nodes[]). CONTENT VERSION DEPENDENT.
@@ -1098,9 +1098,9 @@ pub struct DestinyTalentNode {
 pub struct DestinyTalentNodeStatBlock {
 
     /// The stat benefits conferred when this talent node is activated for the current Step that is active on the node.
-    pub current_step_stats: i32,
+    pub current_step_stats: Vec<crate::generated::models::destiny::DestinyStat>,
     /// This is a holdover from the old days of Destiny 1, when a node could be activated multiple times, conferring multiple steps worth of benefits: you would use this property to show what activating the "next" step on the node would provide vs. what the current step is providing. While Nodes are currently not being used this way, the underlying system for this functionality still exists. I hesitate to remove this property while the ability for designers to make such a talent grid still exists. Whether you want to show it is up to you.
-    pub next_step_stats: i32,
+    pub next_step_stats: Vec<crate::generated::models::destiny::DestinyStat>,
 }
 
 /// No documentation provided.

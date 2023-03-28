@@ -9,9 +9,9 @@ pub struct DestinyMilestone {
 
     /// The currently active Activities in this milestone, when the Milestone is driven by Challenges.
 /// Not all Milestones have Challenges, but when they do this will indicate the Activities and Challenges under those Activities related to this Milestone.
-    pub activities: i32,
+    pub activities: Vec<crate::generated::models::destiny::milestones::DestinyMilestoneChallengeActivity>,
     /// Indicates what quests are available for this Milestone. Usually this will be only a single Quest, but some quests have multiple available that you can choose from at any given time. All possible quests for a milestone can be found in the DestinyMilestoneDefinition, but they must be combined with this Live data to determine which one(s) are actually active right now. It is possible for Milestones to not have any quests.
-    pub available_quests: i32,
+    pub available_quests: Vec<crate::generated::models::destiny::milestones::DestinyMilestoneQuest>,
     /// If known, this is the date when the event will next end or repeat. It will only be populated for events with fixed and repeating start and end dates.
     pub end_date: Option<chrono::DateTime<chrono::Utc>>,
     /// The unique identifier for the Milestone. Use it to look up the DestinyMilestoneDefinition, so you can combine the other data in this contract with static definition data.
@@ -19,16 +19,16 @@ pub struct DestinyMilestone {
     /// Used for ordering milestones in a display to match how we order them in BNet. May pull from static data, or possibly in the future from dynamic information.
     pub order: i32,
     /// If the entity to which this component is attached has known active Rewards for the player, this will detail information about those rewards, keyed by the RewardEntry Hash. (See DestinyMilestoneDefinition for more information about Reward Entries) Note that these rewards are not for the Quests related to the Milestone. Think of these as "overview/checklist" rewards that may be provided for Milestones that may provide rewards for performing a variety of tasks that aren't under a specific Quest.
-    pub rewards: i32,
+    pub rewards: Vec<crate::generated::models::destiny::milestones::DestinyMilestoneRewardCategory>,
     /// If known, this is the date when the event last began or refreshed. It will only be populated for events with fixed and repeating start and end dates.
     pub start_date: Option<chrono::DateTime<chrono::Utc>>,
     /// Milestones may have arbitrary key/value pairs associated with them, for data that users will want to know about but that doesn't fit neatly into any of the common components such as Quests. A good example of this would be - if this existed in Destiny 1 - the number of wins you currently have on your Trials of Osiris ticket. Looking in the DestinyMilestoneDefinition, you can use the string identifier of this dictionary to look up more info about the value, including localized string content for displaying the value. The value in the dictionary is the floating point number. The definition will tell you how to format this number.
     pub values: i32,
     /// A milestone may have one or more active vendors that are "related" to it (that provide rewards, or that are the initiators of the Milestone). I already regret this, even as I'm typing it. [I told you I'd regret this] You see, sometimes a milestone may be directly correlated with a set of vendors that provide varying tiers of rewards. The player may not be able to interact with one or more of those vendors. This will return the hashes of the Vendors that the player *can* interact with, allowing you to show their current inventory as rewards or related items to the Milestone or its activities.
 /// Before we even use it, it's already deprecated! How much of a bummer is that? We need more data.
-    pub vendor_hashes: i32,
+    pub vendor_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>>,
     /// Replaces vendorHashes, which I knew was going to be trouble the day it walked in the door. This will return not only what Vendors are active and relevant to the activity (in an implied order that you can choose to ignore), but also other data - for example, if the Vendor is featuring a specific item relevant to this event that you should show with them.
-    pub vendors: i32,
+    pub vendors: Vec<crate::generated::models::destiny::milestones::DestinyMilestoneVendor>,
 }
 
 /// Sometimes, we know the specific activity that the Milestone wants you to play. This entity provides additional information about that Activity and all of its variants. (sometimes there's only one variant, but I think you get the point)
@@ -42,9 +42,9 @@ pub struct DestinyMilestoneActivity {
     /// The enumeration equivalent of the most specific Activity Mode under which this activity is played.
     pub activity_mode_type: Option<i32>,
     /// If the activity has modifiers, this will be the list of modifiers that all variants have in common. Perform lookups against DestinyActivityModifierDefinition which defines the modifier being applied to get at the modifier data. Note that, in the DestiyActivityDefinition, you will see many more modifiers than this being referred to: those are all *possible* modifiers for the activity, not the active ones. Use only the active ones to match what's really live.
-    pub modifier_hashes: i32,
+    pub modifier_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
     /// If you want more than just name/location/etc... you're going to have to dig into and show the variants of the conceptual activity. These will differ in seemingly arbitrary ways, like difficulty level and modifiers applied. Show it in whatever way tickles your fancy.
-    pub variants: i32,
+    pub variants: Vec<crate::generated::models::destiny::milestones::DestinyMilestoneActivityVariant>,
 }
 
 /// Represents this player's personal completion status for the Activity under a Milestone, if the activity has trackable completion and progress information. (most activities won't, or the concept won't apply. For instance, it makes sense to talk about a tier of a raid as being Completed or having progress, but it doesn't make sense to talk about a Crucible Playlist in those terms.
@@ -54,7 +54,7 @@ pub struct DestinyMilestoneActivityCompletionStatus {
     /// If the activity has been "completed", that information will be returned here.
     pub completed: bool,
     /// If the Activity has discrete "phases" that we can track, that info will be here. Otherwise, this value will be NULL. Note that this is a list and not a dictionary: the order implies the ascending order of phases or progression in this activity.
-    pub phases: i32,
+    pub phases: Vec<crate::generated::models::destiny::milestones::DestinyMilestoneActivityPhase>,
 }
 
 /// Represents whatever information we can return about an explicit phase in an activity. In the future, I hope we'll have more than just "guh, you done gone and did something," but for the forseeable future that's all we've got. I'm making it more than just a list of booleans out of that overly-optimistic hope.
@@ -93,14 +93,14 @@ pub struct DestinyMilestoneChallengeActivity {
 /// On our side, we don't necessarily even know what these are used for (the game designers know, but we don't), and we have no human readable data for them. In order to use them, you will have to do some experimentation.
     pub boolean_activity_options: i32,
     /// No documentation provided.
-    pub challenges: i32,
+    pub challenges: Vec<crate::generated::models::destiny::challenges::DestinyChallengeStatus>,
     /// If returned, this is the index into the DestinyActivityDefinition's "loadouts" property, indicating the currently active loadout requirements.
     pub loadout_requirement_index: Option<i32>,
     /// If the activity has modifiers, this will be the list of modifiers that all variants have in common. Perform lookups against DestinyActivityModifierDefinition which defines the modifier being applied to get at the modifier data.
 /// Note that, in the DestiyActivityDefinition, you will see many more modifiers than this being referred to: those are all *possible* modifiers for the activity, not the active ones. Use only the active ones to match what's really live.
-    pub modifier_hashes: i32,
+    pub modifier_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
     /// If the Activity has discrete "phases" that we can track, that info will be here. Otherwise, this value will be NULL. Note that this is a list and not a dictionary: the order implies the ascending order of phases or progression in this activity.
-    pub phases: i32,
+    pub phases: Vec<crate::generated::models::destiny::milestones::DestinyMilestoneActivityPhase>,
 }
 
 /// Represents localized, extended content related to Milestones. This is intentionally returned by a separate endpoint and not with Character-level Milestone data because we do not put localized data into standard Destiny responses, both for brevity of response and for caching purposes. If you really need this data, hit the Milestone Content endpoint.
@@ -110,11 +110,11 @@ pub struct DestinyMilestoneContent {
     /// The "About this Milestone" text from the Firehose.
     pub about: String,
     /// If DPS has defined items related to this Milestone, they can categorize those items in the Firehose. That data will then be returned as item categories here.
-    pub item_categories: i32,
+    pub item_categories: Vec<crate::generated::models::destiny::milestones::DestinyMilestoneContentItemCategory>,
     /// The Current Status of the Milestone, as driven by the Firehose.
     pub status: String,
     /// A list of tips, provided by the Firehose.
-    pub tips: i32,
+    pub tips: Vec<String>,
 }
 
 /// Part of our dynamic, localized Milestone content is arbitrary categories of items. These are built in our content management system, and thus aren't the same as programmatically generated rewards.
@@ -122,7 +122,7 @@ pub struct DestinyMilestoneContent {
 pub struct DestinyMilestoneContentItemCategory {
 
     /// No documentation provided.
-    pub item_hashes: i32,
+    pub item_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// No documentation provided.
     pub title: String,
 }
@@ -134,7 +134,7 @@ pub struct DestinyMilestoneQuest {
     /// *IF* the Milestone has an active Activity that can give you greater details about what you need to do, it will be returned here. Remember to associate this with the DestinyMilestoneDefinition's activities to get details about the activity, including what specific quest it is related to if you have multiple quests to choose from.
     pub activity: crate::generated::models::destiny::milestones::DestinyMilestoneActivity,
     /// The activities referred to by this quest can have many associated challenges. They are all contained here, with activityHashes so that you can associate them with the specific activity variants in which they can be found. In retrospect, I probably should have put these under the specific Activity Variants, but it's too late to change it now. Theoretically, a quest without Activities can still have Challenges, which is why this is on a higher level than activity/variants, but it probably should have been in both places. That may come as a later revision.
-    pub challenges: i32,
+    pub challenges: Vec<crate::generated::models::destiny::challenges::DestinyChallengeStatus>,
     /// Quests are defined as Items in content. As such, this is the hash identifier of the DestinyInventoryItemDefinition that represents this quest. It will have pointers to all of the steps in the quest, and display information for the quest (title, description, icon etc) Individual steps will be referred to in the Quest item's DestinyInventoryItemDefinition.setData property, and themselves are Items with their own renderable data.
     pub quest_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// The current status of the quest for the character making the request.
@@ -146,7 +146,7 @@ pub struct DestinyMilestoneQuest {
 pub struct DestinyMilestoneRewardCategory {
 
     /// The individual reward entries for this category, and their status.
-    pub entries: i32,
+    pub entries: Vec<crate::generated::models::destiny::milestones::DestinyMilestoneRewardEntry>,
     /// Look up the relevant DestinyMilestoneDefinition, and then use rewardCategoryHash to look up the category info in DestinyMilestoneDefinition.rewards.
     pub reward_category_hash: u32,
 }
@@ -178,9 +178,9 @@ pub struct DestinyMilestoneVendor {
 pub struct DestinyPublicMilestone {
 
     /// No documentation provided.
-    pub activities: i32,
+    pub activities: Vec<crate::generated::models::destiny::milestones::DestinyPublicMilestoneChallengeActivity>,
     /// A milestone not need have even a single quest, but if there are active quests they will be returned here.
-    pub available_quests: i32,
+    pub available_quests: Vec<crate::generated::models::destiny::milestones::DestinyPublicMilestoneQuest>,
     /// If known, this is the date when the Milestone will expire/recycle/end.
     pub end_date: Option<chrono::DateTime<chrono::Utc>>,
     /// The hash identifier for the milestone. Use it to look up the DestinyMilestoneDefinition for static data about the Milestone.
@@ -191,9 +191,9 @@ pub struct DestinyPublicMilestone {
     pub start_date: Option<chrono::DateTime<chrono::Utc>>,
     /// Sometimes milestones - or activities active in milestones - will have relevant vendors. These are the vendors that are currently relevant.
 /// Deprecated, already, for the sake of the new "vendors" property that has more data. What was I thinking.
-    pub vendor_hashes: i32,
+    pub vendor_hashes: Vec<u32>,
     /// This is why we can't have nice things. This is the ordered list of vendors to be shown that relate to this milestone, potentially along with other interesting data.
-    pub vendors: i32,
+    pub vendors: Vec<crate::generated::models::destiny::milestones::DestinyPublicMilestoneVendor>,
 }
 
 /// A milestone may have one or more conceptual Activities associated with it, and each of those conceptual activities could have a variety of variants, modes, tiers, what-have-you. Our attempts to determine what qualifies as a conceptual activity are, unfortunately, janky. So if you see missing modes or modes that don't seem appropriate to you, let us know and I'll buy you a beer if we ever meet up in person.
@@ -207,9 +207,9 @@ pub struct DestinyPublicMilestoneActivity {
     /// The enumeration equivalent of the most specific Activity Mode under which this activity is played.
     pub activity_mode_type: Option<i32>,
     /// The activity may have 0-to-many modifiers: if it does, this will contain the hashes to the DestinyActivityModifierDefinition that defines the modifier being applied.
-    pub modifier_hashes: i32,
+    pub modifier_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
     /// Every relevant variation of this conceptual activity, including the conceptual activity itself, have variants defined here.
-    pub variants: i32,
+    pub variants: Vec<crate::generated::models::destiny::milestones::DestinyPublicMilestoneActivityVariant>,
 }
 
 /// Represents a variant of an activity that's relevant to a milestone.
@@ -245,14 +245,14 @@ pub struct DestinyPublicMilestoneChallengeActivity {
 /// We have no human readable information for this data, so it's up to you if you want to associate it with such info to show it.
     pub boolean_activity_options: i32,
     /// No documentation provided.
-    pub challenge_objective_hashes: i32,
+    pub challenge_objective_hashes: Vec<u32>,
     /// If returned, this is the index into the DestinyActivityDefinition's "loadouts" property, indicating the currently active loadout requirements.
     pub loadout_requirement_index: Option<i32>,
     /// If the activity has modifiers, this will be the list of modifiers that all variants have in common. Perform lookups against DestinyActivityModifierDefinition which defines the modifier being applied to get at the modifier data.
 /// Note that, in the DestiyActivityDefinition, you will see many more modifiers than this being referred to: those are all *possible* modifiers for the activity, not the active ones. Use only the active ones to match what's really live.
-    pub modifier_hashes: i32,
+    pub modifier_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
     /// The ordered list of phases for this activity, if any. Note that we have no human readable info for phases, nor any entities to relate them to: relating these hashes to something human readable is up to you unfortunately.
-    pub phase_hashes: i32,
+    pub phase_hashes: Vec<u32>,
 }
 
 /// No documentation provided.
@@ -262,7 +262,7 @@ pub struct DestinyPublicMilestoneQuest {
     /// A milestone need not have an active activity, but if there is one it will be returned here, along with any variant and additional information.
     pub activity: crate::generated::models::destiny::milestones::DestinyPublicMilestoneActivity,
     /// For the given quest there could be 0-to-Many challenges: mini quests that you can perform in the course of doing this quest, that may grant you rewards and benefits.
-    pub challenges: i32,
+    pub challenges: Vec<crate::generated::models::destiny::milestones::DestinyPublicMilestoneChallenge>,
     /// Quests are defined as Items in content. As such, this is the hash identifier of the DestinyInventoryItemDefinition that represents this quest. It will have pointers to all of the steps in the quest, and display information for the quest (title, description, icon etc) Individual steps will be referred to in the Quest item's DestinyInventoryItemDefinition.setData property, and themselves are Items with their own renderable data.
     pub quest_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::milestones::DestinyMilestoneDefinition>,
 }

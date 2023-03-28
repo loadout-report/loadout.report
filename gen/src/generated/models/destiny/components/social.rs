@@ -12,7 +12,7 @@ pub struct DestinySocialCommendationsComponent {
     /// No documentation provided.
     pub commendation_scores_by_hash: i32,
     /// No documentation provided.
-    pub score_detail_values: i32,
+    pub score_detail_values: Vec<i32>,
     /// No documentation provided.
     pub total_score: i32,
 }

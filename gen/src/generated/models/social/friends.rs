@@ -31,7 +31,7 @@ pub struct BungieFriend {
 pub struct BungieFriendListResponse {
 
     /// No documentation provided.
-    pub friends: i32,
+    pub friends: Vec<crate::generated::models::social::friends::BungieFriend>,
 }
 
 /// No documentation provided.
@@ -39,9 +39,9 @@ pub struct BungieFriendListResponse {
 pub struct BungieFriendRequestListResponse {
 
     /// No documentation provided.
-    pub incoming_requests: i32,
+    pub incoming_requests: Vec<crate::generated::models::social::friends::BungieFriend>,
     /// No documentation provided.
-    pub outgoing_requests: i32,
+    pub outgoing_requests: Vec<crate::generated::models::social::friends::BungieFriend>,
 }
 
 /// No documentation provided.
@@ -91,7 +91,7 @@ pub struct PlatformFriendResponse {
     /// No documentation provided.
     pub items_per_page: i32,
     /// No documentation provided.
-    pub platform_friends: i32,
+    pub platform_friends: Vec<crate::generated::models::social::friends::PlatformFriend>,
 }
 
 /// No documentation provided.

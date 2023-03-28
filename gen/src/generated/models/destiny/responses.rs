@@ -81,11 +81,11 @@ pub struct DestinyErrorProfile {
 pub struct DestinyItemChangeResponse {
 
     /// Items that appeared in the inventory possibly as a result of an action.
-    pub added_inventory_items: i32,
+    pub added_inventory_items: Vec<crate::generated::models::destiny::entities::items::DestinyItemComponent>,
     /// No documentation provided.
     pub item: crate::generated::models::destiny::responses::DestinyItemResponse,
     /// Items that disappeared from the inventory possibly as a result of an action.
-    pub removed_inventory_items: i32,
+    pub removed_inventory_items: Vec<crate::generated::models::destiny::entities::items::DestinyItemComponent>,
 }
 
 /// The response object for retrieving an individual instanced item. None of these components are relevant for an item that doesn't have an "itemInstanceId": for those, get your information from the DestinyInventoryDefinition.
@@ -137,9 +137,9 @@ pub struct DestinyLinkedProfilesResponse {
 /// I know, Tetron; I know this is mixing UserServices concerns with DestinyServices concerns. But it's so damn convenient! https://www.youtube.com/watch?v=X5R-bB-gKVI
     pub bnet_membership: crate::generated::models::user::UserInfoCard,
     /// Any Destiny account for whom we could successfully pull characters will be returned here, as the Platform-level summary of user data. (no character data, no Destiny account data other than the Membership ID and Type so you can make further queries)
-    pub profiles: i32,
+    pub profiles: Vec<crate::generated::models::destiny::responses::DestinyProfileUserInfoCard>,
     /// This is brief summary info for profiles that we believe have valid Destiny info, but who failed to return data for some other reason and thus we know that subsequent calls for their info will also fail.
-    pub profiles_with_errors: i32,
+    pub profiles_with_errors: Vec<crate::generated::models::destiny::responses::DestinyErrorProfile>,
 }
 
 /// The response for GetDestinyProfile, with components for character and item-level data.
@@ -253,7 +253,7 @@ pub struct DestinyProfileUserInfoCard {
 
     /// The list of Membership Types indicating the platforms on which this Membership can be used.
 ///  Not in Cross Save = its original membership type. Cross Save Primary = Any membership types it is overridding, and its original membership type Cross Save Overridden = Empty list
-    pub applicable_membership_types: i32,
+    pub applicable_membership_types: Vec<crate::generated::models::BungieMembershipType>,
     /// The bungie global display name, if set.
     pub bungie_global_display_name: String,
     /// The bungie global display name code, if set.
@@ -369,9 +369,9 @@ pub struct DestinyVendorsResponse {
 pub struct InventoryChangedResponse {
 
     /// Items that appeared in the inventory possibly as a result of an action.
-    pub added_inventory_items: i32,
+    pub added_inventory_items: Vec<crate::generated::models::destiny::entities::items::DestinyItemComponent>,
     /// Items that disappeared from the inventory possibly as a result of an action.
-    pub removed_inventory_items: i32,
+    pub removed_inventory_items: Vec<crate::generated::models::destiny::entities::items::DestinyItemComponent>,
 }
 
 /// No documentation provided.

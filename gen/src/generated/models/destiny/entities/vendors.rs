@@ -10,7 +10,7 @@ pub struct DestinyVendorCategoriesComponent {
 
     /// The list of categories for items that the vendor sells, in rendering order.
 /// These categories each point to a "display category" in the displayCategories property of the DestinyVendorDefinition, as opposed to the other categories.
-    pub categories: i32,
+    pub categories: Vec<crate::generated::models::destiny::entities::vendors::DestinyVendorCategory>,
 }
 
 /// Information about the category and items currently sold in that category.
@@ -20,7 +20,7 @@ pub struct DestinyVendorCategory {
     /// An index into the DestinyVendorDefinition.displayCategories property, so you can grab the display data for this category.
     pub display_category_index: i32,
     /// An ordered list of indexes into items being sold in this category (DestinyVendorDefinition.itemList) which will contain more information about the items being sold themselves. Can also be used to index into DestinyVendorSaleItemComponent data, if you asked for that data to be returned.
-    pub item_indexes: i32,
+    pub item_indexes: Vec<i32>,
 }
 
 /// This component contains essential/summary information about the vendor.
@@ -57,14 +57,14 @@ pub struct DestinyVendorSaleItemComponent {
 /// Determining how you want to represent these in your own app (or if you even want to) is an exercise left for the reader.
     pub augments: crate::generated::models::destiny::DestinyVendorItemState,
     /// A summary of the current costs of the item.
-    pub costs: i32,
+    pub costs: Vec<crate::generated::models::destiny::DestinyItemQuantity>,
     /// Indexes in to the "failureStrings" lookup table in DestinyVendorDefinition for the given Vendor. Gives some more reliable failure information for why you can't purchase an item.
 /// It is preferred to use these over requiredUnlocks and unlockStatuses: the latter are provided mostly in case someone can do something interesting with it that I didn't anticipate.
-    pub failure_indexes: i32,
+    pub failure_indexes: Vec<i32>,
     /// The hash of the item being sold, as a quick shortcut for looking up the DestinyInventoryItemDefinition of the sale item.
     pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// If available, a list that describes which item values (rewards) should be shown (true) or hidden (false).
-    pub item_value_visibility: i32,
+    pub item_value_visibility: Vec<bool>,
     /// If this item has its own custom date where it may be removed from the Vendor's rotation, this is that date.
 /// Note that there's not actually any guarantee that it will go away: it could be chosen again and end up still being in the Vendor's sale items! But this is the next date where that test will occur, and is also the date that the game shows for availability on things like Bounties being sold. So it's the best we can give.
     pub override_next_refresh_date: Option<chrono::DateTime<chrono::Utc>>,
@@ -75,12 +75,12 @@ pub struct DestinyVendorSaleItemComponent {
     pub quantity: i32,
     /// If you can't buy the item due to a complex character state, these will be hashes for DestinyUnlockDefinitions that you can check to see messages regarding the failure (if the unlocks have human readable information: it is not guaranteed that Unlocks will have human readable strings, and your application will have to handle that)
 /// Prefer using failureIndexes instead. These are provided for informational purposes, but have largely been supplanted by failureIndexes.
-    pub required_unlocks: i32,
+    pub required_unlocks: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyUnlockDefinition>>,
     /// A flag indicating whether the requesting character can buy the item, and if not the reasons why the character can't buy it.
     pub sale_status: crate::generated::models::destiny::VendorItemStatus,
     /// If any complex unlock states are checked in determining purchasability, these will be returned here along with the status of the unlock check.
 /// Prefer using failureIndexes instead. These are provided for informational purposes, but have largely been supplanted by failureIndexes.
-    pub unlock_statuses: i32,
+    pub unlock_statuses: Vec<crate::generated::models::destiny::DestinyUnlockStatus>,
     /// The index into the DestinyVendorDefinition.itemList property. Note that this means Vendor data *is* Content Version dependent: make sure you have the latest content before you use Vendor data, or these indexes may mismatch. 
 /// Most systems avoid this problem, but Vendors is one area where we are unable to reasonably avoid content dependency at the moment.
     pub vendor_item_index: i32,

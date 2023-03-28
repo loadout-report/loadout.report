@@ -87,7 +87,7 @@ pub enum PropertyType {
 impl Render for PropertyType {
     fn render(&self, name: String) -> Tokens {
         match self {
-            PropertyType::Array(_) => quote!(i32), // todo: array support
+            PropertyType::Array(a) => a.render(name), // todo: array support
             PropertyType::Reference(r) => render_reference(r),
             PropertyType::String(s) => s.render(name),
             PropertyType::Number(n) => n.render(name),

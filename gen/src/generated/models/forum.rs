@@ -62,7 +62,7 @@ pub enum ForumPostSortEnum {
 pub struct ForumRecruitmentDetail {
 
     /// No documentation provided.
-    pub fireteam: i32,
+    pub fireteam: Vec<crate::generated::models::user::GeneralUser>,
     /// No documentation provided.
     pub approved: bool,
     /// No documentation provided.
@@ -71,7 +71,7 @@ pub struct ForumRecruitmentDetail {
     /// No documentation provided.
     pub intensity: crate::generated::models::forum::ForumRecruitmentIntensityLabel,
     /// No documentation provided.
-    pub kicked_player_ids: i32,
+    pub kicked_player_ids: Vec<i64>,
     /// No documentation provided.
     pub microphone_required: bool,
     /// No documentation provided.
@@ -177,7 +177,7 @@ pub enum ForumTopicsSortEnum {
 pub struct PollResponse {
 
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::forum::PollResult>,
     /// No documentation provided.
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
     pub topic_id: i64,
@@ -242,27 +242,27 @@ pub struct PostResponse {
 pub struct PostSearchResponse {
 
     /// No documentation provided.
-    pub authors: i32,
+    pub authors: Vec<crate::generated::models::user::GeneralUser>,
     /// No documentation provided.
     pub available_pages: Option<i32>,
     /// No documentation provided.
-    pub groups: i32,
+    pub groups: Vec<crate::generated::models::groups_v_2::GroupResponse>,
     /// No documentation provided.
     pub has_more: bool,
     /// No documentation provided.
-    pub polls: i32,
+    pub polls: Vec<crate::generated::models::forum::PollResponse>,
     /// No documentation provided.
     pub query: crate::generated::models::queries::PagedQuery,
     /// No documentation provided.
-    pub recruitment_details: i32,
+    pub recruitment_details: Vec<crate::generated::models::forum::ForumRecruitmentDetail>,
     /// No documentation provided.
-    pub related_posts: i32,
+    pub related_posts: Vec<crate::generated::models::forum::PostResponse>,
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::forum::PostResponse>,
     /// No documentation provided.
-    pub searched_tags: i32,
+    pub searched_tags: Vec<crate::generated::models::tags::models::contracts::TagResponse>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.

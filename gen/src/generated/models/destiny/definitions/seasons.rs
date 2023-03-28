@@ -119,7 +119,7 @@ pub struct DestinySeasonPreviewDefinition {
     /// A localized description of the season.
     pub description: String,
     /// A list of images to preview the seasonal content. Should have at least three to show.
-    pub images: i32,
+    pub images: Vec<crate::generated::models::destiny::definitions::seasons::DestinySeasonPreviewImageDefinition>,
     /// A relative path to learn more about the season. Web browsers should be automatically redirected to the user's Bungie.net locale. For example: "/SeasonOfTheChosen" will redirect to "/7/en/Seasons/SeasonOfTheChosen" for English users.
     pub link_path: String,
     /// An optional link to a localized video, probably YouTube.

@@ -8,9 +8,9 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DestinyCraftableComponent {
 
     /// If the requirements are not met for crafting this item, these will index into the list of failure strings.
-    pub failed_requirement_indexes: i32,
+    pub failed_requirement_indexes: Vec<i32>,
     /// Plug item state for the crafting sockets.
-    pub sockets: i32,
+    pub sockets: Vec<crate::generated::models::destiny::components::craftables::DestinyCraftableSocketComponent>,
     /// No documentation provided.
     pub visible: bool,
 }
@@ -22,7 +22,7 @@ pub struct DestinyCraftableSocketComponent {
     /// No documentation provided.
     pub plug_set_hash: crate::id::Id<crate::generated::models::destiny::definitions::sockets::DestinyPlugSetDefinition>,
     /// Unlock state for plugs in the socket plug set definition
-    pub plugs: i32,
+    pub plugs: Vec<crate::generated::models::destiny::components::craftables::DestinyCraftableSocketPlugComponent>,
 }
 
 /// No documentation provided.
@@ -30,7 +30,7 @@ pub struct DestinyCraftableSocketComponent {
 pub struct DestinyCraftableSocketPlugComponent {
 
     /// Index into the unlock requirements to display failure descriptions
-    pub failed_requirement_indexes: i32,
+    pub failed_requirement_indexes: Vec<i32>,
     /// No documentation provided.
     pub plug_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
 }

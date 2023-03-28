@@ -8,7 +8,7 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct TrendingCategories {
 
     /// No documentation provided.
-    pub categories: i32,
+    pub categories: Vec<crate::generated::models::trending::TrendingCategory>,
 }
 
 /// No documentation provided.
@@ -66,7 +66,7 @@ pub struct TrendingEntry {
     /// No documentation provided.
     pub is_featured: bool,
     /// If the item is of entityType TrendingEntryType.Container, it may have items - also Trending Entries - contained within it. This is the ordered list of those to display under the Container's header.
-    pub items: i32,
+    pub items: Vec<crate::generated::models::trending::TrendingEntry>,
     /// No documentation provided.
     pub link: String,
     /// If this is populated, the entry has a related MP4 video to show. I am 100% certain I am going to regret putting this directly on TrendingEntry, but it will work so yolo

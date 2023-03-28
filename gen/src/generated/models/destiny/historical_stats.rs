@@ -8,7 +8,7 @@ pub mod definitions;
 pub struct DestinyActivityHistoryResults {
 
     /// List of activities, the most recent activity first.
-    pub activities: i32,
+    pub activities: Vec<crate::generated::models::destiny::historical_stats::DestinyHistoricalStatsPeriodGroup>,
 }
 
 /// No documentation provided.
@@ -16,7 +16,7 @@ pub struct DestinyActivityHistoryResults {
 pub struct DestinyAggregateActivityResults {
 
     /// List of all activities the player has participated in.
-    pub activities: i32,
+    pub activities: Vec<crate::generated::models::destiny::historical_stats::DestinyAggregateActivityStats>,
 }
 
 /// No documentation provided.
@@ -46,7 +46,7 @@ pub struct DestinyClanAggregateStat {
 pub struct DestinyHistoricalStatsAccountResult {
 
     /// No documentation provided.
-    pub characters: i32,
+    pub characters: Vec<crate::generated::models::destiny::historical_stats::DestinyHistoricalStatsPerCharacter>,
     /// No documentation provided.
     pub merged_all_characters: crate::generated::models::destiny::historical_stats::DestinyHistoricalStatsWithMerged,
     /// No documentation provided.
@@ -70,7 +70,7 @@ pub struct DestinyHistoricalStatsActivity {
     /// Indicates the most specific game mode of the activity that we could find.
     pub mode: crate::generated::models::destiny::historical_stats::definitions::DestinyActivityModeType,
     /// The list of all Activity Modes to which this activity applies, including aggregates. This will let you see, for example, whether the activity was both Clash and part of the Trials of the Nine event.
-    pub modes: i32,
+    pub modes: Vec<crate::generated::models::destiny::historical_stats::definitions::DestinyActivityModeType>,
     /// The unique hash identifier of the DestinyActivityDefinition that was played. If I had this to do over, it'd be named activityHash. Too late now.
     pub reference_id: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
 }
@@ -88,9 +88,9 @@ pub struct DestinyHistoricalStatsByPeriod {
     /// No documentation provided.
     pub all_time_tier_3: i32,
     /// No documentation provided.
-    pub daily: i32,
+    pub daily: Vec<crate::generated::models::destiny::historical_stats::DestinyHistoricalStatsPeriodGroup>,
     /// No documentation provided.
-    pub monthly: i32,
+    pub monthly: Vec<crate::generated::models::destiny::historical_stats::DestinyHistoricalStatsPeriodGroup>,
 }
 
 /// No documentation provided.
@@ -174,7 +174,7 @@ pub struct DestinyHistoricalWeaponStats {
 pub struct DestinyHistoricalWeaponStatsData {
 
     /// List of weapons and their perspective values.
-    pub weapons: i32,
+    pub weapons: Vec<crate::generated::models::destiny::historical_stats::DestinyHistoricalWeaponStats>,
 }
 
 /// No documentation provided.
@@ -182,7 +182,7 @@ pub struct DestinyHistoricalWeaponStatsData {
 pub struct DestinyLeaderboard {
 
     /// No documentation provided.
-    pub entries: i32,
+    pub entries: Vec<crate::generated::models::destiny::historical_stats::DestinyLeaderboardEntry>,
     /// No documentation provided.
     pub stat_id: String,
 }
@@ -241,13 +241,13 @@ pub struct DestinyPostGameCarnageReportData {
     /// True if the activity was started from the beginning, if that information is available and the activity was played post Witch Queen release.
     pub activity_was_started_from_beginning: Option<bool>,
     /// Collection of players and their data for this activity.
-    pub entries: i32,
+    pub entries: Vec<crate::generated::models::destiny::historical_stats::DestinyPostGameCarnageReportEntry>,
     /// Date and time for the activity.
     pub period: chrono::DateTime<chrono::Utc>,
     /// If this activity has "phases", this is the phase at which the activity was started. This value is only valid for activities before the Beyond Light expansion shipped. Subsequent activities will not have a valid value here.
     pub starting_phase_index: Option<i32>,
     /// Collection of stats for the player in this activity.
-    pub teams: i32,
+    pub teams: Vec<crate::generated::models::destiny::historical_stats::DestinyPostGameCarnageReportTeamEntry>,
 }
 
 /// No documentation provided.
@@ -276,7 +276,7 @@ pub struct DestinyPostGameCarnageReportExtendedData {
     /// Collection of stats for the player in this activity.
     pub values: i32,
     /// List of weapons and their perspective values.
-    pub weapons: i32,
+    pub weapons: Vec<crate::generated::models::destiny::historical_stats::DestinyHistoricalWeaponStats>,
 }
 
 /// No documentation provided.

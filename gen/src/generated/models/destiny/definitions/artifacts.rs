@@ -18,7 +18,7 @@ pub struct DestinyArtifactDefinition {
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// Any Tier/Rank data related to this artifact, listed in display order.  Currently sourced from a Vendor, but this source is subject to change.
-    pub tiers: i32,
+    pub tiers: Vec<crate::generated::models::destiny::definitions::artifacts::DestinyArtifactTierDefinition>,
     /// Any Geometry/3D info we know about the Artifact. Currently sourced from a related inventory item's gearset information, but the source of this data is subject to change.
     pub translation_block: crate::generated::models::destiny::definitions::DestinyItemTranslationBlockDefinition,
 }
@@ -30,7 +30,7 @@ pub struct DestinyArtifactTierDefinition {
     /// The human readable title of this tier, if any.
     pub display_title: String,
     /// The items that can be earned within this tier.
-    pub items: i32,
+    pub items: Vec<crate::generated::models::destiny::definitions::artifacts::DestinyArtifactTierItemDefinition>,
     /// The minimum number of "unlock points" that you must have used before you can unlock items from this tier.
     pub minimum_unlock_points_used_requirement: i32,
     /// A string representing the localized minimum requirement text for this Tier, if any.

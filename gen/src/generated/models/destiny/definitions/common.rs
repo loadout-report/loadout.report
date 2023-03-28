@@ -18,7 +18,7 @@ pub struct DestinyDisplayPropertiesDefinition {
 /// They are currently represented as 96px x 96px images.
     pub icon: String,
     /// No documentation provided.
-    pub icon_sequences: i32,
+    pub icon_sequences: Vec<crate::generated::models::destiny::definitions::common::DestinyIconSequenceDefinition>,
     /// No documentation provided.
     pub name: String,
 }
@@ -28,7 +28,7 @@ pub struct DestinyDisplayPropertiesDefinition {
 pub struct DestinyIconSequenceDefinition {
 
     /// No documentation provided.
-    pub frames: i32,
+    pub frames: Vec<String>,
 }
 
 /// No documentation provided.

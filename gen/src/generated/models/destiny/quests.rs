@@ -43,7 +43,7 @@ pub struct DestinyQuestStatus {
     /// The hash identifier of the current Quest Step, which is also a DestinyInventoryItemDefinition. You can use this to get human readable data about the current step and what to do in that step.
     pub step_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// A step can have multiple objectives. This will give you the progress for each objective in the current step, in the order in which they are rendered in-game.
-    pub step_objectives: i32,
+    pub step_objectives: Vec<crate::generated::models::destiny::quests::DestinyObjectiveProgress>,
     /// Whether or not the quest is tracked
     pub tracked: bool,
     /// If the quest has a related Vendor that you should talk to in order to initiate the quest/earn rewards/continue the quest, this will be the hash identifier of that Vendor. Look it up its DestinyVendorDefinition.

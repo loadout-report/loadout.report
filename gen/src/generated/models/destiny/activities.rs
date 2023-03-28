@@ -8,11 +8,11 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DestinyPublicActivityStatus {
 
     /// Active Challenges for the activity, if any - represented as hashes for DestinyObjectiveDefinitions.
-    pub challenge_objective_hashes: i32,
+    pub challenge_objective_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>>,
     /// The active modifiers on this activity, if any - represented as hashes for DestinyActivityModifierDefinitions.
-    pub modifier_hashes: i32,
+    pub modifier_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
     /// If the activity itself provides any specific "mock" rewards, this will be the items and their quantity.
 /// Why "mock", you ask? Because these are the rewards as they are represented in the tooltip of the Activity.
 /// These are often pointers to fake items that look good in a tooltip, but represent an abstract concept of what you will get for a reward rather than the specific items you may obtain.
-    pub reward_tooltip_items: i32,
+    pub reward_tooltip_items: Vec<crate::generated::models::destiny::DestinyItemQuantity>,
 }

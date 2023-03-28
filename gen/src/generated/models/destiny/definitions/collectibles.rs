@@ -29,7 +29,7 @@ pub struct DestinyCollectibleDefinition {
     /// No documentation provided.
     pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// A quick reference to presentation nodes that have this node as a child. Presentation nodes can be parented under multiple parents.
-    pub parent_node_hashes: i32,
+    pub parent_node_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
     /// No documentation provided.
     pub presentation_info: crate::generated::models::destiny::definitions::presentation::DestinyPresentationChildBlock,
     /// No documentation provided.
@@ -47,9 +47,9 @@ pub struct DestinyCollectibleDefinition {
     /// No documentation provided.
     pub state_info: crate::generated::models::destiny::definitions::collectibles::DestinyCollectibleStateBlock,
     /// No documentation provided.
-    pub trait_hashes: i32,
+    pub trait_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::traits::DestinyTraitDefinition>>,
     /// No documentation provided.
-    pub trait_ids: i32,
+    pub trait_ids: Vec<String>,
 }
 
 /// No documentation provided.

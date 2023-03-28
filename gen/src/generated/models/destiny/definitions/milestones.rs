@@ -36,14 +36,14 @@ pub struct DestinyMilestoneActivityVariantDefinition {
 pub struct DestinyMilestoneChallengeActivityDefinition {
 
     /// If the activity and its challenge is visible on any of these nodes, it will be returned.
-    pub activity_graph_nodes: i32,
+    pub activity_graph_nodes: Vec<crate::generated::models::destiny::definitions::milestones::DestinyMilestoneChallengeActivityGraphNodeEntry>,
     /// The activity for which this challenge is active.
     pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// No documentation provided.
-    pub challenges: i32,
+    pub challenges: Vec<crate::generated::models::destiny::definitions::milestones::DestinyMilestoneChallengeDefinition>,
     /// Phases related to this activity, if there are any.
 /// These will be listed in the order in which they will appear in the actual activity.
-    pub phases: i32,
+    pub phases: Vec<crate::generated::models::destiny::definitions::milestones::DestinyMilestoneChallengeActivityPhase>,
 }
 
 /// No documentation provided.
@@ -88,7 +88,7 @@ pub struct DestinyMilestoneChallengeDefinition {
 pub struct DestinyMilestoneDefinition {
 
     /// A Milestone can now be represented by one or more activities directly (without a backing Quest), and that activity can have many challenges, modifiers, and related to it.
-    pub activities: i32,
+    pub activities: Vec<crate::generated::models::destiny::definitions::milestones::DestinyMilestoneChallengeActivityDefinition>,
     /// No documentation provided.
     pub default_order: i32,
     /// A hint to the UI to indicate what to show as the display properties for this Milestone when showing "Live" milestone data. Feel free to show more than this if desired: this hint is meant to simplify our own UI, but it may prove useful to you as well.
@@ -129,7 +129,7 @@ pub struct DestinyMilestoneDefinition {
     /// Sometimes, milestones will have arbitrary values associated with them that are of interest to us or to third party developers. This is the collection of those values' definitions, keyed by the identifier of the value and providing useful definition information such as localizable names and descriptions for the value.
     pub values: i32,
     /// Sometimes, milestones will have rewards provided by Vendors. This definition gives the information needed to understand which vendors are relevant, the order in which they should be returned if order matters, and the conditions under which the Vendor is relevant to the user.
-    pub vendors: i32,
+    pub vendors: Vec<crate::generated::models::destiny::definitions::milestones::DestinyMilestoneVendorDefinition>,
     /// If you're going to show Vendors for the Milestone, you can use this as a localized "header" for the section where you show that vendor data. It'll provide a more context-relevant clue about what the vendor's role is in the Milestone.
     pub vendors_display_title: String,
 }
@@ -192,7 +192,7 @@ pub struct DestinyMilestoneQuestRewardsDefinition {
     /// The items that represent your reward for completing the quest.
 /// Be warned, these could be "dummy" items: items that are only used to render a good-looking in-game tooltip, but aren't the actual items themselves.
 /// For instance, when experience is given there's often a dummy item representing "experience", with quantity being the amount of experience you got. We don't have a programmatic association between those and whatever Progression is actually getting that experience... yet.
-    pub items: i32,
+    pub items: Vec<crate::generated::models::destiny::definitions::milestones::DestinyMilestoneQuestRewardItem>,
 }
 
 /// The definition of a category of rewards, that contains many individual rewards.
@@ -218,7 +218,7 @@ pub struct DestinyMilestoneRewardEntryDefinition {
     /// For us to bother returning this info, we should be able to return some kind of information about why these rewards are grouped together. This is ideally that information. Look at how confident I am that this will always remain true.
     pub display_properties: crate::generated::models::destiny::definitions::common::DestinyDisplayPropertiesDefinition,
     /// The items you will get as rewards, and how much of it you'll get.
-    pub items: i32,
+    pub items: Vec<crate::generated::models::destiny::DestinyItemQuantity>,
     /// If you want to follow BNet's ordering of these rewards, use this number within a given category to order the rewards. Yeah, I know. I feel dirty too.
     pub order: i32,
     /// The identifier for this reward entry. Runtime data will refer to reward entries by this hash. Only guaranteed unique within the specific Milestone.

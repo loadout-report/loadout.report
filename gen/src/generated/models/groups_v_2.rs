@@ -70,7 +70,7 @@ pub struct GetGroupsForMemberResponse {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::groups_v_2::GroupMembership>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -97,7 +97,7 @@ pub enum GroupAllianceStatus {
 pub struct GroupApplicationListRequest {
 
     /// No documentation provided.
-    pub memberships: i32,
+    pub memberships: Vec<crate::generated::models::user::UserMembership>,
     /// No documentation provided.
     pub message: String,
 }
@@ -243,7 +243,7 @@ pub struct GroupFeatures {
     /// Maximum number of groups of this type a typical membership may join. For example, a user may join about 50 General groups with their Bungie.net account. They may join one clan per Destiny membership.
     pub maximum_memberships_of_group_type: i32,
     /// No documentation provided.
-    pub membership_types: i32,
+    pub membership_types: Vec<crate::generated::models::BungieMembershipType>,
     /// Minimum Member Level allowed to update banner
 /// Always Allowed: Founder, Acting Founder
 /// True means admins have this power, false means they don't
@@ -369,7 +369,7 @@ pub struct GroupMembershipSearchResponse {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::groups_v_2::GroupMembership>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -520,7 +520,7 @@ pub struct GroupPotentialMembershipSearchResponse {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::groups_v_2::GroupPotentialMembership>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -567,7 +567,7 @@ pub struct GroupResponse {
     /// No documentation provided.
     pub alliance_status: crate::generated::models::groups_v_2::GroupAllianceStatus,
     /// No documentation provided.
-    pub allied_ids: i32,
+    pub allied_ids: Vec<i64>,
     /// This property will be populated if the authenticated user is a member of the group. Note that because of account linking, a user can sometimes be part of a clan more than once. As such, this returns the highest member type available.
     pub current_user_member_map: i32,
     /// A convenience property that indicates if every membership you (the current user) have that is a part of this group are part of an account that is considered inactive - for example, overridden accounts in Cross Save.
@@ -595,7 +595,7 @@ pub struct GroupSearchResponse {
     /// No documentation provided.
     pub replacement_continuation_token: String,
     /// No documentation provided.
-    pub results: i32,
+    pub results: Vec<crate::generated::models::groups_v_2::GroupV2Card>,
     /// No documentation provided.
     pub total_results: i32,
     /// If useTotalResults is true, then totalResults represents an accurate count.
@@ -654,7 +654,7 @@ pub struct GroupUserInfoCard {
     pub last_seen_display_name_type: crate::generated::models::BungieMembershipType,
     /// The list of Membership Types indicating the platforms on which this Membership can be used.
 ///  Not in Cross Save = its original membership type. Cross Save Primary = Any membership types it is overridding, and its original membership type Cross Save Overridden = Empty list
-    pub applicable_membership_types: i32,
+    pub applicable_membership_types: Vec<crate::generated::models::BungieMembershipType>,
     /// The bungie global display name, if set.
     pub bungie_global_display_name: String,
     /// The bungie global display name code, if set.
@@ -736,7 +736,7 @@ pub struct GroupV2 {
     /// No documentation provided.
     pub name: String,
     /// No documentation provided.
-    pub tags: i32,
+    pub tags: Vec<String>,
     /// No documentation provided.
     pub theme: String,
 }

@@ -8,7 +8,7 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DestinyVendorReceipt {
 
     /// The amount paid for the item, in terms of items that were consumed in the purchase and their quantity.
-    pub currency_paid: i32,
+    pub currency_paid: Vec<crate::generated::models::destiny::DestinyItemQuantity>,
     /// The date at which this receipt is rendered invalid.
     pub expires_on: chrono::DateTime<chrono::Utc>,
     /// The item that was received, and its quantity.

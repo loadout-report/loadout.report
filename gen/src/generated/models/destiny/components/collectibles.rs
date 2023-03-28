@@ -35,7 +35,7 @@ pub struct DestinyProfileCollectiblesComponent {
     pub collection_categories_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// The list of collectibles determined by the game as having been "recently" acquired.
 /// The game client itself actually controls this data, so I personally question whether anyone will get much use out of this: because we can't edit this value through the API. But in case anyone finds it useful, here it is.
-    pub newness_flagged_collectible_hashes: i32,
+    pub newness_flagged_collectible_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::collectibles::DestinyCollectibleDefinition>>,
     /// The list of collectibles determined by the game as having been "recently" acquired.
-    pub recent_collectible_hashes: i32,
+    pub recent_collectible_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::collectibles::DestinyCollectibleDefinition>>,
 }

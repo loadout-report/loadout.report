@@ -34,7 +34,7 @@ pub struct DestinyPlugSetDefinition {
     pub redacted: bool,
     /// This is a list of pre-determined plugs that can be plugged into this socket, without the character having the plug in their inventory.
 /// If this list is populated, you will not be allowed to plug an arbitrary item in the socket: you will only be able to choose from one of these reusable plugs.
-    pub reusable_plug_items: i32,
+    pub reusable_plug_items: Vec<crate::generated::models::destiny::definitions::DestinyItemSocketEntryPlugItemRandomizedDefinition>,
 }
 
 /// Defines a plug "Category" that is allowed to be plugged into a socket of this type.
@@ -52,7 +52,7 @@ pub struct DestinyPlugWhitelistEntryDefinition {
 /// When you inspect the plug that could go into a Masterwork Socket, look up the socket type of the socket being inspected and find the DestinySocketTypeDefinition.
 /// Then, look at the Plugs that can fit in that socket. Find the Whitelist in the DestinySocketTypeDefinition that matches the plug item’s categoryhash.
 /// That whitelist entry will potentially have a new “reinitializationPossiblePlugHashes” property.If it does, that means we know what it will roll if you try to insert this plug into this socket.
-    pub reinitialization_possible_plug_hashes: i32,
+    pub reinitialization_possible_plug_hashes: Vec<u32>,
 }
 
 /// Sockets on an item are organized into Categories visually.
@@ -89,7 +89,7 @@ pub struct DestinySocketTypeDefinition {
     /// No documentation provided.
     pub avoid_duplicates_on_initialization: bool,
     /// No documentation provided.
-    pub currency_scalars: i32,
+    pub currency_scalars: Vec<crate::generated::models::destiny::definitions::sockets::DestinySocketTypeScalarMaterialRequirementEntry>,
     /// There are fields for this display data, but they appear to be unpopulated as of now. I am not sure where in the UI these would show if they even were populated, but I will continue to return this data in case it becomes useful.
     pub display_properties: crate::generated::models::destiny::definitions::common::DestinyDisplayPropertiesDefinition,
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity, but not globally.
@@ -108,7 +108,7 @@ pub struct DestinySocketTypeDefinition {
     /// A list of Plug "Categories" that are allowed to be plugged into sockets of this type.
 /// These should be compared against a given plug item's DestinyInventoryItemDefinition.plug.plugCategoryHash, which indicates the plug item's category.
 /// If the plug's category matches any whitelisted plug, or if the whitelist is empty, it is allowed to be inserted.
-    pub plug_whitelist: i32,
+    pub plug_whitelist: Vec<crate::generated::models::destiny::definitions::sockets::DestinyPlugWhitelistEntryDefinition>,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// No documentation provided.
