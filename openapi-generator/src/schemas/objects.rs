@@ -181,6 +181,7 @@ pub fn render_reference(reference: &str) -> Tokens {
     let (namespace, reference) = resolve(reference);
     let namespace = namespace.replace('/', "::");
     let reference = format!("{}::{}", namespace, reference);
+    let reference = reference.replace("::::", "::");
     let reference = reference.trim_start_matches("::");
     println!("resulting reference: {}", reference);
     quote!(crate::generated::models::$reference)

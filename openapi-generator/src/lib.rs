@@ -60,27 +60,13 @@ pub fn generate(spec: Spec, output: &str) {
         // dir is all but the last segment of namespace
         let namespace = namespace.clone();
 
-        let dir = format!("{}/models/{}", output, namespace);
-        let dir = dir.split('/').collect::<Vec<_>>();
-        let dir = dir[..dir.len() - 1].join("/");
+        let dir = get_dir_for_namespace(&output, &namespace);
         let name = namespace.split('/').last().unwrap();
         // "" "" -> models.rs -> find all with empty namespace
         // "" "destiny" -> models/destiny.rs -> find all with destiny namespace
         // "destiny" "definitions" -> models/destiny/definitions.rs
         // top level children
-        let children: Vec<_> = sorted_schemas.iter()
-            .filter(|(ns, _)| ns.starts_with(&namespace))
-            .flat_map(|(ns, _)| ns.strip_prefix(&namespace))
-            .filter(|ns| !ns.is_empty())
-            .map(|ns| {
-                if ns.starts_with('/') {
-                    return ns.strip_prefix('/').unwrap()
-                }
-                ns
-            })
-            .filter(|ns| !ns.contains('/'))
-            .filter(|ns| *ns != "s")
-            .collect();
+        let children: Vec<_> = get_children(&sorted_schemas, &namespace);
         if children.len() > 0 {
             println!("{} has children: {:?}", namespace, children);
         }
@@ -99,7 +85,60 @@ pub fn generate(spec: Spec, output: &str) {
         file.write_all(tokens.to_file_string()
             .unwrap().as_bytes())
             .unwrap();
+        let mut segments: Vec<_> = namespace.split('/').collect();
+        segments.pop();
+        let mut current = String::new();
+        for segment in segments {
+            current.push_str(segment);
+            let dir = get_dir_for_namespace(&output, &current);
+            let name = segment.to_case(Case::Snake);
+            let mut file = format!("{}/{}.rs", dir, name);
+            if file.ends_with("/.rs") {
+                file = file.replace("/.rs", ".rs");
+            }
+            if std::path::Path::new(&file).exists() {
+                current.push('/');
+                continue;
+            }
+
+            // module does not exist, create it
+            let children: Vec<_> = get_children(&sorted_schemas, &current);
+            if children.len() == 0 {
+                current.push('/');
+                continue;
+            }
+
+            let modules = generate_module_bytes(&children);
+
+            let mut file = File::create(file).unwrap();
+            file.write_all(&modules)
+                .unwrap();
+            current.push('/');
+        }
     }
+}
+
+fn get_children<'a>(sorted_schemas: &'a HashMap<String, Vec<(String, Schema)>>, current: &str) -> Vec<&'a str> {
+    sorted_schemas.iter()
+        .filter(|(ns, _)| ns.starts_with(&current))
+        .flat_map(|(ns, _)| ns.strip_prefix(&current))
+        .filter(|ns| !ns.is_empty())
+        .map(|ns| {
+            if ns.starts_with('/') {
+                return ns.strip_prefix('/').unwrap()
+            }
+            ns
+        })
+        .filter(|ns| !ns.contains('/'))
+        .filter(|ns| *ns != "s")
+        .collect()
+}
+
+fn get_dir_for_namespace(output: &str, namespace: &str) -> String {
+    let dir = format!("{}/models/{}", output, namespace);
+    let dir = dir.split('/').collect::<Vec<_>>();
+    let dir = dir[..dir.len() - 1].join("/");
+    dir
 }
 
 fn generate_module_bytes(children: &Vec<&str>) -> Vec<u8> {

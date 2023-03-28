@@ -35,6 +35,7 @@ pub fn enum_reference_to_rust_type(reference: &str) -> String {
     let namespace = namespace.replace('/', "::");
     let namespace = namespace.trim_start_matches("::");
     let reference = format!("crate::generated::models::{}::{}", namespace, reference);
+    let reference = reference.replace("::::", "::");
     println!("  to reference: {}", reference);
     reference
 }
