@@ -1,18 +1,21 @@
 #![feature(is_some_and)]
 extern crate core;
 
+use std::cmp::Ordering;
 use std::collections::HashMap;
 use std::fs::{create_dir_all, File};
-use std::io::Write;
+use std::io::{Read, Write};
 use convert_case::{Case, Casing};
 use genco::lang::{rust::Tokens};
 use genco::{quote};
 use crate::model::{Schema, Spec};
 use crate::schemas::{Render, Type};
 use crate::schemas::reference::resolve;
+use crate::tree::TreeNode;
 
 mod model;
 mod schemas;
+mod tree;
 
 pub fn read_spec(path: &str) -> Spec {
     let file = File::open(path).unwrap();
@@ -44,6 +47,43 @@ fn render_schema(
     Type::from(schema).render(name)
 }
 
+fn generate_node(path: &str, node: &TreeNode<String>, sorted_schemas: &HashMap<String, Vec<(String, Schema)>>, header: &[u8], output: &str) {
+    let name = node.get_value();
+    let namespace = format!("{}/{}", path, name);
+    let namespace = namespace.strip_prefix("/").unwrap_or(&namespace);
+    let dir = get_dir_for_namespace(&output, &namespace);
+    let sorted_children = node.get_children().iter().map(|c| c.get_value().as_ref()).collect::<Vec<_>>();
+    let sorted_children = sorted_by(sorted_children, |a: &&str, b: &&str| a.cmp(b));
+    let module_bytes = generate_module_bytes(&sorted_children);
+
+    create_dir_all(&dir).unwrap();
+
+    let mut file_path = format!("{}/{}.rs", dir, name);
+    if file_path.ends_with("/.rs") {
+        file_path = file_path.replace("/.rs", ".rs");
+    }
+
+    let mut file = File::create(&file_path).unwrap();
+    file.write_all(header).unwrap();
+    file.write_all(&module_bytes).unwrap();
+    let schemas = sorted_schemas.get(namespace);
+
+    if let Some(schemas) = schemas {
+        println!("Generating file: {} with namespace {} containing {} schemas", &file_path, namespace, schemas.len());
+        let mut sorted_schemas = sorted_by(schemas.clone(), |(a, _), (b, _)| a.cmp(b));
+        let tokens: Tokens = sorted_schemas.into_iter().flat_map(|(name, schema)| {
+            render_schema(name.clone(), schema.clone())
+        }).collect();
+        file.write_all(tokens.to_file_string().unwrap().as_bytes()).unwrap();
+    } else {
+        println!("Generating file: {} with namespace {} containing 0 schemas", &file_path, namespace);
+    }
+
+    for child in node.get_children() {
+        generate_node(&namespace, child, sorted_schemas, header, output);
+    }
+}
+
 pub fn generate(spec: Spec, output: &str) {
     let schemas: Vec<_> = spec.components.schemas.into_iter().map(|(name, schema)| {
         let (namespace, name) = resolve(&name);
@@ -55,67 +95,43 @@ pub fn generate(spec: Spec, output: &str) {
             .or_insert_with(|| Vec::new())
             .push((name, schema));
     }
-    let header = generate_header_bytes();
-    for (namespace, schemas) in &sorted_schemas {
-        // dir is all but the last segment of namespace
-        let namespace = namespace.clone();
-
-        let dir = get_dir_for_namespace(&output, &namespace);
-        let name = namespace.split('/').last().unwrap();
-        // "" "" -> models.rs -> find all with empty namespace
-        // "" "destiny" -> models/destiny.rs -> find all with destiny namespace
-        // "destiny" "definitions" -> models/destiny/definitions.rs
-        // top level children
-        let children: Vec<_> = get_children(&sorted_schemas, &namespace);
-        if children.len() > 0 {
-            println!("{} has children: {:?}", namespace, children);
-        }
-        let modules = generate_module_bytes(&children);
-        create_dir_all(&dir).unwrap();
-        let mut file = format!("{}/{}.rs", dir, name);
-        if file.ends_with("/.rs") {
-            file = file.replace("/.rs", ".rs");
-        }
-        let mut file = File::create(file).unwrap();
-        let tokens: Tokens = schemas.into_iter().flat_map(|(name, schema)| {
-            render_schema(name.clone(), schema.clone())
-        }).collect();
-        file.write_all(&modules).unwrap();
-        file.write_all(&header).unwrap();
-        file.write_all(tokens.to_file_string()
-            .unwrap().as_bytes())
-            .unwrap();
-        let mut segments: Vec<_> = namespace.split('/').collect();
-        segments.pop();
-        let mut current = String::new();
+    let mut root: TreeNode<String> = TreeNode::new("".to_owned());
+    for namespace in sorted_schemas.keys() {
+        let segments = namespace.split('/').collect::<Vec<_>>();
+        let mut current = &mut root;
         for segment in segments {
-            current.push_str(segment);
-            let dir = get_dir_for_namespace(&output, &current);
-            let name = segment.to_case(Case::Snake);
-            let mut file = format!("{}/{}.rs", dir, name);
-            if file.ends_with("/.rs") {
-                file = file.replace("/.rs", ".rs");
-            }
-            if std::path::Path::new(&file).exists() {
-                current.push('/');
+            if segment.is_empty() {
                 continue;
             }
-
-            // module does not exist, create it
-            let children: Vec<_> = get_children(&sorted_schemas, &current);
-            if children.len() == 0 {
-                current.push('/');
-                continue;
-            }
-
-            let modules = generate_module_bytes(&children);
-
-            let mut file = File::create(file).unwrap();
-            file.write_all(&modules)
-                .unwrap();
-            current.push('/');
+            current = current.get_or_create_child(segment.to_owned());
         }
     }
+    let header = generate_header_bytes();
+    generate_node("", &root, &sorted_schemas, &header, output);
+
+    return;
+}
+
+fn sorted_by<T, F>(mut v: Vec<T>, mut compare: F) -> Vec<T>
+    where F: FnMut(&T, &T) -> Ordering
+{
+    v.sort_by(compare);
+    v
+}
+
+fn is_immediate_parent_of(parent: &str, child: &str) -> bool {
+    let parent = parent.to_case(Case::Snake);
+    let child = child.to_case(Case::Snake);
+    if child.starts_with(&parent) {
+        let child = child.strip_prefix(&parent).unwrap();
+        if child.starts_with('/') {
+            let child = child.strip_prefix('/').unwrap();
+            if !child.contains('/') {
+                return true;
+            }
+        }
+    }
+    false
 }
 
 fn get_children<'a>(sorted_schemas: &'a HashMap<String, Vec<(String, Schema)>>, current: &str) -> Vec<&'a str> {
@@ -155,9 +171,11 @@ fn generate_modules(children: &Vec<&str>) -> Tokens {
         }
     }).collect::<Vec<_>>();
     quote!(
-        $['\n']
+        $['\r']
+        $['\r']
         $children
-        $['\n']
+        $['\r']
+        $['\r']
     )
 }
 
