@@ -93,7 +93,7 @@ impl Render for PropertyType {
             PropertyType::Number(n) => n.render(name),
             PropertyType::Enum(e) => e.render(name),
             PropertyType::Boolean(_) => quote!(bool),
-            PropertyType::Dictionary(_) => quote!(i32), // todo: dictionary support
+            PropertyType::Dictionary(d) => d.render(name), // todo: dictionary support
             PropertyType::IdReference(r) => render_id_reference(r), // todo: id reference support
             PropertyType::Any => quote!(serde_json::Value), // ugh
         }

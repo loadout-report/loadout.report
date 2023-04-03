@@ -1,4 +1,5 @@
-extern crate core;
+#![feature(async_fn_in_trait)]
+#![feature(adt_const_params)]
 
 use log::info;
 use rustgie::types::BungieMembershipType;
@@ -8,9 +9,19 @@ use rustgie::types::user::UserInfoCard;
 use data::api::{ApiResponse, ComponentType, model::profile::{Membership, ProfileStruct}};
 use data::api::model::profile::{ExactSearchRequest, UserInfo};
 use crate::cache::Cache;
+use crate::generated::models::BungieMembershipType;
+use crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition;
+use crate::generated::models::destiny::DestinyComponentType;
+use crate::generated::models::destiny::responses::{DestinyLinkedProfilesResponse, DestinyProfileResponse};
+use crate::generated::models::user::{ExactSearchRequest, UserInfoCard};
+use crate::id::{AsyncResolver, Id, Resolver, ResolveTo};
 
 pub mod cache;
 pub mod manifest;
+pub mod id;
+pub mod generated;
+mod unfuck_js;
+pub mod auxiliary;
 
 #[derive(Clone)]
 pub struct D2Api {
@@ -114,7 +125,20 @@ impl D2Api {
 
 }
 
-
+impl AsyncResolver<DestinyInventoryItemDefinition> for D2Api {
+    type Error = ();
+    async fn async_resolve(&self, id: &Id<DestinyInventoryItemDefinition>) -> Result<DestinyInventoryItemDefinition, Self::Error> {
+        let definitions = &self.cache.manifest.definitions.lock().unwrap();
+        let inventory_items = definitions.inventory_item.lock().unwrap();
+        if inventory_items.is_some() {
+            let inventory_items = inventory_items.as_ref().unwrap();
+            if let Some(item) = inventory_items.get(&id) {
+                return Ok(item.clone());
+            }
+        }
+        Err(())
+    }
+}
 
 fn parse_membership_type(t: i32) -> Option<BungieMembershipType> {
     match t {

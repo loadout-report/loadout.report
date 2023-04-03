@@ -1,11 +1,11 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run generator" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
-    <option name="command" value="run openapi.json ../gen/src/generated delete" />
+    <option name="command" value="run openapi.json ../d2-client/src/generated delete" />
     <option name="workingDirectory" value="file://$PROJECT_DIR$/openapi-generator" />
+    <option name="emulateTerminal" value="false" />
     <option name="channel" value="DEFAULT" />
     <option name="requiredFeatures" value="true" />
     <option name="allFeatures" value="false" />
-    <option name="emulateTerminal" value="false" />
     <option name="withSudo" value="false" />
     <option name="buildTarget" value="REMOTE" />
     <option name="backtrace" value="SHORT" />

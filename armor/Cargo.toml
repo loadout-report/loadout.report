@@ -14,7 +14,6 @@ wasm = ["wasm-bindgen", "wasm-bindgen-futures", "gloo-worker", "rexie", "console
 wasm-parallel = ["wasm-bindgen-rayon"]
 
 [dependencies]
-data = {path = "../data", version = "0.1.0"}
 num = "0.4"
 phf = { version = "0.11", features = ["macros"] }
 itertools = "0.10.5"

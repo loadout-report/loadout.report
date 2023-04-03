@@ -2,13 +2,10 @@
 
 members = [
     "api",
-    "data",
     "d2-client",
     "armor",
     "crawler",
-    "d2-api",
-    "openapi-generator",
-    "gen"
+    "openapi-generator"
 ]
 
 
