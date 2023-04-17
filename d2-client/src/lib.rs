@@ -2,12 +2,6 @@
 #![feature(adt_const_params)]
 
 use log::info;
-use rustgie::types::BungieMembershipType;
-use rustgie::types::destiny::DestinyComponentType;
-use rustgie::types::destiny::responses::{DestinyLinkedProfilesResponse, DestinyProfileResponse};
-use rustgie::types::user::UserInfoCard;
-use data::api::{ApiResponse, ComponentType, model::profile::{Membership, ProfileStruct}};
-use data::api::model::profile::{ExactSearchRequest, UserInfo};
 use crate::cache::Cache;
 use crate::generated::models::BungieMembershipType;
 use crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition;
@@ -125,9 +119,9 @@ impl D2Api {
 
 }
 
-impl AsyncResolver<DestinyInventoryItemDefinition> for D2Api {
+impl AsyncResolver<u32, DestinyInventoryItemDefinition> for D2Api {
     type Error = ();
-    async fn async_resolve(&self, id: &Id<DestinyInventoryItemDefinition>) -> Result<DestinyInventoryItemDefinition, Self::Error> {
+    async fn async_resolve(&self, id: &Id<u32, DestinyInventoryItemDefinition>) -> Result<DestinyInventoryItemDefinition, Self::Error> {
         let definitions = &self.cache.manifest.definitions.lock().unwrap();
         let inventory_items = definitions.inventory_item.lock().unwrap();
         if inventory_items.is_some() {

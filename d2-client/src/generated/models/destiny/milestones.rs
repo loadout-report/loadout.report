@@ -15,7 +15,7 @@ pub struct DestinyMilestone {
     /// If known, this is the date when the event will next end or repeat. It will only be populated for events with fixed and repeating start and end dates.
     pub end_date: Option<chrono::DateTime<chrono::Utc>>,
     /// The unique identifier for the Milestone. Use it to look up the DestinyMilestoneDefinition, so you can combine the other data in this contract with static definition data.
-    pub milestone_hash: crate::id::Id<crate::generated::models::destiny::definitions::milestones::DestinyMilestoneDefinition>,
+    pub milestone_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::milestones::DestinyMilestoneDefinition>,
     /// Used for ordering milestones in a display to match how we order them in BNet. May pull from static data, or possibly in the future from dynamic information.
     pub order: i32,
     /// If the entity to which this component is attached has known active Rewards for the player, this will detail information about those rewards, keyed by the RewardEntry Hash. (See DestinyMilestoneDefinition for more information about Reward Entries) Note that these rewards are not for the Quests related to the Milestone. Think of these as "overview/checklist" rewards that may be provided for Milestones that may provide rewards for performing a variety of tasks that aren't under a specific Quest.
@@ -26,7 +26,7 @@ pub struct DestinyMilestone {
     pub values: HashMap<String, f32>,
     /// A milestone may have one or more active vendors that are "related" to it (that provide rewards, or that are the initiators of the Milestone). I already regret this, even as I'm typing it. [I told you I'd regret this] You see, sometimes a milestone may be directly correlated with a set of vendors that provide varying tiers of rewards. The player may not be able to interact with one or more of those vendors. This will return the hashes of the Vendors that the player *can* interact with, allowing you to show their current inventory as rewards or related items to the Milestone or its activities.
 /// Before we even use it, it's already deprecated! How much of a bummer is that? We need more data.
-    pub vendor_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>>,
+    pub vendor_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyVendorDefinition>>,
     /// Replaces vendorHashes, which I knew was going to be trouble the day it walked in the door. This will return not only what Vendors are active and relevant to the activity (in an implied order that you can choose to ignore), but also other data - for example, if the Vendor is featuring a specific item relevant to this event that you should show with them.
     pub vendors: Vec<crate::generated::models::destiny::milestones::DestinyMilestoneVendor>,
 }
@@ -36,13 +36,13 @@ pub struct DestinyMilestone {
 pub struct DestinyMilestoneActivity {
 
     /// The hash of an arbitrarily chosen variant of this activity. We'll go ahead and call that the "canonical" activity, because if you're using this value you should only use it for properties that are common across the variants: things like the name of the activity, it's location, etc... Use this hash to look up the DestinyActivityDefinition of this activity for rendering data.
-    pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
+    pub activity_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// The hash identifier of the most specific Activity Mode under which this activity is played. This is useful for situations where the activity in question is - for instance - a PVP map, but it's not clear what mode the PVP map is being played under. If it's a playlist, this will be less specific: but hopefully useful in some way.
-    pub activity_mode_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityModeDefinition>>,
+    pub activity_mode_hash: Option<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityModeDefinition>>,
     /// The enumeration equivalent of the most specific Activity Mode under which this activity is played.
     pub activity_mode_type: Option<i32>,
     /// If the activity has modifiers, this will be the list of modifiers that all variants have in common. Perform lookups against DestinyActivityModifierDefinition which defines the modifier being applied to get at the modifier data. Note that, in the DestiyActivityDefinition, you will see many more modifiers than this being referred to: those are all *possible* modifiers for the activity, not the active ones. Use only the active ones to match what's really live.
-    pub modifier_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
+    pub modifier_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
     /// If you want more than just name/location/etc... you're going to have to dig into and show the variants of the conceptual activity. These will differ in seemingly arbitrary ways, like difficulty level and modifiers applied. Show it in whatever way tickles your fancy.
     pub variants: Vec<crate::generated::models::destiny::milestones::DestinyMilestoneActivityVariant>,
 }
@@ -72,9 +72,9 @@ pub struct DestinyMilestoneActivityPhase {
 pub struct DestinyMilestoneActivityVariant {
 
     /// The hash for the specific variant of the activity related to this milestone. You can pull more detailed static info from the DestinyActivityDefinition, such as difficulty level.
-    pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
+    pub activity_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// The hash identifier of the most specific Activity Mode under which this activity is played. This is useful for situations where the activity in question is - for instance - a PVP map, but it's not clear what mode the PVP map is being played under. If it's a playlist, this will be less specific: but hopefully useful in some way.
-    pub activity_mode_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityModeDefinition>>,
+    pub activity_mode_hash: Option<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityModeDefinition>>,
     /// The enumeration equivalent of the most specific Activity Mode under which this activity is played.
     pub activity_mode_type: Option<i32>,
     /// An OPTIONAL component: if it makes sense to talk about this activity variant in terms of whether or not it has been completed or what progress you have made in it, this will be returned. Otherwise, this will be NULL.
@@ -86,7 +86,7 @@ pub struct DestinyMilestoneActivityVariant {
 pub struct DestinyMilestoneChallengeActivity {
 
     /// No documentation provided.
-    pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
+    pub activity_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// The set of activity options for this activity, keyed by an identifier that's unique for this activity (not guaranteed to be unique between or across all activities, though should be unique for every *variant* of a given *conceptual* activity: for instance, the original D2 Raid has many variant DestinyActivityDefinitions. While other activities could potentially have the same option hashes, for any given D2 base Raid variant the hash will be unique).
 /// As a concrete example of this data, the hashes you get for Raids will correspond to the currently active "Challenge Mode".
 /// We don't have any human readable information for these, but saavy 3rd party app users could manually associate the key (a hash identifier for the "option" that is enabled/disabled) and the value (whether it's enabled or disabled presently)
@@ -98,7 +98,7 @@ pub struct DestinyMilestoneChallengeActivity {
     pub loadout_requirement_index: Option<i32>,
     /// If the activity has modifiers, this will be the list of modifiers that all variants have in common. Perform lookups against DestinyActivityModifierDefinition which defines the modifier being applied to get at the modifier data.
 /// Note that, in the DestiyActivityDefinition, you will see many more modifiers than this being referred to: those are all *possible* modifiers for the activity, not the active ones. Use only the active ones to match what's really live.
-    pub modifier_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
+    pub modifier_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
     /// If the Activity has discrete "phases" that we can track, that info will be here. Otherwise, this value will be NULL. Note that this is a list and not a dictionary: the order implies the ascending order of phases or progression in this activity.
     pub phases: Vec<crate::generated::models::destiny::milestones::DestinyMilestoneActivityPhase>,
 }
@@ -122,7 +122,7 @@ pub struct DestinyMilestoneContent {
 pub struct DestinyMilestoneContentItemCategory {
 
     /// No documentation provided.
-    pub item_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
+    pub item_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// No documentation provided.
     pub title: String,
 }
@@ -136,7 +136,7 @@ pub struct DestinyMilestoneQuest {
     /// The activities referred to by this quest can have many associated challenges. They are all contained here, with activityHashes so that you can associate them with the specific activity variants in which they can be found. In retrospect, I probably should have put these under the specific Activity Variants, but it's too late to change it now. Theoretically, a quest without Activities can still have Challenges, which is why this is on a higher level than activity/variants, but it probably should have been in both places. That may come as a later revision.
     pub challenges: Vec<crate::generated::models::destiny::challenges::DestinyChallengeStatus>,
     /// Quests are defined as Items in content. As such, this is the hash identifier of the DestinyInventoryItemDefinition that represents this quest. It will have pointers to all of the steps in the quest, and display information for the quest (title, description, icon etc) Individual steps will be referred to in the Quest item's DestinyInventoryItemDefinition.setData property, and themselves are Items with their own renderable data.
-    pub quest_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
+    pub quest_item_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// The current status of the quest for the character making the request.
     pub status: crate::generated::models::destiny::quests::DestinyQuestStatus,
 }
@@ -168,9 +168,9 @@ pub struct DestinyMilestoneRewardEntry {
 pub struct DestinyMilestoneVendor {
 
     /// If this vendor is featuring a specific item for this event, this will be the hash identifier of that item. I'm taking bets now on how long we go before this needs to be a list or some other, more complex representation instead and I deprecate this too. I'm going to go with 5 months. Calling it now, 2017-09-14 at 9:46pm PST.
-    pub preview_item_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
+    pub preview_item_hash: Option<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// The hash identifier of the Vendor related to this Milestone. You can show useful things from this, such as thier Faction icon or whatever you might care about.
-    pub vendor_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>,
+    pub vendor_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyVendorDefinition>,
 }
 
 /// Information about milestones, presented in a character state-agnostic manner. Combine this data with DestinyMilestoneDefinition to get a full picture of the milestone, which is basically a checklist of things to do in the game. Think of this as GetPublicAdvisors 3.0, for those who used the Destiny 1 API.
@@ -184,7 +184,7 @@ pub struct DestinyPublicMilestone {
     /// If known, this is the date when the Milestone will expire/recycle/end.
     pub end_date: Option<chrono::DateTime<chrono::Utc>>,
     /// The hash identifier for the milestone. Use it to look up the DestinyMilestoneDefinition for static data about the Milestone.
-    pub milestone_hash: crate::id::Id<crate::generated::models::destiny::definitions::milestones::DestinyMilestoneDefinition>,
+    pub milestone_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::milestones::DestinyMilestoneDefinition>,
     /// Used for ordering milestones in a display to match how we order them in BNet. May pull from static data, or possibly in the future from dynamic information.
     pub order: i32,
     /// If known, this is the date when the Milestone started/became active.
@@ -201,13 +201,13 @@ pub struct DestinyPublicMilestone {
 pub struct DestinyPublicMilestoneActivity {
 
     /// The hash identifier of the activity that's been chosen to be considered the canonical "conceptual" activity definition. This may have many variants, defined herein.
-    pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
+    pub activity_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// The hash identifier of the most specific Activity Mode under which this activity is played. This is useful for situations where the activity in question is - for instance - a PVP map, but it's not clear what mode the PVP map is being played under. If it's a playlist, this will be less specific: but hopefully useful in some way.
-    pub activity_mode_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityModeDefinition>>,
+    pub activity_mode_hash: Option<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityModeDefinition>>,
     /// The enumeration equivalent of the most specific Activity Mode under which this activity is played.
     pub activity_mode_type: Option<i32>,
     /// The activity may have 0-to-many modifiers: if it does, this will contain the hashes to the DestinyActivityModifierDefinition that defines the modifier being applied.
-    pub modifier_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
+    pub modifier_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
     /// Every relevant variation of this conceptual activity, including the conceptual activity itself, have variants defined here.
     pub variants: Vec<crate::generated::models::destiny::milestones::DestinyPublicMilestoneActivityVariant>,
 }
@@ -217,9 +217,9 @@ pub struct DestinyPublicMilestoneActivity {
 pub struct DestinyPublicMilestoneActivityVariant {
 
     /// The hash identifier of this activity variant. Examine the activity's definition in the Manifest database to determine what makes it a distinct variant. Usually it will be difficulty level or whether or not it is a guided game variant of the activity, but theoretically it could be distinguished in any arbitrary way.
-    pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
+    pub activity_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// The hash identifier of the most specific Activity Mode under which this activity is played. This is useful for situations where the activity in question is - for instance - a PVP map, but it's not clear what mode the PVP map is being played under. If it's a playlist, this will be less specific: but hopefully useful in some way.
-    pub activity_mode_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityModeDefinition>>,
+    pub activity_mode_hash: Option<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityModeDefinition>>,
     /// The enumeration equivalent of the most specific Activity Mode under which this activity is played.
     pub activity_mode_type: Option<i32>,
 }
@@ -229,9 +229,9 @@ pub struct DestinyPublicMilestoneActivityVariant {
 pub struct DestinyPublicMilestoneChallenge {
 
     /// IF the Objective is related to a specific Activity, this will be that activity's hash. Use it to look up the DestinyActivityDefinition for additional data to show.
-    pub activity_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>>,
+    pub activity_hash: Option<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityDefinition>>,
     /// The objective for the Challenge, which should have human-readable data about what needs to be done to accomplish the objective. Use this hash to look up the DestinyObjectiveDefinition.
-    pub objective_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
+    pub objective_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
 }
 
 /// No documentation provided.
@@ -239,7 +239,7 @@ pub struct DestinyPublicMilestoneChallenge {
 pub struct DestinyPublicMilestoneChallengeActivity {
 
     /// No documentation provided.
-    pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
+    pub activity_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// The set of activity options for this activity, keyed by an identifier that's unique for this activity (not guaranteed to be unique between or across all activities, though should be unique for every *variant* of a given *conceptual* activity: for instance, the original D2 Raid has many variant DestinyActivityDefinitions. While other activities could potentially have the same option hashes, for any given D2 base Raid variant the hash will be unique).
 /// As a concrete example of this data, the hashes you get for Raids will correspond to the currently active "Challenge Mode".
 /// We have no human readable information for this data, so it's up to you if you want to associate it with such info to show it.
@@ -250,7 +250,7 @@ pub struct DestinyPublicMilestoneChallengeActivity {
     pub loadout_requirement_index: Option<i32>,
     /// If the activity has modifiers, this will be the list of modifiers that all variants have in common. Perform lookups against DestinyActivityModifierDefinition which defines the modifier being applied to get at the modifier data.
 /// Note that, in the DestiyActivityDefinition, you will see many more modifiers than this being referred to: those are all *possible* modifiers for the activity, not the active ones. Use only the active ones to match what's really live.
-    pub modifier_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
+    pub modifier_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
     /// The ordered list of phases for this activity, if any. Note that we have no human readable info for phases, nor any entities to relate them to: relating these hashes to something human readable is up to you unfortunately.
     pub phase_hashes: Vec<u32>,
 }
@@ -264,7 +264,7 @@ pub struct DestinyPublicMilestoneQuest {
     /// For the given quest there could be 0-to-Many challenges: mini quests that you can perform in the course of doing this quest, that may grant you rewards and benefits.
     pub challenges: Vec<crate::generated::models::destiny::milestones::DestinyPublicMilestoneChallenge>,
     /// Quests are defined as Items in content. As such, this is the hash identifier of the DestinyInventoryItemDefinition that represents this quest. It will have pointers to all of the steps in the quest, and display information for the quest (title, description, icon etc) Individual steps will be referred to in the Quest item's DestinyInventoryItemDefinition.setData property, and themselves are Items with their own renderable data.
-    pub quest_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::milestones::DestinyMilestoneDefinition>,
+    pub quest_item_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::milestones::DestinyMilestoneDefinition>,
 }
 
 /// No documentation provided.
@@ -272,7 +272,7 @@ pub struct DestinyPublicMilestoneQuest {
 pub struct DestinyPublicMilestoneVendor {
 
     /// If this vendor is featuring a specific item for this event, this will be the hash identifier of that item. I'm taking bets now on how long we go before this needs to be a list or some other, more complex representation instead and I deprecate this too. I'm going to go with 5 months. Calling it now, 2017-09-14 at 9:46pm PST.
-    pub preview_item_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
+    pub preview_item_hash: Option<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// The hash identifier of the Vendor related to this Milestone. You can show useful things from this, such as thier Faction icon or whatever you might care about.
-    pub vendor_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyVendorDefinition>,
+    pub vendor_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyVendorDefinition>,
 }

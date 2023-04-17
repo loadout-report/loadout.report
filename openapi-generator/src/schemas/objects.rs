@@ -80,7 +80,7 @@ pub enum PropertyType {
     Enum(enums::Enum),
     Boolean(booleans::BooleanType),
     Dictionary(dictionary::Dictionary),
-    IdReference(String),
+    IdReference(String, String),
     Any, // fuck
 }
 
@@ -94,7 +94,7 @@ impl Render for PropertyType {
             PropertyType::Enum(e) => e.render(name),
             PropertyType::Boolean(_) => quote!(bool),
             PropertyType::Dictionary(d) => d.render(name), // todo: dictionary support
-            PropertyType::IdReference(r) => render_id_reference(r), // todo: id reference support
+            PropertyType::IdReference(r, format) => render_id_reference(r, format), // todo: id reference support
             PropertyType::Any => quote!(serde_json::Value), // ugh
         }
     }
@@ -110,7 +110,9 @@ impl From<Schema> for PropertyType {
                 "integer" => match value.enum_reference {
                     Some(_) => PropertyType::Enum(From::from(value)),
                     None => match value.mapped_definition {
-                        Some(d) => PropertyType::IdReference(d.ref_.clone().unwrap()),
+                        Some(d) =>  {
+                            PropertyType::IdReference(d.ref_.clone().unwrap(), value.format.clone().unwrap())
+                        },
                         None => PropertyType::Number(From::from(value)),
                     },
                 },
@@ -193,7 +195,7 @@ pub fn render_reference(reference: &str) -> Tokens {
     quote!(crate::generated::models::$reference)
 }
 
-pub fn render_id_reference(reference: &str) -> Tokens {
+pub fn render_id_reference(reference: &str, format: &str) -> Tokens {
     println!("rendering id reference: {}", reference);
     let (namespace, reference) = resolve(reference);
     let namespace = namespace.replace('/', "::");
@@ -201,5 +203,5 @@ pub fn render_id_reference(reference: &str) -> Tokens {
     let reference = reference.replace("::::", "::");
     let reference = reference.trim_start_matches("::");
     println!("resulting id reference: {}", reference);
-    quote!(crate::id::Id<crate::generated::models::$reference>)
+    quote!(crate::id::Id<$(numbers::openapi_nonsense_to_rust_type(format)), crate::generated::models::$reference>)
 }

@@ -8,9 +8,9 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DestinyCollectibleAcquisitionBlock {
 
     /// No documentation provided.
-    pub acquire_material_requirement_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyMaterialRequirementSetDefinition>>,
+    pub acquire_material_requirement_hash: Option<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyMaterialRequirementSetDefinition>>,
     /// No documentation provided.
-    pub acquire_timestamp_unlock_value_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyUnlockValueDefinition>>,
+    pub acquire_timestamp_unlock_value_hash: Option<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyUnlockValueDefinition>>,
 }
 
 /// Defines a
@@ -23,13 +23,13 @@ pub struct DestinyCollectibleDefinition {
     pub display_properties: crate::generated::models::destiny::definitions::common::DestinyDisplayPropertiesDefinition,
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity, but not globally.
 /// When entities refer to each other in Destiny content, it is this hash that they are referring to.
-    pub hash: u32,
+    pub hash: crate::id::Id<u32, Self>,
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// No documentation provided.
-    pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
+    pub item_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// A quick reference to presentation nodes that have this node as a child. Presentation nodes can be parented under multiple parents.
-    pub parent_node_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
+    pub parent_node_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
     /// No documentation provided.
     pub presentation_info: crate::generated::models::destiny::definitions::presentation::DestinyPresentationChildBlock,
     /// No documentation provided.
@@ -47,7 +47,7 @@ pub struct DestinyCollectibleDefinition {
     /// No documentation provided.
     pub state_info: crate::generated::models::destiny::definitions::collectibles::DestinyCollectibleStateBlock,
     /// No documentation provided.
-    pub trait_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::traits::DestinyTraitDefinition>>,
+    pub trait_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::traits::DestinyTraitDefinition>>,
     /// No documentation provided.
     pub trait_ids: Vec<String>,
 }
@@ -57,7 +57,7 @@ pub struct DestinyCollectibleDefinition {
 pub struct DestinyCollectibleStateBlock {
 
     /// No documentation provided.
-    pub obscured_override_item_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
+    pub obscured_override_item_hash: Option<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
     /// No documentation provided.
     pub requirements: crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeRequirementsBlock,
 }

@@ -8,13 +8,13 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DestinyLoadoutComponent {
 
     /// No documentation provided.
-    pub color_hash: crate::id::Id<crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutColorDefinition>,
+    pub color_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutColorDefinition>,
     /// No documentation provided.
-    pub icon_hash: crate::id::Id<crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutIconDefinition>,
+    pub icon_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutIconDefinition>,
     /// No documentation provided.
     pub items: Vec<crate::generated::models::destiny::components::loadouts::DestinyLoadoutItemComponent>,
     /// No documentation provided.
-    pub name_hash: crate::id::Id<crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutNameDefinition>,
+    pub name_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::loadouts::DestinyLoadoutNameDefinition>,
 }
 
 /// No documentation provided.
@@ -25,7 +25,7 @@ pub struct DestinyLoadoutItemComponent {
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
     pub item_instance_id: i64,
     /// No documentation provided.
-    pub plug_item_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
+    pub plug_item_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>>,
 }
 
 /// No documentation provided.

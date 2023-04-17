@@ -31,17 +31,17 @@ pub struct DestinyRecordDefinition {
     pub for_title_gilding: bool,
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity, but not globally.
 /// When entities refer to each other in Destiny content, it is this hash that they are referring to.
-    pub hash: u32,
+    pub hash: crate::id::Id<u32, Self>,
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// Some records have multiple 'interval' objectives, and the record may be claimed at each completed interval
     pub interval_info: crate::generated::models::destiny::definitions::records::DestinyRecordIntervalBlock,
     /// No documentation provided.
-    pub lore_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::lore::DestinyLoreDefinition>>,
+    pub lore_hash: Option<crate::id::Id<u32, crate::generated::models::destiny::definitions::lore::DestinyLoreDefinition>>,
     /// No documentation provided.
-    pub objective_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>>,
+    pub objective_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>>,
     /// A quick reference to presentation nodes that have this node as a child. Presentation nodes can be parented under multiple parents.
-    pub parent_node_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
+    pub parent_node_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
     /// No documentation provided.
     pub presentation_info: crate::generated::models::destiny::definitions::presentation::DestinyPresentationChildBlock,
     /// No documentation provided.
@@ -64,7 +64,7 @@ pub struct DestinyRecordDefinition {
     /// No documentation provided.
     pub title_info: crate::generated::models::destiny::definitions::records::DestinyRecordTitleBlock,
     /// No documentation provided.
-    pub trait_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::traits::DestinyTraitDefinition>>,
+    pub trait_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::traits::DestinyTraitDefinition>>,
     /// No documentation provided.
     pub trait_ids: Vec<String>,
 }
@@ -98,7 +98,7 @@ pub struct DestinyRecordIntervalBlock {
 pub struct DestinyRecordIntervalObjective {
 
     /// No documentation provided.
-    pub interval_objective_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
+    pub interval_objective_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
     /// No documentation provided.
     pub interval_score_value: i32,
 }
@@ -116,7 +116,7 @@ pub struct DestinyRecordIntervalRewards {
 pub struct DestinyRecordTitleBlock {
 
     /// No documentation provided.
-    pub gilding_tracking_record_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::records::DestinyRecordDefinition>>,
+    pub gilding_tracking_record_hash: Option<crate::id::Id<u32, crate::generated::models::destiny::definitions::records::DestinyRecordDefinition>>,
     /// No documentation provided.
     pub has_title: bool,
     /// No documentation provided.

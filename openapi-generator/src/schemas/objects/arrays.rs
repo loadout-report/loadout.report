@@ -6,11 +6,13 @@ use crate::schemas::Render;
 pub struct Array {
     items: Box<super::PropertyType>,
     mapped_definition: Option<Box<Schema>>,
+    format: Option<String>,
 }
 
 impl From<Schema> for Array {
     fn from(value: Schema) -> Self {
         Array {
+            format: value.items.clone().unwrap().format,
             items: Box::new(From::from(*value.items.unwrap())),
             mapped_definition: value.mapped_definition,
         }
@@ -22,7 +24,7 @@ impl Render for Array {
         match self.mapped_definition {
             Some(ref mapped_definition) => {
                 quote! {
-                    Vec<$(super::render_id_reference(&mapped_definition.ref_.clone().unwrap()))>
+                    Vec<$(super::render_id_reference(&mapped_definition.ref_.clone().unwrap(), &self.format.clone().unwrap()))>
                 }
             }
             None => quote! {

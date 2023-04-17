@@ -41,7 +41,7 @@ pub struct DestinyEnergyCapacityEntry {
     /// The Energy Type for this energy capacity, in enum form for easy use.
     pub energy_type: crate::generated::models::destiny::DestinyEnergyType,
     /// Energy provided by a plug is always of a specific type - this is the hash identifier for the energy type for which it provides Capacity.
-    pub energy_type_hash: crate::id::Id<crate::generated::models::destiny::definitions::energy_types::DestinyEnergyTypeDefinition>,
+    pub energy_type_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::energy_types::DestinyEnergyTypeDefinition>,
 }
 
 /// Some plugs cost Energy, which is a stat on the item that can be increased by other plugs (that, at least in Armor 2.0, have a "masterworks-like" mechanic for upgrading). If a plug has costs, the details of that cost are defined here.
@@ -53,7 +53,7 @@ pub struct DestinyEnergyCostEntry {
     /// The type of energy that this plug costs, in enum form.
     pub energy_type: crate::generated::models::destiny::DestinyEnergyType,
     /// The type of energy that this plug costs, as a reference to the DestinyEnergyTypeDefinition of the energy type.
-    pub energy_type_hash: crate::id::Id<crate::generated::models::destiny::definitions::energy_types::DestinyEnergyTypeDefinition>,
+    pub energy_type_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::energy_types::DestinyEnergyTypeDefinition>,
 }
 
 /// If an item is a Plug, its DestinyInventoryItemDefinition.plug property will be populated with an instance of one of these bad boys.
@@ -66,7 +66,7 @@ pub struct DestinyItemPlugDefinition {
     /// If the plug meets certain state requirements, it may have an alternative label applied to it. This is the alternative label that will be applied in such a situation.
     pub alternate_ui_plug_label: String,
     /// It's not enough for the plug to be inserted. It has to be enabled as well. For it to be enabled, it may require materials. This is the hash identifier for the DestinyMaterialRequirementSetDefinition for those requirements, if there is one.
-    pub enabled_material_requirement_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyMaterialRequirementSetDefinition>,
+    pub enabled_material_requirement_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyMaterialRequirementSetDefinition>,
     /// The rules around whether the plug, once inserted, is enabled and providing its benefits.
 /// The live data DestinyItemPlugComponent.enableFailIndexes will be an index into this array, so you can pull out the failure strings appropriate for the user.
     pub enabled_rules: Vec<crate::generated::models::destiny::definitions::items::DestinyPlugRuleDefinition>,
@@ -75,7 +75,7 @@ pub struct DestinyItemPlugDefinition {
     /// IF not null, this plug has an energy cost. This contains the details of that cost.
     pub energy_cost: crate::generated::models::destiny::definitions::items::DestinyEnergyCostEntry,
     /// If inserting this plug requires materials, this is the hash identifier for looking up the DestinyMaterialRequirementSetDefinition for those requirements.
-    pub insertion_material_requirement_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyMaterialRequirementSetDefinition>,
+    pub insertion_material_requirement_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyMaterialRequirementSetDefinition>,
     /// The rules around when this plug can be inserted into a socket, aside from the socket's individual restrictions.
 /// The live data DestinyItemPlugComponent.insertFailIndexes will be an index into this array, so you can pull out the failure strings appropriate for the user.
     pub insertion_rules: Vec<crate::generated::models::destiny::definitions::items::DestinyPlugRuleDefinition>,
@@ -96,7 +96,7 @@ pub struct DestinyItemPlugDefinition {
     /// No documentation provided.
     pub plug_style: crate::generated::models::destiny::PlugUiStyles,
     /// In the game, if you're inspecting a plug item directly, this will be the item shown with the plug attached. Look up the DestinyInventoryItemDefinition for this hash for the item.
-    pub preview_item_override_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
+    pub preview_item_override_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// Plugs can have arbitrary, UI-defined identifiers that the UI designers use to determine the style applied to plugs. Unfortunately, we have neither a definitive list of these labels nor advance warning of when new labels might be applied or how that relates to how they get rendered. If you want to, you can refer to known labels to change your own styles: but know that new ones can be created arbitrarily, and we have no way of associating the labels with any specific UI style guidance... you'll have to piece that together on your end. Or do what we do, and just show plugs more generically, without specialized styles.
     pub ui_plug_label: String,
 }
@@ -110,7 +110,7 @@ pub struct DestinyItemTierTypeDefinition {
     pub display_properties: crate::generated::models::destiny::definitions::common::DestinyDisplayPropertiesDefinition,
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity, but not globally.
 /// When entities refer to each other in Destiny content, it is this hash that they are referring to.
-    pub hash: u32,
+    pub hash: crate::id::Id<u32, Self>,
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// If this tier defines infusion properties, they will be contained here.

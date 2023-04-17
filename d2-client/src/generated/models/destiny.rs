@@ -93,7 +93,7 @@ pub enum DamageType {
 pub struct DestinyActivity {
 
     /// The hash identifier of the Activity. Use this to look up the DestinyActivityDefinition of the activity.
-    pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
+    pub activity_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// The set of activity options for this activity, keyed by an identifier that's unique for this activity (not guaranteed to be unique between or across all activities, though should be unique for every *variant* of a given *conceptual* activity: for instance, the original D2 Raid has many variant DestinyActivityDefinitions. While other activities could potentially have the same option hashes, for any given D2 base Raid variant the hash will be unique).
 /// As a concrete example of this data, the hashes you get for Raids will correspond to the currently active "Challenge Mode".
 /// We don't have any human readable information for these, but saavy 3rd party app users could manually associate the key (a hash identifier for the "option" that is enabled/disabled) and the value (whether it's enabled or disabled presently)
@@ -119,7 +119,7 @@ pub struct DestinyActivity {
     pub loadout_requirement_index: Option<i32>,
     /// If the activity has modifiers, this will be the list of modifiers that all variants have in common. Perform lookups against DestinyActivityModifierDefinition which defines the modifier being applied to get at the modifier data.
 /// Note that, in the DestiyActivityDefinition, you will see many more modifiers than this being referred to: those are all *possible* modifiers for the activity, not the active ones. Use only the active ones to match what's really live.
-    pub modifier_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
+    pub modifier_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::activity_modifiers::DestinyActivityModifierDefinition>>,
     /// The recommended light level for the activity, if applicable.
     pub recommended_light: Option<i32>,
 }
@@ -502,7 +502,7 @@ pub struct DestinyItemQuantity {
     /// Indicates that this item quantity may be conditionally shown or hidden, based on various sources of state. For example: server flags, account state, or character progress.
     pub has_conditional_visibility: bool,
     /// The hash identifier for the item in question. Use it to look up the item's DestinyInventoryItemDefinition.
-    pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
+    pub item_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// If this quantity is referring to a specific instance of an item, this will have the item's instance ID. Normally, this will be null.
     #[serde(with = "crate::unfuck_js::nullable_stringified_numbers")]
     pub item_instance_id: Option<i64>,
@@ -816,7 +816,7 @@ pub struct DestinyProgression {
     /// The amount of progression (i.e. "Experience") needed to reach the next level of this Progression. Jeez, progression is such an overloaded word.
     pub progress_to_next_level: i32,
     /// The hash identifier of the Progression in question. Use it to look up the DestinyProgressionDefinition in static data.
-    pub progression_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyProgressionDefinition>,
+    pub progression_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyProgressionDefinition>,
     /// Information about historical rewards for this progression, if there is any data for it.
     pub reward_item_states: Vec<crate::generated::models::destiny::DestinyProgressionRewardItemState>,
     /// Information about historical resets of this progression, if there is any data for it.
@@ -1035,7 +1035,7 @@ pub enum DestinySocketVisibility {
 pub struct DestinyStat {
 
     /// The hash identifier for the Stat. Use it to look up the DestinyStatDefinition for static data about the stat.
-    pub stat_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyStatDefinition>,
+    pub stat_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyStatDefinition>,
     /// The current value of the Stat.
     pub value: i32,
 }
@@ -1145,7 +1145,7 @@ pub struct DestinyUnlockStatus {
     /// Whether the unlock flag is set.
     pub is_set: bool,
     /// The hash identifier for the Unlock Flag. Use to lookup DestinyUnlockDefinition for static data. Not all unlocks have human readable data - in fact, most don't. But when they do, it can be very useful to show. Even if they don't have human readable data, you might be able to infer the meaning of an unlock flag with a bit of experimentation...
-    pub unlock_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyUnlockDefinition>,
+    pub unlock_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyUnlockDefinition>,
 }
 
 /// If you're showing an unlock value in the UI, this is the format in which it should be shown. You'll have to build your own algorithms on the client side to determine how best to render these options.

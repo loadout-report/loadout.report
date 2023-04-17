@@ -11,6 +11,8 @@ lru_time_cache = "0.11.11"
 log = "0.4.17"
 uuid = "1.1.2"
 serde = { version = "1.0.152", features = ["derive"] }
+serde_repr = "0.1.10"
+serde_with = "2.2.0"
 chrono = "0.4.22"
 
 [dev-dependencies]

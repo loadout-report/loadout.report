@@ -11,21 +11,21 @@ pub struct DestinyMetricDefinition {
     pub display_properties: crate::generated::models::destiny::definitions::common::DestinyDisplayPropertiesDefinition,
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity, but not globally.
 /// When entities refer to each other in Destiny content, it is this hash that they are referring to.
-    pub hash: u32,
+    pub hash: crate::id::Id<u32, Self>,
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// No documentation provided.
     pub lower_value_is_better: bool,
     /// A quick reference to presentation nodes that have this node as a child. Presentation nodes can be parented under multiple parents.
-    pub parent_node_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
+    pub parent_node_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>>,
     /// No documentation provided.
     pub presentation_node_type: crate::generated::models::destiny::DestinyPresentationNodeType,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// No documentation provided.
-    pub tracking_objective_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
+    pub tracking_objective_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
     /// No documentation provided.
-    pub trait_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::traits::DestinyTraitDefinition>>,
+    pub trait_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::traits::DestinyTraitDefinition>>,
     /// No documentation provided.
     pub trait_ids: Vec<String>,
 }

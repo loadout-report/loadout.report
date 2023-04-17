@@ -24,7 +24,7 @@ pub struct DestinyAggregateActivityResults {
 pub struct DestinyAggregateActivityStats {
 
     /// Hash ID that can be looked up in the DestinyActivityTable.
-    pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
+    pub activity_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// Collection of stats for the player in this activity.
     pub values: HashMap<String, crate::generated::models::destiny::historical_stats::DestinyHistoricalStatsValue>,
 }
@@ -58,7 +58,7 @@ pub struct DestinyHistoricalStatsAccountResult {
 pub struct DestinyHistoricalStatsActivity {
 
     /// The unique hash identifier of the DestinyActivityDefinition that was played.
-    pub director_activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
+    pub director_activity_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// The unique identifier for this *specific* match that was played.
 /// This value can be used to get additional data about this activity such as who else was playing via the GetPostGameCarnageReport endpoint.
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
@@ -72,7 +72,7 @@ pub struct DestinyHistoricalStatsActivity {
     /// The list of all Activity Modes to which this activity applies, including aggregates. This will let you see, for example, whether the activity was both Clash and part of the Trials of the Nine event.
     pub modes: Vec<crate::generated::models::destiny::historical_stats::definitions::DestinyActivityModeType>,
     /// The unique hash identifier of the DestinyActivityDefinition that was played. If I had this to do over, it'd be named activityHash. Too late now.
-    pub reference_id: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
+    pub reference_id: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
 }
 
 /// No documentation provided.
@@ -164,7 +164,7 @@ pub struct DestinyHistoricalStatsWithMerged {
 pub struct DestinyHistoricalWeaponStats {
 
     /// The hash ID of the item definition that describes the weapon.
-    pub reference_id: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
+    pub reference_id: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// Collection of stats for the period.
     pub values: HashMap<String, crate::generated::models::destiny::historical_stats::DestinyHistoricalStatsValue>,
 }
@@ -219,17 +219,17 @@ pub struct DestinyPlayer {
     /// Current clan tag for the player. This value may be null or an empty string if the user does not have a clan.
     pub clan_tag: String,
     /// No documentation provided.
-    pub class_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyClassDefinition>,
+    pub class_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyClassDefinition>,
     /// Details about the player as they are known in game (platform display name, Destiny emblem)
     pub destiny_user_info: crate::generated::models::user::UserInfoCard,
     /// If we know the emblem's hash, this can be used to look up the player's emblem at the time of a match when receiving PGCR data, or otherwise their currently equipped emblem (if we are able to obtain it).
-    pub emblem_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
+    pub emblem_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
     /// No documentation provided.
-    pub gender_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyGenderDefinition>,
+    pub gender_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyGenderDefinition>,
     /// Light Level of the character if available. Zero if it is not available.
     pub light_level: i32,
     /// No documentation provided.
-    pub race_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyRaceDefinition>,
+    pub race_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyRaceDefinition>,
 }
 
 /// No documentation provided.

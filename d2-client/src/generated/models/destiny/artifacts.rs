@@ -8,7 +8,7 @@ use serde_with::{serde_as, DisplayFromStr};
 pub struct DestinyArtifactCharacterScoped {
 
     /// No documentation provided.
-    pub artifact_hash: crate::id::Id<crate::generated::models::destiny::definitions::artifacts::DestinyArtifactDefinition>,
+    pub artifact_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::artifacts::DestinyArtifactDefinition>,
     /// No documentation provided.
     pub points_used: i32,
     /// No documentation provided.
@@ -23,7 +23,7 @@ pub struct DestinyArtifactCharacterScoped {
 pub struct DestinyArtifactProfileScoped {
 
     /// No documentation provided.
-    pub artifact_hash: crate::id::Id<crate::generated::models::destiny::definitions::artifacts::DestinyArtifactDefinition>,
+    pub artifact_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::artifacts::DestinyArtifactDefinition>,
     /// No documentation provided.
     pub point_progression: crate::generated::models::destiny::DestinyProgression,
     /// No documentation provided.
@@ -55,5 +55,5 @@ pub struct DestinyArtifactTierItem {
     /// No documentation provided.
     pub is_active: bool,
     /// No documentation provided.
-    pub item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
+    pub item_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
 }

@@ -20,7 +20,7 @@ pub struct DestinyCraftableComponent {
 pub struct DestinyCraftableSocketComponent {
 
     /// No documentation provided.
-    pub plug_set_hash: crate::id::Id<crate::generated::models::destiny::definitions::sockets::DestinyPlugSetDefinition>,
+    pub plug_set_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::sockets::DestinyPlugSetDefinition>,
     /// Unlock state for plugs in the socket plug set definition
     pub plugs: Vec<crate::generated::models::destiny::components::craftables::DestinyCraftableSocketPlugComponent>,
 }
@@ -32,7 +32,7 @@ pub struct DestinyCraftableSocketPlugComponent {
     /// Index into the unlock requirements to display failure descriptions
     pub failed_requirement_indexes: Vec<i32>,
     /// No documentation provided.
-    pub plug_item_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
+    pub plug_item_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyInventoryItemDefinition>,
 }
 
 /// No documentation provided.
@@ -42,5 +42,5 @@ pub struct DestinyCraftablesComponent {
     /// A map of craftable item hashes to craftable item state components.
     pub craftables: HashMap<u32, crate::generated::models::destiny::components::craftables::DestinyCraftableComponent>,
     /// The hash for the root presentation node definition of craftable item categories.
-    pub crafting_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
+    pub crafting_root_node_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
 }

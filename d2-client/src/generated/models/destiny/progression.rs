@@ -16,7 +16,7 @@ pub struct DestinyFactionProgression {
     /// The amount of progress earned today for this progression.
     pub daily_progress: i32,
     /// The hash identifier of the Faction related to this progression. Use it to look up the DestinyFactionDefinition for more rendering info.
-    pub faction_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyFactionDefinition>,
+    pub faction_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyFactionDefinition>,
     /// The index of the Faction vendor that is currently available. Will be set to -1 if no vendors are available.
     pub faction_vendor_index: i32,
     /// This is the level of the progression (for instance, the Character Level).
@@ -28,7 +28,7 @@ pub struct DestinyFactionProgression {
     /// The amount of progression (i.e. "Experience") needed to reach the next level of this Progression. Jeez, progression is such an overloaded word.
     pub progress_to_next_level: i32,
     /// The hash identifier of the Progression in question. Use it to look up the DestinyProgressionDefinition in static data.
-    pub progression_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyProgressionDefinition>,
+    pub progression_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyProgressionDefinition>,
     /// Information about historical rewards for this progression, if there is any data for it.
     pub reward_item_states: Vec<crate::generated::models::destiny::DestinyProgressionRewardItemState>,
     /// Information about historical resets of this progression, if there is any data for it.

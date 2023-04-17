@@ -32,7 +32,7 @@ impl Default for Cache {
 
 mod manifest {
     use std::collections::HashMap;
-    use std::future::Future;
+    use std::future::{Future, join};
     use std::sync::Arc;
     use std::time::{SystemTime};
     use chrono::{DateTime, Utc};
@@ -71,49 +71,75 @@ mod manifest {
         Unknown
     }
 
-    pub trait Loader<T> {
-        async fn load(&self) -> Result<HashMap<Id<T>, T>, LoadError>;
+    pub trait Loader<N, T> {
+        async fn load(&self) -> Result<HashMap<Id<N, T>, T>, LoadError>;
     }
 
     #[derive(Clone, Default, Serialize, Deserialize)]
-    pub struct DefinitionTable<T>
+    pub struct DefinitionTable<N, T>
         where T: Clone + Serialize + Deserialize
     {
-        pub data: Arc<Mutex<Option<HashMap<Id<T>, T>>>>,
-        async_loader: Option<Box<dyn Loader<T>>>,
+        pub data: Arc<Mutex<Option<HashMap<Id<N, T>, T>>>>,
+        dirty: bool,
+        async_loader: Option<Box<dyn Loader<N, T>>>,
     }
 
-    impl DefinitionTable<T> {
+    impl<N, T> DefinitionTable<N, T> {
         pub fn new() -> Self {
             Self {
                 data: Default::default(),
+                dirty: true,
                 async_loader: None,
             }
         }
 
-        pub fn get(&self, id: &Id<T>) -> Option<T> {
+        pub fn get(&self, id: &Id<N, T>) -> Option<T> {
             self.data.get(id).cloned()
         }
 
-        pub fn set_loader(&mut self, loader: Box<dyn Loader<T>>) {
+        pub fn set_loader(&mut self, loader: Box<dyn Loader<N, T>>) {
             self.async_loader = Some(loader);
+            dirty = true;
         }
 
-        pub async fn load(&mut self) -> Result<(), LoadError> {
+        pub fn has_loader(&self) -> bool {
+            self.async_loader.is_some()
+        }
+
+        async fn load(&mut self) -> Result<(), LoadError> {
             if Some(loader) = self.async_loader.as_ref() {
                 let data = loader.load().await?;
                 self.data.lock().unwrap().replace(data);
+                dirty = false;
                 Ok(())
             } else {
                 Err(LoadError::NoLoader)
             }
         }
+
+        pub async fn load_if_dirty(&mut self) -> Result<(), LoadError> {
+            if dirty {
+                self.load().await
+            } else {
+                Ok(())
+            }
+        }
+
+        pub async fn load_if_possible(&mut self) -> Result<(), LoadError> {
+            if dirty && self.has_loader() {
+                self.load().await
+            } else {
+                Ok(())
+            }
+        }
+
     }
 
-    impl <T> From<T> for DefinitionTable<T> {
+    impl <T> From<T> for DefinitionTable<N, T> {
         fn from(t: T) -> Self {
             Self {
                 data: Arc::new(Mutex::new(Some(t))),
+                dirty: false,
                 async_loader: None,
             }
         }
@@ -125,40 +151,40 @@ mod manifest {
         /// ArtDyeChannel
         /// ArtDyeReference
         /// Place
-        pub place: DefinitionTable<DestinyPlaceDefinition>,
+        pub place: DefinitionTable<u32, DestinyPlaceDefinition>,
         /// Activity
-        pub activity: DefinitionTable<DestinyActivityDefinition>,
+        pub activity: DefinitionTable<u32, DestinyActivityDefinition>,
         /// ActivityType
-        pub activity_type: DefinitionTable<DestinyActivityTypeDefinition>,
+        pub activity_type: DefinitionTable<u32, DestinyActivityTypeDefinition>,
         /// Class
-        pub class: DefinitionTable<DestinyClassDefinition>,
+        pub class: DefinitionTable<u32, DestinyClassDefinition>,
         /// Gender
-        pub gender: DefinitionTable<DestinyGenderDefinition>,
+        pub gender: DefinitionTable<u32, DestinyGenderDefinition>,
         /// InventoryBucket
-        pub inventory_bucket: DefinitionTable<DestinyInventoryBucketDefinition>,
+        pub inventory_bucket: DefinitionTable<u32, DestinyInventoryBucketDefinition>,
         /// Race
-        pub race: DefinitionTable<DestinyRaceDefinition>,
+        pub race: DefinitionTable<u32, DestinyRaceDefinition>,
         /// TalentGrid
         /// Unlock
         /// SandboxPerk
-        pub sandbox_perk: DefinitionTable<DestinySandboxPerkDefinition>,
+        pub sandbox_perk: DefinitionTable<u32, DestinySandboxPerkDefinition>,
         /// StatGroup
-        pub stat_group: DefinitionTable<DestinyStatGroupDefinition>,
+        pub stat_group: DefinitionTable<u32, DestinyStatGroupDefinition>,
         /// ProgressionMapping
         /// Faction
-        pub faction: DefinitionTable<DestinyFactionDefinition>,
+        pub faction: DefinitionTable<u32, DestinyFactionDefinition>,
         /// VendorGroup
-        pub vendor_group: DefinitionTable<DestinyVendorGroupDefinition>,
+        pub vendor_group: DefinitionTable<u32, DestinyVendorGroupDefinition>,
         /// RewardSource
         /// UnlockValue
         /// RewardMapping
         /// RewardSheet
         /// ItemCategory
-        pub item_category: DefinitionTable<DestinyItemCategoryDefinition>,
+        pub item_category: DefinitionTable<u32, DestinyItemCategoryDefinition>,
         /// DamageType
-        pub damage_type: DefinitionTable<DestinyDamageTypeDefinition>,
+        pub damage_type: DefinitionTable<u32, DestinyDamageTypeDefinition>,
         /// ActivityMode
-        pub activity_mode: DefinitionTable<DestinyActivityModeDefinition>,
+        pub activity_mode: DefinitionTable<u32, DestinyActivityModeDefinition>,
         /// MedalTier
         /// Achievement
         /// ActivityGraph
@@ -167,83 +193,83 @@ mod manifest {
         /// CharacterCustomizationCategory
         /// CharacterCustomizationOption
         /// Collectible
-        pub collectible: DefinitionTable<DestinyCollectibleDefinition>,
+        pub collectible: DefinitionTable<u32, DestinyCollectibleDefinition>,
         /// Destination
-        pub destination: DefinitionTable<DestinyDestinationDefinition>,
+        pub destination: DefinitionTable<u32, DestinyDestinationDefinition>,
         /// EntitlementOffer
         /// EquipmentSlot
         /// EventCard
-        pub event_card: DefinitionTable<DestinyEventCardDefinition>,
+        pub event_card: DefinitionTable<u32, DestinyEventCardDefinition>,
         /// Stat
-        pub stat: DefinitionTable<DestinyStatDefinition>,
+        pub stat: DefinitionTable<u32, DestinyStatDefinition>,
         /// InventoryItem
-        pub inventory_item: DefinitionTable<DestinyInventoryItemDefinition>,
+        pub inventory_item: DefinitionTable<u32, DestinyInventoryItemDefinition>,
         /// InventoryItemLite
         /// ItemTierType
-        pub item_tier_type: DefinitionTable<DestinyItemTierTypeDefinition>,
+        pub item_tier_type: DefinitionTable<u32, DestinyItemTierTypeDefinition>,
         /// LoadoutColor
-        pub loadout_color: DefinitionTable<DestinyLoadoutColorDefinition>,
+        pub loadout_color: DefinitionTable<u32, DestinyLoadoutColorDefinition>,
         /// LoadoutIcon
-        pub loadout_icon: DefinitionTable<DestinyLoadoutIconDefinition>,
+        pub loadout_icon: DefinitionTable<u32, DestinyLoadoutIconDefinition>,
         /// LoadoutName
-        pub loadout_name: DefinitionTable<DestinyLoadoutNameDefinition>,
+        pub loadout_name: DefinitionTable<u32, DestinyLoadoutNameDefinition>,
         /// Location
-        pub location: DefinitionTable<DestinyLocationDefinition>,
+        pub location: DefinitionTable<u32, DestinyLocationDefinition>,
         /// Lore
         /// MaterialRequirementSet
-        pub material_requirement_set: DefinitionTable<DestinyMaterialRequirementSetDefinition>,
+        pub material_requirement_set: DefinitionTable<u32, DestinyMaterialRequirementSetDefinition>,
         /// Metric
-        pub metric: DefinitionTable<DestinyMetricDefinition>,
+        pub metric: DefinitionTable<u32, DestinyMetricDefinition>,
         /// Objective
-        pub objective: DefinitionTable<DestinyObjectiveDefinition>,
+        pub objective: DefinitionTable<u32, DestinyObjectiveDefinition>,
         /// PlatformBucketMapping
         /// PlugSet
-        pub plug_set: DefinitionTable<DestinyPlugSetDefinition>,
+        pub plug_set: DefinitionTable<u32, DestinyPlugSetDefinition>,
         /// PowerCap
-        pub power_cap: DefinitionTable<DestinyPowerCapDefinition>,
+        pub power_cap: DefinitionTable<u32, DestinyPowerCapDefinition>,
         /// PresentationNode
-        pub presentation_node: DefinitionTable<DestinyPresentationNodeDefinition>,
+        pub presentation_node: DefinitionTable<u32, DestinyPresentationNodeDefinition>,
         /// Progression
-        pub progression: DefinitionTable<DestinyProgressionDefinition>,
+        pub progression: DefinitionTable<u32, DestinyProgressionDefinition>,
         /// ProgressionLevelRequirement
         /// Record
-        pub record: DefinitionTable<DestinyRecordDefinition>,
+        pub record: DefinitionTable<u32, DestinyRecordDefinition>,
         /// RewardAdjusterPointer
         /// RewardAdjusterProgressionMap
         /// RewardItemList
         /// SackRewardItemList
         /// SandboxPattern
         /// Season
-        pub season: DefinitionTable<DestinySeasonDefinition>,
+        pub season: DefinitionTable<u32, DestinySeasonDefinition>,
         /// SeasonPass
-        pub season_pass: DefinitionTable<DestinySeasonPassDefinition>,
+        pub season_pass: DefinitionTable<u32, DestinySeasonPassDefinition>,
         /// SocialCommendation
         /// SocketCategory
-        pub socket_category: DefinitionTable<DestinySocketCategoryDefinition>,
+        pub socket_category: DefinitionTable<u32, DestinySocketCategoryDefinition>,
         /// SocketType
-        pub socket_type: DefinitionTable<DestinySocketTypeDefinition>,
+        pub socket_type: DefinitionTable<u32, DestinySocketTypeDefinition>,
         /// Trait
-        pub r#trait: DefinitionTable<DestinyTraitDefinition>,
+        pub r#trait: DefinitionTable<u32, DestinyTraitDefinition>,
         /// UnlockCountMapping
         /// UnlockEvent
         /// UnlockExpressionMapping
         /// Vendor
-        pub vendor: DefinitionTable<DestinyVendorDefinition>,
+        pub vendor: DefinitionTable<u32, DestinyVendorDefinition>,
         /// Milestone
-        pub milestone: DefinitionTable<DestinyMilestoneDefinition>,
+        pub milestone: DefinitionTable<u32, DestinyMilestoneDefinition>,
         /// ActivityModifier
-        pub activity_modifier: DefinitionTable<DestinyActivityModifierDefinition>,
+        pub activity_modifier: DefinitionTable<u32, DestinyActivityModifierDefinition>,
         /// ReportReasonCategory
         /// Artifact
         /// BreakerType
-        pub breaker_type: DefinitionTable<DestinyBreakerTypeDefinition>,
+        pub breaker_type: DefinitionTable<u32, DestinyBreakerTypeDefinition>,
         /// Checklist
         /// EnergyType
         /// SocialCommendationNode
         /// GuardianRank
         /// GuardianRankConstants
         /// LoadoutConstants
-        pub loadout_constants: DefinitionTable<DestinyLoadoutConstantsDefinition>,
+        pub loadout_constants: DefinitionTable<u32, DestinyLoadoutConstantsDefinition>,
     }
 
     impl Definitions {
@@ -252,7 +278,10 @@ mod manifest {
         }
 
         pub async fn load_all(&mut self) {
-
+            tokio::join!(
+                self.inventory_item.load_if_possible()
+            );
+            // todo: other loaders
         }
     }
 

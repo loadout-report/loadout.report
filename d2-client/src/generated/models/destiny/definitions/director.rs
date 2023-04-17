@@ -39,7 +39,7 @@ pub struct DestinyActivityGraphDefinition {
     pub display_progressions: Vec<crate::generated::models::destiny::definitions::director::DestinyActivityGraphDisplayProgressionDefinition>,
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity, but not globally.
 /// When entities refer to each other in Destiny content, it is this hash that they are referring to.
-    pub hash: u32,
+    pub hash: crate::id::Id<u32, Self>,
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// Represents links between this Activity Graph and other ones.
@@ -57,7 +57,7 @@ pub struct DestinyActivityGraphDisplayObjectiveDefinition {
     /// $NOTE $amola 2017-01-19 This field is apparently something that CUI uses to manually wire up objectives to display info. I am unsure how it works.
     pub id: u32,
     /// The objective being shown on the map.
-    pub objective_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
+    pub objective_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyObjectiveDefinition>,
 }
 
 /// When a Graph needs to show active Progressions, this defines those objectives as well as an identifier.
@@ -75,7 +75,7 @@ pub struct DestinyActivityGraphDisplayProgressionDefinition {
 pub struct DestinyActivityGraphNodeActivityDefinition {
 
     /// The activity that will be activated if the user clicks on this node. Controls all activity-related information displayed on the node if it is active (the text shown in the tooltip etc)
-    pub activity_hash: crate::id::Id<crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
+    pub activity_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyActivityDefinition>,
     /// An identifier for this node activity. It is only guaranteed to be unique within the Activity Graph.
     pub node_activity_id: u32,
 }

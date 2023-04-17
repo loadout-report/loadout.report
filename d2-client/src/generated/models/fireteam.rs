@@ -145,9 +145,9 @@ pub struct FireteamSummary {
     /// No documentation provided.
     pub locale: String,
     /// No documentation provided.
-    pub owner_current_guardian_rank_snapshot: crate::id::Id<crate::generated::models::destiny::definitions::guardian_ranks::DestinyGuardianRankDefinition>,
+    pub owner_current_guardian_rank_snapshot: crate::id::Id<i32, crate::generated::models::destiny::definitions::guardian_ranks::DestinyGuardianRankDefinition>,
     /// No documentation provided.
-    pub owner_highest_lifetime_guardian_rank_snapshot: crate::id::Id<crate::generated::models::destiny::definitions::guardian_ranks::DestinyGuardianRankDefinition>,
+    pub owner_highest_lifetime_guardian_rank_snapshot: crate::id::Id<i32, crate::generated::models::destiny::definitions::guardian_ranks::DestinyGuardianRankDefinition>,
     /// No documentation provided.
     #[serde(with = "crate::unfuck_js::stringified_numbers")]
     pub owner_membership_id: i64,

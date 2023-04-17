@@ -21,5 +21,5 @@ pub struct DestinyItemSourceDefinition {
     /// The minimum Quality at which the item spawns for this level. Examine DestinyInventoryItemDefinition for more information about what Quality means. Just don't ask Phaedrus about it, he'll never stop talking and you'll have to write a book about it.
     pub min_quality: i32,
     /// The DestinyRewardSourceDefinitions found that can spawn the item at this level.
-    pub source_hashes: Vec<crate::id::Id<crate::generated::models::destiny::definitions::DestinyRewardSourceDefinition>>,
+    pub source_hashes: Vec<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyRewardSourceDefinition>>,
 }

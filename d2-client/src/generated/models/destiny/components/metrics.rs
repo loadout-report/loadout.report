@@ -20,5 +20,5 @@ pub struct DestinyMetricsComponent {
     /// No documentation provided.
     pub metrics: HashMap<u32, crate::generated::models::destiny::components::metrics::DestinyMetricComponent>,
     /// No documentation provided.
-    pub metrics_root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
+    pub metrics_root_node_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
 }

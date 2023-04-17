@@ -11,7 +11,7 @@ pub struct DestinyGuardianRankConstantsDefinition {
     pub display_properties: crate::generated::models::destiny::definitions::common::DestinyDisplayPropertiesDefinition,
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity, but not globally.
 /// When entities refer to each other in Destiny content, it is this hash that they are referring to.
-    pub hash: u32,
+    pub hash: crate::id::Id<u32, Self>,
     /// No documentation provided.
     pub icon_backgrounds: crate::generated::models::destiny::definitions::guardian_ranks::DestinyGuardianRankIconBackgroundsDefinition,
     /// The index of the entity as it was found in the investment tables.
@@ -21,7 +21,7 @@ pub struct DestinyGuardianRankConstantsDefinition {
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!
     pub redacted: bool,
     /// No documentation provided.
-    pub root_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
+    pub root_node_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
 }
 
 /// No documentation provided.
@@ -34,7 +34,7 @@ pub struct DestinyGuardianRankDefinition {
     pub foreground_image_path: String,
     /// The unique identifier for this entity. Guaranteed to be unique for the type of entity, but not globally.
 /// When entities refer to each other in Destiny content, it is this hash that they are referring to.
-    pub hash: u32,
+    pub hash: crate::id::Id<u32, Self>,
     /// The index of the entity as it was found in the investment tables.
     pub index: i32,
     /// No documentation provided.
@@ -42,7 +42,7 @@ pub struct DestinyGuardianRankDefinition {
     /// No documentation provided.
     pub overlay_mask_image_path: String,
     /// No documentation provided.
-    pub presentation_node_hash: crate::id::Id<crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
+    pub presentation_node_hash: crate::id::Id<u32, crate::generated::models::destiny::definitions::presentation::DestinyPresentationNodeDefinition>,
     /// No documentation provided.
     pub rank_number: i32,
     /// If this is true, then there is an entity with this identifier/type combination, but BNet is not yet allowed to show it. Sorry!

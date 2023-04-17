@@ -188,7 +188,7 @@ pub struct DestinyHistoricalStatsDefinition {
     /// Optional URI to an icon for the statistic
     pub icon_image: String,
     /// The tier associated with this medal - be it implicitly or explicitly.
-    pub medal_tier_hash: Option<crate::id::Id<crate::generated::models::destiny::definitions::DestinyMedalTierDefinition>>,
+    pub medal_tier_hash: Option<crate::id::Id<u32, crate::generated::models::destiny::definitions::DestinyMedalTierDefinition>>,
     /// Optional icon for the statistic
     pub merge_method: Option<i32>,
     /// Game modes where this statistic can be reported.
