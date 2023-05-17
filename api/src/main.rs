@@ -86,62 +86,6 @@ fn init_logger() {
     env_logger::init();
 }
 
-async fn fetch_categories() -> Result<Vec<model::Category>, Box<dyn std::error::Error>> {
-    let url = format!(
-        "https://www.bungie.net{}",
-        fetch_content_paths()
-            .await?
-            .destiny_item_category_definition
-    );
-
-    let mut items: HashMap<String, model::CategoryDefinition> =
-        reqwest::get(url).await?.json().await?;
-    let categories: Vec<_> = items
-        .values_mut()
-        .map(|i| i.clone())
-        .map(model::Category::from)
-        .collect();
-    Ok(categories)
-}
-
 fn get_api_key() -> String {
     std::env::var("D2_API_KEY").unwrap()
-}
-
-async fn fetch_items() -> Result<Vec<model::Item>, Box<dyn std::error::Error>> {
-    let url = format!(
-        "https://www.bungie.net{}",
-        fetch_content_paths()
-            .await?
-            .destiny_inventory_item_definition
-    );
-    let mut items: HashMap<String, model::InventoryItem> = reqwest::get(url).await?.json().await?;
-    let mut items: Vec<_> = items
-        .values_mut()
-        .filter(|i| {
-            i.item_category_hashes.is_none()
-                || !i
-                    .item_category_hashes
-                    .as_ref()
-                    .unwrap()
-                    .contains(&3109687656)
-        })
-        .map(|i| i.clone())
-        .map(model::Item::from)
-        .collect();
-    items.sort_by_key(|i| i.label.clone());
-    Ok(items)
-}
-
-async fn fetch_content_paths() -> Result<data::api::manifest::Components, Box<dyn std::error::Error>>
-{
-    let client = reqwest::Client::new();
-    let request = client
-        .get("https://www.bungie.net/Platform/Destiny2/Manifest/")
-        .header("X-API-Key", get_api_key())
-        .build()
-        .unwrap();
-    let response = client.execute(request).await?;
-    let body: ApiResponse<data::api::manifest::Manifest> = response.json().await?;
-    Ok(Result::from(body)?.json_world_component_content_paths.en)
 }
